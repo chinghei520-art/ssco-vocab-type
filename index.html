@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-app-ver="1.4">
+<html lang="zh-Hant" data-app-ver="1.7">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#1a1030" />
-  <title>SSCO Vocab v1.6</title>
+  <title>SSCO Vocab v1.7</title>
   <style>
     :root {
       --bg-top: #2a1848;
@@ -96,6 +96,14 @@
       text-transform: uppercase;
       color: var(--muted);
       opacity: 0.85;
+    }
+
+    .brand .app-ver {
+      text-transform: none;
+      letter-spacing: 0.04em;
+      margin-left: 0.35rem;
+      color: var(--accent);
+      font-weight: 700;
     }
 
     .unit-bar-wrap {
@@ -542,6 +550,29 @@
       display: none !important;
     }
 
+    .done-panel .done-copy {
+      margin-top: 0.35rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: 999px;
+      border: 1px solid rgba(125, 211, 252, 0.5);
+      background: rgba(125, 211, 252, 0.22);
+      color: #e0f2fe;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .done-panel .done-copy:hover {
+      background: rgba(125, 211, 252, 0.35);
+    }
+
+    .done-panel .done-copy.copied,
+    .records-sheet .rec-actions button.copied {
+      border-color: rgba(74, 222, 128, 0.55);
+      background: rgba(74, 222, 128, 0.2);
+      color: #bbf7d0;
+    }
+
     .done-actions {
       display: flex;
       flex-wrap: wrap;
@@ -711,6 +742,74 @@
       color: #fecaca;
     }
 
+    .records-sheet .rec-actions button.copy {
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      font-weight: 700;
+    }
+
+    .copy-fallback {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .copy-fallback[hidden] { display: none !important; }
+
+    .copy-fallback .box {
+      width: min(96vw, 28rem);
+      max-height: min(80vh, 32rem);
+      overflow: auto;
+      background: #0f172a;
+      border: 1px solid var(--pill-border);
+      border-radius: 16px;
+      padding: 0.9rem 1rem 1rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .copy-fallback h2 {
+      font-size: 1.05rem;
+      margin: 0 0 0.35rem;
+      color: #e0f2fe;
+    }
+
+    .copy-fallback p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .copy-fallback textarea {
+      width: 100%;
+      min-height: 14rem;
+      margin: 0.65rem 0 0.75rem;
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--text);
+      border: 1px solid var(--pill-border);
+      border-radius: 12px;
+      padding: 0.65rem 0.75rem;
+      font: inherit;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      resize: vertical;
+    }
+
+    .copy-fallback button {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: rgba(125, 211, 252, 0.22);
+      color: #e0f2fe;
+      cursor: pointer;
+    }
+
     body.keyboard-open .records-sheet { display: none !important; }
 
 
@@ -771,7 +870,7 @@
 </head>
 <body>
   <div class="top-bar">
-    <span class="brand">SSCO 英文填空</span>
+    <span class="brand">SSCO 英文填空 <span class="app-ver">v1.7</span></span>
     <div class="top-right">
       <span class="vocab-meta" id="vocabMeta" title="Current question bank size">題庫 —</span>
       <div class="progress" id="progress" aria-live="polite"><strong>1</strong> / 43</div>
@@ -797,6 +896,7 @@
       <p class="score" id="finalScore"></p>
       <p class="done-stats" id="doneStats"></p>
       <div class="done-actions">
+        <button type="button" class="done-copy" id="btnCopyReport" data-label="複製報告" title="複製進度報告，可貼去對話">複製報告</button>
         <button type="button" class="done-retry" id="btnRetryMissed" hidden>本輪錯題再練</button>
         <button type="button" class="done-retry" id="btnShowLog">錯題紀錄</button>
         <button type="button" class="done-retry" id="btnUnitStats" hidden>各單元正確率</button>
@@ -815,12 +915,22 @@
     </div>
     <p class="rec-stats" id="recStats"></p>
     <div class="rec-actions">
+      <button type="button" class="copy" id="btnRecCopy" data-label="複製報告" title="複製進度報告，可貼去對話">複製報告</button>
       <button type="button" id="btnRecWrong">錯題</button>
       <button type="button" id="btnRecUnits">各單元</button>
       <button type="button" id="btnRecRetry" hidden>錯題再練</button>
       <button type="button" class="danger" id="btnRecClear" hidden>清空</button>
     </div>
     <div id="recBody"></div>
+  </div>
+
+  <div class="copy-fallback" id="copyFallback" hidden>
+    <div class="box" role="dialog" aria-modal="true" aria-labelledby="copyFallbackTitle">
+      <h2 id="copyFallbackTitle">請手動複製</h2>
+      <p>複製未成功。請揀選下面文字，再貼去對話。</p>
+      <textarea id="copyFallbackText" readonly aria-label="進度報告"></textarea>
+      <button type="button" id="btnCopyFallbackClose">關閉</button>
+    </div>
   </div>
 
   <nav class="toolbar" aria-label="Practice controls">
@@ -941,6 +1051,180 @@
         .sort((a, b) => a.rate - b.rate || b.total - a.total);
     }
 
+    const REPORT_WRONG_CAP = 20;
+
+    function appVersionLabel() {
+      const raw = (document.documentElement.getAttribute("data-app-ver") || "1.7").trim();
+      return /^v/i.test(raw) ? raw : "v" + raw;
+    }
+
+    function reportTimestamp() {
+      try {
+        const parts = Object.fromEntries(
+          new Intl.DateTimeFormat("en-GB", {
+            timeZone: "Asia/Hong_Kong",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hourCycle: "h23"
+          }).formatToParts(new Date()).map((p) => [p.type, p.value])
+        );
+        return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
+      } catch (_) {
+        return formatTime(Date.now());
+      }
+    }
+
+    function oneLine(s) {
+      return String(s == null ? "" : s).replace(/\s+/g, " ").trim();
+    }
+
+    /** Plain-text progress report for pasting into chat. Reuses today / unit / wrong helpers. */
+    function buildProgressReport() {
+      const st = todayStats();
+      const units = unitAccuracy();
+      const allWrongs = wrongLogUnique();
+      const wrongs = allWrongs.slice(0, REPORT_WRONG_CAP);
+      const lines = [];
+      lines.push("# SSCO Vocab 進度報告");
+      lines.push(`時間：${reportTimestamp()}（香港）`);
+      lines.push(`版本：${appVersionLabel()}`);
+      if (Array.isArray(ITEMS) && ITEMS.length) {
+        const names = UNIT_ORDER.map((u) => shortUnitLabel(u)).filter(Boolean);
+        lines.push(
+          `題庫：${ITEMS.length} 題` + (names.length ? ` · 單元：${names.join("、")}` : "")
+        );
+      }
+      lines.push("");
+      lines.push("## 今日");
+      lines.push(
+        st.total
+          ? `嘗試 ${st.total} · 正確 ${st.correct} · 正確率 ${st.rate}% · 錯 ${st.wrong}`
+          : "未有練習紀錄"
+      );
+      lines.push("");
+      lines.push("## 各單元正確率（累計）");
+      if (!units.length) {
+        lines.push("未有練習紀錄");
+      } else {
+        for (const r of units) {
+          lines.push(`- ${oneLine(r.unit)}：${r.rate}%（${r.correct}/${r.total}）`);
+        }
+      }
+      lines.push("");
+      lines.push(
+        allWrongs.length > wrongs.length
+          ? `## 最近錯題（${wrongs.length}／共 ${allWrongs.length}，每題最新一次）`
+          : "## 最近錯題（每題最新一次）"
+      );
+      if (!wrongs.length) {
+        lines.push("未有錯題紀錄");
+      } else {
+        wrongs.forEach((e, i) => {
+          const unit = oneLine(e.unit) || "未標單元";
+          const answer = oneLine(e.answer) || "（無答案）";
+          const typedRaw = oneLine(e.typed);
+          const typed = !typedRaw || typedRaw === "(skip)" ? "（跳過／空白）" : typedRaw;
+          const when = formatTime(e.t);
+          lines.push(
+            `${i + 1}. ${unit} · ${answer} · 打咗 ${typed}` + (when ? ` · ${when}` : "")
+          );
+        });
+      }
+      lines.push("");
+      return lines.join("\n");
+    }
+
+    function legacyCopyText(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.setAttribute("aria-hidden", "true");
+      ta.style.position = "fixed";
+      ta.style.top = "0";
+      ta.style.left = "0";
+      ta.style.width = "2em";
+      ta.style.height = "2em";
+      ta.style.padding = "0";
+      ta.style.border = "none";
+      ta.style.outline = "none";
+      ta.style.boxShadow = "none";
+      ta.style.background = "transparent";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { ta.setSelectionRange(0, text.length); } catch (_) {}
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (_) { ok = false; }
+      document.body.removeChild(ta);
+      return ok;
+    }
+
+    async function writeClipboard(text) {
+      try {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (_) {}
+      try {
+        return legacyCopyText(text);
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function flashCopyButton(btn) {
+      if (!btn) return;
+      const original = btn.getAttribute("data-label") || "複製報告";
+      btn.textContent = "已複製";
+      btn.classList.add("copied");
+      clearTimeout(btn._copyTimer);
+      btn._copyTimer = setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove("copied");
+      }, 1600);
+    }
+
+    function showCopyFallback(text) {
+      const box = document.getElementById("copyFallback");
+      const ta = document.getElementById("copyFallbackText");
+      if (!box || !ta) {
+        window.alert(text);
+        return;
+      }
+      ta.value = text;
+      box.hidden = false;
+      const selectAll = () => {
+        try {
+          ta.focus();
+          ta.select();
+          ta.setSelectionRange(0, ta.value.length);
+        } catch (_) {}
+      };
+      selectAll();
+      setTimeout(selectAll, 30);
+    }
+
+    function hideCopyFallback() {
+      const box = document.getElementById("copyFallback");
+      if (box) box.hidden = true;
+    }
+
+    async function copyProgressReport(btn) {
+      const text = buildProgressReport();
+      const ok = await writeClipboard(text);
+      if (ok) {
+        flashCopyButton(btn);
+        hideCopyFallback();
+        return;
+      }
+      showCopyFallback(text);
+    }
+
 
     function rebuildUnitOrder() {
       UNIT_ORDER.length = 0;
@@ -1017,6 +1301,8 @@
       btnUnitStats: document.getElementById("btnUnitStats"),
       btnRetryLog: document.getElementById("btnRetryLog"),
       btnClearLog: document.getElementById("btnClearLog"),
+      btnCopyReport: document.getElementById("btnCopyReport"),
+      btnRecCopy: document.getElementById("btnRecCopy"),
       logPanel: document.getElementById("logPanel"),
       unitStats: document.getElementById("unitStats"),
       doneStats: document.getElementById("doneStats"),
@@ -1682,6 +1968,12 @@
       letterCells = [];
       blankTemplate = "";
       awaitingNext = false;
+      try {
+        if (document.activeElement && document.activeElement !== document.body) {
+          document.activeElement.blur();
+        }
+      } catch (_) {}
+      setKeyboardOpen(false);
     }
 
     function check() {
@@ -2044,6 +2336,20 @@
         if (el.btnRetryLog) el.btnRetryLog.hidden = true;
         if (el.btnClearLog) el.btnClearLog.hidden = true;
         if (el.btnUnitStats) el.btnUnitStats.hidden = true;
+      });
+    }
+    if (el.btnCopyReport) {
+      el.btnCopyReport.addEventListener("click", () => copyProgressReport(el.btnCopyReport));
+    }
+    if (el.btnRecCopy) {
+      el.btnRecCopy.addEventListener("click", () => copyProgressReport(el.btnRecCopy));
+    }
+    const btnCopyFallbackClose = document.getElementById("btnCopyFallbackClose");
+    if (btnCopyFallbackClose) btnCopyFallbackClose.addEventListener("click", hideCopyFallback);
+    const copyFallbackEl = document.getElementById("copyFallback");
+    if (copyFallbackEl) {
+      copyFallbackEl.addEventListener("click", (e) => {
+        if (e.target === copyFallbackEl) hideCopyFallback();
       });
     }
 
