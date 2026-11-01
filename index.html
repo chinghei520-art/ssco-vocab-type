@@ -1,0 +1,2136 @@
+<!DOCTYPE html>
+<html lang="zh-Hant" data-app-ver="1.4">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1a1030" />
+  <title>SSCO Vocab v1.6</title>
+  <style>
+    :root {
+      --bg-top: #2a1848;
+      --bg-mid: #1a1435;
+      --bg-bot: #0c1a2e;
+      --text: #f5f5f7;
+      --muted: rgba(245, 245, 247, 0.55);
+      --gloss: rgba(245, 245, 247, 0.72);
+      --accent: #7dd3fc;
+      --ok: #4ade80;
+      --bad: #fbbf24;
+      --pill: rgba(255, 255, 255, 0.1);
+      --pill-border: rgba(255, 255, 255, 0.18);
+      --input-line: rgba(255, 255, 255, 0.85);
+      --radius: 999px;
+      --font: "Segoe UI", "PingFang HK", "PingFang TC", "Noto Sans TC",
+        "Microsoft JhengHei", system-ui, -apple-system, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      color: var(--text);
+      background: linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 45%, var(--bg-bot) 100%);
+      background-attachment: fixed;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: max(1rem, env(safe-area-inset-top)) 1.25rem max(1.5rem, env(safe-area-inset-bottom));
+      overflow-x: hidden;
+    }
+
+    .shell {
+      width: 100%;
+      max-width: 48rem;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 1.25rem;
+      padding: 6.5rem 0 6.5rem;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: max(0.75rem, env(safe-area-inset-top)) 1.25rem 0.5rem;
+      z-index: 10;
+      pointer-events: none;
+      gap: 0.75rem;
+    }
+
+    .top-bar > * { pointer-events: auto; }
+
+    .progress {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      color: var(--muted);
+      background: var(--pill);
+      border: 1px solid var(--pill-border);
+      border-radius: var(--radius);
+      padding: 0.35rem 0.85rem;
+      backdrop-filter: blur(8px);
+      flex-shrink: 0;
+    }
+
+    .progress strong { color: var(--text); font-weight: 700; }
+
+    .brand {
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      opacity: 0.85;
+    }
+
+    .unit-bar-wrap {
+      position: fixed;
+      top: calc(2.55rem + env(safe-area-inset-top));
+      left: 0;
+      right: 0;
+      z-index: 9;
+      padding: 0 0 0.35rem;
+      background: linear-gradient(180deg, rgba(28, 20, 48, 0.92) 0%, rgba(28, 20, 48, 0.55) 70%, transparent 100%);
+      pointer-events: none;
+    }
+
+    .unit-bar-wrap > * { pointer-events: auto; }
+
+    .unit-bar {
+      width: 100%;
+      max-width: 100vw;
+      display: flex;
+      flex-wrap: nowrap;
+      justify-content: flex-start;
+      gap: 0.4rem;
+      overflow-x: auto;
+      overflow-y: hidden;
+      -webkit-overflow-scrolling: touch;
+      touch-action: pan-x;
+      overscroll-behavior-x: contain;
+      padding: 0.2rem max(1rem, env(safe-area-inset-right)) 0.4rem max(1rem, env(safe-area-inset-left));
+      scrollbar-width: none;
+    }
+
+    .unit-bar::-webkit-scrollbar { display: none; }
+
+    .unit-bar button { flex-shrink: 0; }
+
+    .unit-bar button {
+      appearance: none;
+      border: 1px solid var(--pill-border);
+      background: var(--pill);
+      color: var(--muted);
+      font: inherit;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      padding: 0.4rem 0.75rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+      backdrop-filter: blur(8px);
+      white-space: nowrap;
+      max-width: none;
+      line-height: 1.25;
+    }
+
+    .unit-bar button:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--text);
+    }
+
+    .unit-bar button.active {
+      background: rgba(125, 211, 252, 0.28);
+      border-color: rgba(125, 211, 252, 0.45);
+      color: #e0f2fe;
+    }
+
+    .unit-bar button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .phrase-zh {
+      font-size: clamp(1.25rem, 4.2vw, 2rem);
+      font-weight: 700;
+      text-align: center;
+      line-height: 1.4;
+      letter-spacing: 0.02em;
+      text-shadow: 0 2px 24px rgba(0, 0, 0, 0.35);
+      transition: opacity 0.25s ease, transform 0.25s ease;
+      max-width: 42rem;
+    }
+
+    .practice {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .sentence {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 0.5rem 0.85rem;
+      row-gap: 1.1rem;
+    }
+
+    .word-col {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+      min-width: 1.5rem;
+    }
+
+    .word-en {
+      font-size: clamp(1.05rem, 3.2vw, 1.55rem);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+      line-height: 1.25;
+      white-space: nowrap;
+    }
+
+    .word-en.blank-slot {
+      position: relative;
+      text-align: center;
+      display: inline-flex;
+      justify-content: center;
+      cursor: text;
+      -webkit-tap-highlight-color: rgba(125, 211, 252, 0.25);
+      touch-action: manipulation;
+    }
+
+    .blank-tap-hint {
+      display: none;
+      margin-top: 0.35rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    @media (hover: none) and (pointer: coarse) {
+      .blank-tap-hint.need-tap {
+        display: block;
+      }
+    }
+
+    .letter-row {
+      display: inline-flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-end;
+      column-gap: 0.7em;
+      row-gap: 0.55em;
+      max-width: min(96vw, 44rem);
+      vertical-align: baseline;
+    }
+
+    /* One word = one nowrap group so wraps only between words */
+    .letter-word {
+      display: inline-flex;
+      flex-wrap: nowrap;
+      align-items: flex-end;
+      gap: 0.14em;
+    }
+
+    /* Fixed slot: underline width == cell width → no drift */
+    .letter-slot {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      width: 1.2em;
+      min-width: 1.2em;
+      flex: 0 0 1.2em;
+      box-sizing: border-box;
+    }
+
+    .letter-cell {
+      appearance: none;
+      -webkit-appearance: none;
+      background: transparent;
+      border: none;
+      border-bottom: 3px solid var(--input-line);
+      border-radius: 0;
+      color: var(--text);
+      font: inherit;
+      font-size: inherit;
+      font-weight: 700;
+      font-variant-ligatures: none;
+      width: 100%;
+      min-width: 0;
+      max-width: none;
+      height: 1.35em;
+      padding: 0;
+      margin: 0;
+      text-align: center;
+      outline: none;
+      caret-color: var(--accent);
+      transition: border-color 0.2s ease, color 0.2s ease;
+      text-transform: none;
+      box-sizing: border-box;
+      line-height: 1.2;
+    }
+
+    .letter-cell:focus { border-bottom-color: var(--accent); }
+    .letter-cell.ok { border-bottom-color: var(--ok); color: var(--ok); }
+    .letter-cell.bad { border-bottom-color: var(--bad); color: var(--bad); }
+    .letter-cell:disabled { opacity: 1; cursor: default; }
+
+    .letter-punct {
+      display: inline-flex;
+      align-items: flex-end;
+      justify-content: center;
+      width: 0.7em;
+      font-weight: 700;
+      color: var(--muted);
+      padding-bottom: 0.15rem;
+      flex: 0 0 auto;
+    }
+
+    /* legacy class kept unused */
+    .blank-input { display: none; }
+
+    .gloss-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.2rem;
+      max-width: min(92vw, 22rem);
+      margin-top: 0.15rem;
+    }
+
+    .gloss-toggle {
+      appearance: none;
+      border: 1px solid rgba(245, 245, 247, 0.28);
+      background: rgba(245, 245, 247, 0.08);
+      color: var(--gloss);
+      font: inherit;
+      font-size: clamp(0.68rem, 2vw, 0.8rem);
+      font-weight: 600;
+      line-height: 1.2;
+      padding: 0.22rem 0.55rem;
+      border-radius: 999px;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .gloss-toggle:active {
+      background: rgba(245, 245, 247, 0.16);
+    }
+
+    .gloss-toggle[aria-expanded="true"] {
+      border-color: rgba(96, 165, 250, 0.55);
+      color: #bfdbfe;
+    }
+
+    .gloss {
+      font-size: clamp(0.72rem, 2.2vw, 0.88rem);
+      color: var(--gloss);
+      font-weight: 500;
+      text-align: center;
+      line-height: 1.35;
+      max-width: none;
+    }
+
+    .gloss.is-collapsed {
+      display: none;
+    }
+
+    .feedback {
+      min-height: 1.6rem;
+      font-size: 1rem;
+      font-weight: 600;
+      text-align: center;
+      opacity: 0;
+      transform: translateY(4px);
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      max-width: min(92vw, 40rem);
+      line-height: 1.45;
+    }
+
+    .feedback.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .feedback.ok { color: var(--ok); }
+    .feedback.bad {
+      color: var(--bad);
+      background: rgba(251, 191, 36, 0.12);
+      border: 1px solid rgba(251, 191, 36, 0.35);
+      border-radius: 12px;
+      padding: 0.65rem 0.9rem;
+    }
+
+    .answer-hint {
+      font-weight: 800;
+      opacity: 1;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+
+    .answer-hint.mistype {
+      color: #fde68a;
+      text-decoration: line-through;
+      text-decoration-thickness: 2px;
+      font-weight: 700;
+    }
+
+    .answer-block {
+      display: block;
+      margin-top: 0.25rem;
+      font-size: 1.15rem;
+    }
+
+    .answer-block:first-child {
+      margin-top: 0;
+    }
+
+    .toolbar {
+      position: fixed;
+      bottom: max(0.65rem, env(safe-area-inset-bottom));
+      left: 50%;
+      transform: translateX(-50%);
+      width: auto;
+      max-width: calc(100vw - 0.75rem);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      flex-wrap: nowrap;
+      gap: 0.2rem;
+      padding: 0.35rem 0.45rem;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      background: var(--pill);
+      border: 1px solid var(--pill-border);
+      border-radius: var(--radius);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      z-index: 20;
+      transition: opacity 0.15s ease, bottom 0.15s ease;
+    }
+
+    .toolbar::-webkit-scrollbar { display: none; }
+
+    .toolbar button { flex-shrink: 0; }
+
+    /* iOS: fixed bar jumps over content when keyboard opens — hide while typing */
+    body.keyboard-open .toolbar {
+      opacity: 0;
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    body.keyboard-open .shell {
+      padding-bottom: min(48vh, 22rem);
+    }
+
+    body.keyboard-open .phrase-zh {
+      font-size: clamp(1.05rem, 3.6vw, 1.55rem);
+    }
+
+    .toolbar button {
+      appearance: none;
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 600;
+      padding: 0.55rem 0.95rem;
+      border-radius: var(--radius);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+      white-space: nowrap;
+    }
+
+    .toolbar button:hover { background: rgba(255, 255, 255, 0.12); }
+    .toolbar button:active { transform: scale(0.97); }
+    .toolbar button:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .toolbar button.primary {
+      background: rgba(125, 211, 252, 0.22);
+      color: #e0f2fe;
+    }
+
+    .toolbar button.primary:hover {
+      background: rgba(125, 211, 252, 0.35);
+    }
+
+    .toolbar .sep {
+      width: 1px;
+      height: 1.25rem;
+      background: rgba(255, 255, 255, 0.2);
+      margin: 0 0.15rem;
+    }
+
+    .done-panel {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      gap: 1.25rem;
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .done-panel.show { display: flex; }
+
+    .done-panel h2 {
+      font-size: clamp(1.5rem, 4vw, 2rem);
+      font-weight: 700;
+    }
+
+    .done-panel p {
+      color: var(--muted);
+      font-size: 1.05rem;
+      line-height: 1.5;
+    }
+
+    .done-panel .score {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .done-panel .done-retry {
+      margin-top: 0.35rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: 999px;
+      border: 1px solid rgba(251, 191, 36, 0.45);
+      background: rgba(251, 191, 36, 0.18);
+      color: #fde68a;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .done-panel .done-retry:hover {
+      background: rgba(251, 191, 36, 0.28);
+    }
+
+    .done-panel .done-retry[hidden] {
+      display: none !important;
+    }
+
+    .done-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.55rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .done-panel .done-stats {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.45;
+      max-width: 22rem;
+    }
+
+    .log-panel {
+      display: none;
+      width: min(96vw, 26rem);
+      max-height: min(55vh, 22rem);
+      overflow: auto;
+      text-align: left;
+      background: rgba(0,0,0,0.28);
+      border: 1px solid var(--pill-border);
+      border-radius: 14px;
+      padding: 0.75rem 0.9rem;
+      margin-top: 0.25rem;
+    }
+
+    .log-panel.show { display: block; }
+
+    .log-panel h3 {
+      font-size: 0.95rem;
+      margin: 0 0 0.55rem;
+      color: #e0f2fe;
+    }
+
+    .log-item {
+      font-size: 0.82rem;
+      line-height: 1.35;
+      padding: 0.45rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      color: var(--muted);
+    }
+
+    .log-item:last-child { border-bottom: none; }
+
+    .log-item .ans {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .log-item .typed {
+      color: #fde68a;
+      text-decoration: line-through;
+    }
+
+    .log-item .meta {
+      opacity: 0.75;
+      font-size: 0.75rem;
+    }
+
+    .log-empty {
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .unit-stats {
+      margin-top: 0.65rem;
+      text-align: left;
+      width: min(96vw, 26rem);
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .unit-stats h3 {
+      font-size: 0.95rem;
+      margin: 0 0 0.45rem;
+      color: #e0f2fe;
+    }
+
+    .unit-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.28rem 0;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .unit-row:last-child { border-bottom: none; }
+
+    .unit-row .rate {
+      color: #fff;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .records-sheet {
+      display: none;
+      position: fixed;
+      left: 50%;
+      bottom: calc(4.5rem + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
+      width: min(96vw, 26rem);
+      max-height: min(62vh, 28rem);
+      overflow: auto;
+      z-index: 40;
+      background: #0f172a;
+      border: 1px solid var(--pill-border);
+      border-radius: 16px;
+      padding: 0.9rem 1rem 1rem;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+    }
+
+    .records-sheet.show { display: block; }
+
+    .records-sheet .rec-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .records-sheet .rec-head h2 {
+      font-size: 1.05rem;
+      margin: 0;
+      color: #e0f2fe;
+    }
+
+    .records-sheet .rec-close {
+      border: 0;
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+      border-radius: 999px;
+      padding: 0.35rem 0.7rem;
+      font-size: 0.8rem;
+      cursor: pointer;
+    }
+
+    .records-sheet .rec-stats {
+      font-size: 0.9rem;
+      color: var(--muted);
+      margin-bottom: 0.65rem;
+      line-height: 1.4;
+    }
+
+    .records-sheet .rec-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      margin-bottom: 0.65rem;
+    }
+
+    .records-sheet .rec-actions button {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.4rem 0.75rem;
+      font-size: 0.8rem;
+      background: rgba(125, 211, 252, 0.22);
+      color: #e0f2fe;
+      cursor: pointer;
+    }
+
+    .records-sheet .rec-actions button.danger {
+      background: rgba(248, 113, 113, 0.22);
+      color: #fecaca;
+    }
+
+    body.keyboard-open .records-sheet { display: none !important; }
+
+
+
+    .hidden { display: none !important; }
+
+    .fade-out {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+
+    @media (max-width: 480px) {
+      .shell { gap: 1.1rem; padding: 6.25rem 0 5.75rem; justify-content: flex-start; }
+      .sentence { gap: 0.4rem 0.55rem; row-gap: 0.95rem; }
+      .letter-slot { width: 1.15em; min-width: 1.15em; flex-basis: 1.15em; }
+      .unit-bar button { font-size: 0.68rem; padding: 0.35rem 0.6rem; }
+      .toolbar {
+        flex-wrap: nowrap;
+        justify-content: flex-start;
+        max-width: calc(100vw - 0.75rem);
+        border-radius: 1.25rem;
+        bottom: max(0.5rem, env(safe-area-inset-bottom));
+      }
+      .toolbar button { padding: 0.45rem 0.65rem; font-size: 0.78rem; }
+      .toolbar .ghost { font-size: 0.72rem; padding: 0.45rem 0.55rem; }
+      .toolbar .sep { margin: 0 0.05rem; }
+      .records-sheet {
+        bottom: calc(3.6rem + env(safe-area-inset-bottom));
+        max-height: min(55vh, 24rem);
+      }
+      .phrase-zh { margin-top: 0.25rem; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        transition: none !important;
+        animation: none !important;
+      }
+    }
+
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .vocab-meta {
+      font-size: 0.75rem;
+      color: var(--muted, #9aa3b2);
+      white-space: nowrap;
+    }
+    .toolbar .ghost {
+      opacity: 0.85;
+      font-size: 0.78rem;
+    }
+    #fileImport { display: none; }
+
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <span class="brand">SSCO 英文填空</span>
+    <div class="top-right">
+      <span class="vocab-meta" id="vocabMeta" title="Current question bank size">題庫 —</span>
+      <div class="progress" id="progress" aria-live="polite"><strong>1</strong> / 43</div>
+    </div>
+  </div>
+
+  <div class="unit-bar-wrap">
+    <div class="unit-bar" id="unitBar" role="tablist" aria-label="Unit filter"></div>
+  </div>
+
+  <main class="shell" id="main">
+    <h1 class="phrase-zh" id="phraseZh" aria-live="polite"></h1>
+
+    <div class="practice" id="practice">
+      <div class="sentence" id="sentence" role="group" aria-label="English sentence with blank"></div>
+      <p class="blank-tap-hint" id="blankTapHint">撳底線開始打字</p>
+      <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+    </div>
+
+    <div class="done-panel" id="donePanel" aria-live="polite">
+      <h2 id="doneTitle">做得好！</h2>
+      <p id="doneSub">你已完成這一輪練習。</p>
+      <p class="score" id="finalScore"></p>
+      <p class="done-stats" id="doneStats"></p>
+      <div class="done-actions">
+        <button type="button" class="done-retry" id="btnRetryMissed" hidden>本輪錯題再練</button>
+        <button type="button" class="done-retry" id="btnShowLog">錯題紀錄</button>
+        <button type="button" class="done-retry" id="btnUnitStats" hidden>各單元正確率</button>
+        <button type="button" class="done-retry" id="btnRetryLog" hidden>紀錄錯題再練</button>
+        <button type="button" class="done-retry" id="btnClearLog" hidden>清空紀錄</button>
+      </div>
+      <div class="log-panel" id="logPanel" aria-live="polite"></div>
+      <div class="unit-stats" id="unitStats" hidden></div>
+    </div>
+  </main>
+
+  <div class="records-sheet" id="recordsSheet" aria-live="polite">
+    <div class="rec-head">
+      <h2>練習紀錄</h2>
+      <button type="button" class="rec-close" id="btnCloseRecords">關閉</button>
+    </div>
+    <p class="rec-stats" id="recStats"></p>
+    <div class="rec-actions">
+      <button type="button" id="btnRecWrong">錯題</button>
+      <button type="button" id="btnRecUnits">各單元</button>
+      <button type="button" id="btnRecRetry" hidden>錯題再練</button>
+      <button type="button" class="danger" id="btnRecClear" hidden>清空</button>
+    </div>
+    <div id="recBody"></div>
+  </div>
+
+  <nav class="toolbar" aria-label="Practice controls">
+    <button type="button" id="btnSkip" title="Skip (S)">跳過</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button type="button" class="primary" id="btnCheck" title="Check (Enter)">檢查</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button type="button" id="btnRestart" title="Restart">重來</button>
+    <span class="sep" aria-hidden="true"></span>
+    <button type="button" class="ghost" id="btnRecords" title="Practice log">紀錄</button>
+    <button type="button" class="ghost" id="btnImport" title="Import vocab.json">匯入</button>
+    <button type="button" class="ghost" id="btnResetVocab" title="Clear saved import">還原</button>
+    <input type="file" id="fileImport" accept="application/json,.json" />
+  </nav>
+
+  <script src="vocab.js"></script>
+  <script>
+    /* Fallback bank when vocab.js is missing (e.g. iPhone opened HTML alone) */
+    if (!Array.isArray(window.SSCO_ITEMS) || !window.SSCO_ITEMS.length) {
+      window.SSCO_ITEMS = [{"unit": "Point Secure (EAL/118)","zh": "邊個角色合資格用手燈／旗號控制列車，並調校同 secure 道岔？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "手號員"},{"en": "is","gloss": ""},{"en": "a","gloss": ""},{"en": "person","gloss": ""},{"en": "qualified","gloss": ""},{"en": "to","gloss": ""},{"en": "control","gloss": ""},{"en": "movement","gloss": ""},{"en": "of","gloss": ""},{"en": "trains","gloss": ""},{"en": "by","gloss": ""},{"en": "handlamp","gloss": ""},{"en": "or","gloss": ""},{"en": "flags,","gloss": ""},{"en": "and","gloss": ""},{"en": "to","gloss": ""},{"en": "set","gloss": ""},{"en": "and","gloss": ""},{"en": "secure","gloss": ""},{"en": "points.","gloss": ""}],"blankIndex": 1,"answers": ["Handsignalman","Hand Signalman"]},{"unit": "Point Secure (EAL/118)","zh": "Handsignalman 聽邊個指示去調校／secure point？","words": [{"en": "Handsignalman","gloss": ""},{"en": "sets","gloss": ""},{"en": "and","gloss": ""},{"en": "secures","gloss": ""},{"en": "the","gloss": ""},{"en": "point(s)","gloss": ""},{"en": "under","gloss": ""},{"en": "the","gloss": ""},{"en": "instruction","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": null,"gloss": "行車控制員（TC）"},{"en": ".","gloss": ""}],"blankIndex": 11,"answers": ["Traffic Controller","TC"]},{"unit": "Point Secure (EAL/118)","zh": "Manual Point Operation 入面，「夾緊 + 塞 scotch」合稱咩？","words": [{"en": "In","gloss": ""},{"en": "Manual","gloss": ""},{"en": "Point","gloss": ""},{"en": "Operation,","gloss": ""},{"en": null,"gloss": "固定／鎖妥（道岔）"},{"en": "means","gloss": ""},{"en": "the","gloss": ""},{"en": "switch","gloss": ""},{"en": "tongue","gloss": ""},{"en": "rail","gloss": ""},{"en": "is","gloss": ""},{"en": "clamped","gloss": ""},{"en": "completely","gloss": ""},{"en": "closed","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "stock","gloss": ""},{"en": "rail,","gloss": ""},{"en": "and","gloss": ""},{"en": "a","gloss": ""},{"en": "scotch","gloss": ""},{"en": "is","gloss": ""},{"en": "inserted","gloss": ""},{"en": "in","gloss": ""},{"en": "the","gloss": ""},{"en": "opening.","gloss": ""}],"blankIndex": 4,"answers": ["Secure"]},{"unit": "Point Secure (EAL/118)","zh": "尖軌要點樣處理先至完全貼住基本軌？（過去分詞）","words": [{"en": "The","gloss": ""},{"en": "switch","gloss": ""},{"en": "tongue","gloss": ""},{"en": "rail","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": null,"gloss": "已夾緊"},{"en": "completely","gloss": ""},{"en": "closed","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "stock","gloss": ""},{"en": "rail.","gloss": ""}],"blankIndex": 6,"answers": ["clamped"]},{"unit": "Point Secure (EAL/118)","zh": "switch tongue rail 要夾緊貼住邊條軌？","words": [{"en": "The","gloss": ""},{"en": "switch","gloss": ""},{"en": "tongue","gloss": ""},{"en": "rail","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "clamped","gloss": ""},{"en": "completely","gloss": ""},{"en": "closed","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": null,"gloss": "基本軌"},{"en": ".","gloss": ""}],"blankIndex": 11,"answers": ["stock rail","stockrail"]},{"unit": "Point Secure (EAL/118)","zh": "塞喺 tip 軌同基本軌開口嘅係咩？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "道岔塞"},{"en": "is","gloss": ""},{"en": "inserted","gloss": ""},{"en": "in","gloss": ""},{"en": "the","gloss": ""},{"en": "opening","gloss": ""},{"en": "between","gloss": ""},{"en": "the","gloss": ""},{"en": "switch","gloss": ""},{"en": "tongue","gloss": ""},{"en": "rail","gloss": ""},{"en": "and","gloss": ""},{"en": "the","gloss": ""},{"en": "stock","gloss": ""},{"en": "rail.","gloss": ""}],"blankIndex": 1,"answers": ["scotch","point scotch"]},{"unit": "Point Secure (EAL/118)","zh": "point 無人看管時，clamp 要點？","words": [{"en": "If","gloss": ""},{"en": "the","gloss": ""},{"en": "point","gloss": ""},{"en": "is","gloss": ""},{"en": "left","gloss": ""},{"en": "unattended,","gloss": ""},{"en": "the","gloss": ""},{"en": "clamp","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": null,"gloss": "已上掛鎖"},{"en": ".","gloss": ""}],"blankIndex": 10,"answers": ["padlocked"]},{"unit": "Point Secure (EAL/118)","zh": "邊種情況要 padlock the clamp？","words": [{"en": "If","gloss": ""},{"en": "the","gloss": ""},{"en": "point","gloss": ""},{"en": "is","gloss": ""},{"en": "left","gloss": ""},{"en": null,"gloss": "無人看管"},{"en": ",","gloss": ""},{"en": "the","gloss": ""},{"en": "clamp","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "padlocked.","gloss": ""}],"blankIndex": 5,"answers": ["unattended"]},{"unit": "Point Secure (EAL/118)","zh": "開車前所有 point（不論迎面定背向）都要 clamp & scotch——填 regardless 後面。","words": [{"en": "All","gloss": ""},{"en": "points,","gloss": ""},{"en": "regardless","gloss": ""},{"en": null,"gloss": "迎面或背向"},{"en": ",","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "clamped","gloss": ""},{"en": "and","gloss": ""},{"en": "scotched","gloss": ""},{"en": "before","gloss": ""},{"en": "train","gloss": ""},{"en": "moving.","gloss": ""}],"blankIndex": 3,"answers": ["facing or trailing","facing / trailing","of facing or trailing"]},{"unit": "Point Secure (EAL/118)","zh": "point 喺邊類軌道損壞時，通常會派 Handsignalman？","words": [{"en": "When","gloss": ""},{"en": "point(s)","gloss": ""},{"en": "become","gloss": ""},{"en": "defective","gloss": ""},{"en": "on","gloss": ""},{"en": "a","gloss": ""},{"en": null,"gloss": "行走路線／營運線"},{"en": ",","gloss": ""},{"en": "Handsignalman","gloss": ""},{"en": "may","gloss": ""},{"en": "be","gloss": ""},{"en": "assigned","gloss": ""},{"en": "to","gloss": ""},{"en": "keep","gloss": ""},{"en": "trains","gloss": ""},{"en": "moving.","gloss": ""}],"blankIndex": 6,"answers": ["running line","Running Line"]},{"unit": "Track Access (EAL/014)","zh": "入軌申請平常要預先經邊個系統輸入？（唔係 PPE）","words": [{"en": "Request","gloss": ""},{"en": "for","gloss": ""},{"en": "access","gloss": ""},{"en": "to","gloss": ""},{"en": "track","gloss": ""},{"en": "must","gloss": ""},{"en": "be","gloss": ""},{"en": "input","gloss": ""},{"en": "via","gloss": ""},{"en": null,"gloss": "軌道進入申請系統"},{"en": "in","gloss": ""},{"en": "advance.","gloss": ""}],"blankIndex": 9,"answers": ["ETMS"]},{"unit": "Track Access (EAL/014)","zh": "例外授權係喺 TC／EPIC 嘅咩範圍之內？","words": [{"en": "Request","gloss": ""},{"en": "via","gloss": ""},{"en": "ETMS","gloss": ""},{"en": "is","gloss": ""},{"en": "required","gloss": ""},{"en": "except","gloss": ""},{"en": "authorization","gloss": ""},{"en": "is","gloss": ""},{"en": "given","gloss": ""},{"en": "by","gloss": ""},{"en": "TC","gloss": ""},{"en": "or","gloss": ""},{"en": "EPIC","gloss": ""},{"en": "within","gloss": ""},{"en": "the","gloss": ""},{"en": null,"gloss": "封閉／佔用"},{"en": ".","gloss": ""}],"blankIndex": 15,"answers": ["possession","Possession"]},{"unit": "Track Access (EAL/014)","zh": "行車時間、Running Line & Reception Track——報邊兩個？","words": [{"en": "During","gloss": ""},{"en": "Traffic","gloss": ""},{"en": "Hours,","gloss": ""},{"en": "the","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "work","gloss": ""},{"en": "on","gloss": ""},{"en": "a","gloss": ""},{"en": "Running","gloss": ""},{"en": "Line","gloss": ""},{"en": "&","gloss": ""},{"en": "Reception","gloss": ""},{"en": "Track","gloss": ""},{"en": "reports","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "行車控制員與站控"},{"en": ".","gloss": ""}],"blankIndex": 18,"answers": ["TC & SC","TC and SC","TC&SC","TC / SC"]},{"unit": "Track Access (EAL/014)","zh": "行車時間、Yard & Reception track——報邊個？","words": [{"en": "During","gloss": ""},{"en": "Traffic","gloss": ""},{"en": "Hours,","gloss": ""},{"en": "the","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "work","gloss": ""},{"en": "on","gloss": ""},{"en": "a","gloss": ""},{"en": "Yard","gloss": ""},{"en": "&","gloss": ""},{"en": "Reception","gloss": ""},{"en": "track","gloss": ""},{"en": "reports","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "車廠相關負責人"},{"en": ".","gloss": ""}],"blankIndex": 17,"answers": ["YM","Yard Master","yard master"]},{"unit": "Track Access (EAL/014)","zh": "入軌前必須指派邊種 protection？","words": [{"en": "Before","gloss": ""},{"en": "gaining","gloss": ""},{"en": "access,","gloss": ""},{"en": "the","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "work","gloss": ""},{"en": "must","gloss": ""},{"en": "appoint","gloss": ""},{"en": null,"gloss": "瞭望員"},{"en": "protection.","gloss": ""}],"blankIndex": 12,"answers": ["Lookoutman","Lookout man"]},{"unit": "Track Access (EAL/014)","zh": "EAL/014 用邊個例子做「做工負責人」？","words": [{"en": "The","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "work","gloss": ""},{"en": "(Example:","gloss": ""},{"en": null,"gloss": "負責道岔作業嘅站控"},{"en": ")","gloss": ""},{"en": "must","gloss": ""},{"en": "appoint","gloss": ""},{"en": "Lookoutman","gloss": ""},{"en": "protection.","gloss": ""}],"blankIndex": 8,"answers": ["SC for Point operations","SC for point operations","SC for Point Operations"]},{"unit": "Track Access (EAL/014)","zh": "Possession in TH、行車線——報 SC 同邊個？","words": [{"en": "During","gloss": ""},{"en": "Possession","gloss": ""},{"en": "in","gloss": ""},{"en": "Traffic","gloss": ""},{"en": "Hours","gloss": ""},{"en": "on","gloss": ""},{"en": "a","gloss": ""},{"en": "Running","gloss": ""},{"en": "Line,","gloss": ""},{"en": "report","gloss": ""},{"en": "to","gloss": ""},{"en": "SC","gloss": ""},{"en": "&","gloss": ""},{"en": null,"gloss": "工程負責人"},{"en": ".","gloss": ""}],"blankIndex": 13,"answers": ["EPIC"]},{"unit": "Track Access (EAL/014)","zh": "邊段時間行車線入軌要報 TC & SC？","words": [{"en": "During","gloss": ""},{"en": null,"gloss": "行車時間"},{"en": ",","gloss": ""},{"en": "Running","gloss": ""},{"en": "Line","gloss": ""},{"en": "&","gloss": ""},{"en": "Reception","gloss": ""},{"en": "Track","gloss": ""},{"en": "access","gloss": ""},{"en": "is","gloss": ""},{"en": "reported","gloss": ""},{"en": "to","gloss": ""},{"en": "TC","gloss": ""},{"en": "&","gloss": ""},{"en": "SC.","gloss": ""}],"blankIndex": 1,"answers": ["Traffic Hours","traffic hours","TH"]},{"unit": "Track Access (EAL/014)","zh": "入軌前要同意嘅項目之一（防護安排）？","words": [{"en": "Before","gloss": ""},{"en": "gaining","gloss": ""},{"en": "access,","gloss": ""},{"en": "agree","gloss": ""},{"en": "the","gloss": ""},{"en": "means","gloss": ""},{"en": "for","gloss": ""},{"en": "track","gloss": ""},{"en": "access,","gloss": ""},{"en": "clear-by","gloss": ""},{"en": "time,","gloss": ""},{"en": null,"gloss": "防護安排"},{"en": ",","gloss": ""},{"en": "special","gloss": ""},{"en": "safety","gloss": ""},{"en": "instructions,","gloss": ""},{"en": "and","gloss": ""},{"en": "communication.","gloss": ""}],"blankIndex": 11,"answers": ["protection arrangements","protection arrangement"]},{"unit": "Track Access (EAL/014)","zh": "唔喺邊度／淨空不足時要特別小心？","words": [{"en": "Staff","gloss": ""},{"en": "must","gloss": ""},{"en": "take","gloss": ""},{"en": "particular","gloss": ""},{"en": "care","gloss": ""},{"en": "when","gloss": ""},{"en": "not","gloss": ""},{"en": "in","gloss": ""},{"en": "a","gloss": ""},{"en": null,"gloss": "安全位置"},{"en": "or","gloss": ""},{"en": "where","gloss": ""},{"en": "there","gloss": ""},{"en": "is","gloss": ""},{"en": "limited","gloss": ""},{"en": "clearance.","gloss": ""}],"blankIndex": 9,"answers": ["place of safety","Place of Safety"]},{"unit": "Board English / Injury-Illness UE","zh": "「已前往現場」正確過去式？（唔係 procced）","words": [{"en": "SCO","gloss": ""},{"en": "Mak","gloss": ""},{"en": "immediately","gloss": ""},{"en": null,"gloss": "已前往"},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "scene","gloss": ""},{"en": "to","gloss": ""},{"en": "attend","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "passenger.","gloss": ""}],"blankIndex": 3,"answers": ["proceeded"]},{"unit": "Board English / Injury-Illness UE","zh": "職員已照料／處理乘客——填短語。","words": [{"en": "Station","gloss": ""},{"en": "staff","gloss": ""},{"en": null,"gloss": "已照料"},{"en": "the","gloss": ""},{"en": "passenger","gloss": ""},{"en": "until","gloss": ""},{"en": "paramedics","gloss": ""},{"en": "arrived.","gloss": ""}],"blankIndex": 2,"answers": ["attended to"]},{"unit": "Board English / Injury-Illness UE","zh": "乘客拒絕救護——過去式。","words": [{"en": "The","gloss": ""},{"en": "passenger","gloss": ""},{"en": null,"gloss": "已拒絕"},{"en": "ambulance","gloss": ""},{"en": "assistance","gloss": ""},{"en": "and","gloss": ""},{"en": "left","gloss": ""},{"en": "the","gloss": ""},{"en": "station","gloss": ""},{"en": "by","gloss": ""},{"en": "himself.","gloss": ""}],"blankIndex": 2,"answers": ["declined"]},{"unit": "Board English / Injury-Illness UE","zh": "乘客保持清醒（唔係 remind conscious）。","words": [{"en": "The","gloss": ""},{"en": "passenger","gloss": ""},{"en": null,"gloss": "保持清醒"},{"en": "and","gloss": ""},{"en": "reported","gloss": ""},{"en": "no","gloss": ""},{"en": "physical","gloss": ""},{"en": "injuries.","gloss": ""}],"blankIndex": 2,"answers": ["remained conscious"]},{"unit": "Board English / Injury-Illness UE","zh": "無身體外傷正確寫法（唔加 in）。","words": [{"en": "The","gloss": ""},{"en": "passenger","gloss": ""},{"en": "remained","gloss": ""},{"en": "conscious","gloss": ""},{"en": "and","gloss": ""},{"en": "reported","gloss": ""},{"en": null,"gloss": "無身體外傷"},{"en": ".","gloss": ""}],"blankIndex": 6,"answers": ["no physical injuries","no physical injury"]},{"unit": "Board English / Injury-Illness UE","zh": "已召喚警察——過去分詞；Police were。","words": [{"en": "Police","gloss": ""},{"en": "were","gloss": ""},{"en": null,"gloss": "已召喚"},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "station.","gloss": ""}],"blankIndex": 2,"answers": ["summoned"]},{"unit": "Board English / Injury-Illness UE","zh": "「受傷」用邊個動詞？（前面唔加 was）","words": [{"en": "The","gloss": ""},{"en": "passenger","gloss": ""},{"en": null,"gloss": "遭受（傷）"},{"en": "a","gloss": ""},{"en": "minor","gloss": ""},{"en": "injury","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "left","gloss": ""},{"en": "arm.","gloss": ""}],"blankIndex": 2,"answers": ["sustained"]},{"unit": "Board English / Injury-Illness UE","zh": "提供咩去護送乘客休息？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "輪椅"},{"en": "was","gloss": ""},{"en": "provided","gloss": ""},{"en": "to","gloss": ""},{"en": "convey","gloss": ""},{"en": "the","gloss": ""},{"en": "passenger","gloss": ""},{"en": "to","gloss": ""},{"en": "rest.","gloss": ""}],"blankIndex": 1,"answers": ["wheelchair"]},{"unit": "Board English / Injury-Illness UE","zh": "護送／運送乘客用邊個動詞？","words": [{"en": "A","gloss": ""},{"en": "wheelchair","gloss": ""},{"en": "was","gloss": ""},{"en": "provided","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "護送／運送"},{"en": "the","gloss": ""},{"en": "passenger","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "platform","gloss": ""},{"en": "seat.","gloss": ""}],"blankIndex": 5,"answers": ["convey"]},{"unit": "Board English / Injury-Illness UE","zh": "括號入面常寫嘅急救資格稱呼？","words": [{"en": "SCO","gloss": ""},{"en": "Mak","gloss": ""},{"en": "(","gloss": ""},{"en": null,"gloss": "合格急救員"},{"en": ")","gloss": ""},{"en": "proceeded","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "scene","gloss": ""},{"en": "to","gloss": ""},{"en": "attend","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "passenger.","gloss": ""}],"blankIndex": 3,"answers": ["qualified First Aider","Qualified First Aider","qualified first aider"]},{"unit": "Station Ops / Service English","zh": "重設——過去式仍係呢個拼法（唔係 reseted）。","words": [{"en": "The","gloss": ""},{"en": "PEP","gloss": ""},{"en": "was","gloss": ""},{"en": null,"gloss": "重設"},{"en": "after","gloss": ""},{"en": "the","gloss": ""},{"en": "incident.","gloss": ""}],"blankIndex": 3,"answers": ["reset"]},{"unit": "Station Ops / Service English","zh": "已調配人手去月台。","words": [{"en": "Additional","gloss": ""},{"en": "staff","gloss": ""},{"en": "were","gloss": ""},{"en": null,"gloss": "已調配"},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "platform.","gloss": ""}],"blankIndex": 3,"answers": ["deployed","deploy"]},{"unit": "Station Ops / Service English","zh": "列車停妥於月台。","words": [{"en": "The","gloss": ""},{"en": "train","gloss": ""},{"en": null,"gloss": "已停妥"},{"en": "at","gloss": ""},{"en": "the","gloss": ""},{"en": "platform.","gloss": ""}],"blankIndex": 2,"answers": ["berthed","berth"]},{"unit": "Station Ops / Service English","zh": "故障設備已隔離。","words": [{"en": "The","gloss": ""},{"en": "defective","gloss": ""},{"en": "equipment","gloss": ""},{"en": "was","gloss": ""},{"en": null,"gloss": "已隔離"},{"en": ".","gloss": ""}],"blankIndex": 4,"answers": ["isolated","isolate"]},{"unit": "Station Ops / Service English","zh": "啟動咗邊類計劃去減低服務影響？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "應變／後備"},{"en": "plan","gloss": ""},{"en": "was","gloss": ""},{"en": "activated","gloss": ""},{"en": "to","gloss": ""},{"en": "minimise","gloss": ""},{"en": "service","gloss": ""},{"en": "impact.","gloss": ""}],"blankIndex": 1,"answers": ["contingency"]},{"unit": "Station Ops / Service English","zh": "受影響車站之間列車服務已暫停。","words": [{"en": "Train","gloss": ""},{"en": "service","gloss": ""},{"en": "was","gloss": ""},{"en": null,"gloss": "已暫停"},{"en": "between","gloss": ""},{"en": "the","gloss": ""},{"en": "affected","gloss": ""},{"en": "stations.","gloss": ""}],"blankIndex": 3,"answers": ["suspended","suspend"]},{"unit": "Station Ops / Service English","zh": "月台發生咗咩類型事故（報告用語）？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "乘客意外"},{"en": "occurred","gloss": ""},{"en": "on","gloss": ""},{"en": "the","gloss": ""},{"en": "platform;","gloss": ""},{"en": "Police","gloss": ""},{"en": "were","gloss": ""},{"en": "summoned.","gloss": ""}],"blankIndex": 1,"answers": ["passenger accident","Passenger Accident"]},{"unit": "Station Ops / Service English","zh": "point 變得故障／損壞——形容詞。","words": [{"en": "In","gloss": ""},{"en": "the","gloss": ""},{"en": "event","gloss": ""},{"en": "of","gloss": ""},{"en": "signalling","gloss": ""},{"en": "equipment","gloss": ""},{"en": "failure","gloss": ""},{"en": "or","gloss": ""},{"en": "point(s)","gloss": ""},{"en": "becoming","gloss": ""},{"en": null,"gloss": "故障的"},{"en": "…","gloss": ""}],"blankIndex": 10,"answers": ["defective"]},{"unit": "Station Ops / Service English","zh": "救護經行車控制召喚——填 via TC。","words": [{"en": "Ambulance","gloss": ""},{"en": "was","gloss": ""},{"en": "summoned","gloss": ""},{"en": null,"gloss": "經行車控制員"},{"en": "-EAL.","gloss": ""}],"blankIndex": 3,"answers": ["via TC","via TC-EAL","viaTC"]},{"unit": "Station Ops / Service English","zh": "Police 後面用 was 定 were？","words": [{"en": "Police","gloss": ""},{"en": null,"gloss": "（複數）係"},{"en": "summoned","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "station.","gloss": ""}],"blankIndex": 1,"answers": ["were"]},{"unit": "Roles Contrast & Traps","zh": "訊號故障時通常派邊個去人手 set/secure point？","words": [{"en": "Under","gloss": ""},{"en": "EAL/118,","gloss": ""},{"en": null,"gloss": "手號員（EAL/118）"},{"en": "is","gloss": ""},{"en": "normally","gloss": ""},{"en": "assigned","gloss": ""},{"en": "to","gloss": ""},{"en": "manually","gloss": ""},{"en": "set","gloss": ""},{"en": "and","gloss": ""},{"en": "secure","gloss": ""},{"en": "points","gloss": ""},{"en": "under","gloss": ""},{"en": "TC","gloss": ""},{"en": "when","gloss": ""},{"en": "signalling","gloss": ""},{"en": "fails.","gloss": ""}],"blankIndex": 2,"answers": ["Handsignalman","Hand Signalman"]},{"unit": "Roles Contrast & Traps","zh": "EAL/014：邊個係「做工負責人」例子？","words": [{"en": "Under","gloss": ""},{"en": "EAL/014,","gloss": ""},{"en": null,"gloss": ""},{"en": "is","gloss": ""},{"en": "an","gloss": ""},{"en": "example","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "work","gloss": ""},{"en": "for","gloss": ""},{"en": "track","gloss": ""},{"en": "access.","gloss": ""}],"blankIndex": 2,"answers": ["SC for Point operations","SC for point operations","SC for Point Operations"]},{"unit": "Roles Contrast & Traps","zh": "入軌前指派 _____ protection——唔好同 PPE 撈亂。","words": [{"en": "Do","gloss": ""},{"en": "not","gloss": ""},{"en": "confuse","gloss": ""},{"en": "PPE","gloss": ""},{"en": "with","gloss": ""},{"en": "appointing","gloss": ""},{"en": null,"gloss": ""},{"en": "protection","gloss": ""},{"en": "before","gloss": ""},{"en": "track","gloss": ""},{"en": "access.","gloss": ""}],"blankIndex": 6,"answers": ["Lookoutman","Lookout man"]},{"unit": "Roles Contrast & Traps","zh": "入軌申請平常要預先經邊個系統輸入？（唔係 PPE）","words": [{"en": "Normal","gloss": ""},{"en": "track","gloss": ""},{"en": "access","gloss": ""},{"en": "applications","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "entered","gloss": ""},{"en": "in","gloss": ""},{"en": null,"gloss": "工程臨時管理系統"},{"en": "in","gloss": ""},{"en": "advance","gloss": ""},{"en": "(do","gloss": ""},{"en": "not","gloss": ""},{"en": "confuse","gloss": ""},{"en": "with","gloss": ""},{"en": "PPE).","gloss": ""}],"blankIndex": 8,"answers": ["ETMS"]},{"unit": "Roles Contrast & Traps","zh": "Traffic Hours＋Running Line & Reception Track → 匯報邊兩個？（唔係拆 YM）","words": [{"en": "During","gloss": ""},{"en": "Traffic","gloss": ""},{"en": "Hours,","gloss": ""},{"en": "for","gloss": ""},{"en": "work","gloss": ""},{"en": "on","gloss": ""},{"en": "the","gloss": ""},{"en": "Running","gloss": ""},{"en": "Line","gloss": ""},{"en": "&","gloss": ""},{"en": "Reception","gloss": ""},{"en": "Track,","gloss": ""},{"en": "report","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "行車控制員與站控"},{"en": ".","gloss": ""}],"blankIndex": 14,"answers": ["TC & SC","TC and SC","TC&SC"]},{"unit": "Roles Contrast & Traps","zh": "開車前所有 point（迎面或背向）要點做？（唔係 line clear／keep lock）","words": [{"en": "All","gloss": ""},{"en": "points,","gloss": ""},{"en": "regardless","gloss": ""},{"en": "facing","gloss": ""},{"en": "or","gloss": ""},{"en": "trailing,","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": null,"gloss": "夾緊並塞 scotch"},{"en": "before","gloss": ""},{"en": "train","gloss": ""},{"en": "moving.","gloss": ""}],"blankIndex": 8,"answers": ["clamped and scotched","clamped & scotched","clamp and scotch","clamped and scotch"]},{"unit": "Roles Contrast & Traps","zh": "無人看守時，要 padlock 邊樣？","words": [{"en": "If","gloss": ""},{"en": "the","gloss": ""},{"en": "point","gloss": ""},{"en": "is","gloss": ""},{"en": "left","gloss": ""},{"en": "unattended,","gloss": ""},{"en": null,"gloss": "道岔夾（要上鎖嗰件）"},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "padlocked.","gloss": ""}],"blankIndex": 6,"answers": ["the clamp","clamp"]},{"unit": "Roles Contrast & Traps","zh": "Secure 定義第一截：邊條軌要 clamp 完全貼住 stock rail？","words": [{"en": "Secure","gloss": ""},{"en": "means","gloss": ""},{"en": "the","gloss": ""},{"en": null,"gloss": "尖軌／tip 軌"},{"en": "is","gloss": ""},{"en": "clamped","gloss": ""},{"en": "completely","gloss": ""},{"en": "closed","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "stock","gloss": ""},{"en": "rail,","gloss": ""},{"en": "and","gloss": ""},{"en": "a","gloss": ""},{"en": "scotch","gloss": ""},{"en": "is","gloss": ""},{"en": "inserted","gloss": ""},{"en": "in","gloss": ""},{"en": "the","gloss": ""},{"en": "opening.","gloss": ""}],"blankIndex": 3,"answers": ["switch tongue rail","switch tongue","tongue rail"]},{"unit": "Roles Contrast & Traps","zh": "HSM（EAL/118）唔好撈亂邊個 EAL/014「做工負責人」例子？","words": [{"en": "Do","gloss": ""},{"en": "not","gloss": ""},{"en": "confuse","gloss": ""},{"en": "Handsignalman","gloss": ""},{"en": "(EAL/118","gloss": ""},{"en": "under","gloss": ""},{"en": "TC)","gloss": ""},{"en": "with","gloss": ""},{"en": null,"gloss": "負責道岔作業嘅站控"},{"en": "(EAL/014","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "example).","gloss": ""}],"blankIndex": 8,"answers": ["SC for Point operations"]},{"unit": "Roles Contrast & Traps","zh": "指派 Lookoutman protection ≠ 著邊樣？（常見撈亂）","words": [{"en": "Appointing","gloss": ""},{"en": "Lookoutman","gloss": ""},{"en": "protection","gloss": ""},{"en": "is","gloss": ""},{"en": "not","gloss": ""},{"en": "the","gloss": ""},{"en": "same","gloss": ""},{"en": "as","gloss": ""},{"en": "wearing","gloss": ""},{"en": null,"gloss": "個人防護裝備"},{"en": ".","gloss": ""}],"blankIndex": 9,"answers": ["PPE","personal protective equipment"]},{"unit": "Roles Contrast & Traps","zh": "Police 後面用 was 定 were？（Board English 常見錯）","words": [{"en": "Police","gloss": ""},{"en": null,"gloss": "（複數）係"},{"en": "summoned","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "station.","gloss": ""}],"blankIndex": 1,"answers": ["were"]},{"unit": "EAL022-spell-2026-10-22","zh": "照亮／亮起（ESI 燈號）","words": [{"en": "All","gloss": ""},{"en": "ESIs","gloss": ""},{"en": "of","gloss": ""},{"en": "both","gloss": ""},{"en": "up","gloss": ""},{"en": "and","gloss": ""},{"en": "down","gloss": ""},{"en": "track","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "station","gloss": ""},{"en": "will","gloss": ""},{"en": null,"gloss": "動詞；拼法 illu-mi-nate（過去／現在同形）"},{"en": ".","gloss": ""}],"blankIndex": 12,"answers": ["illuminate"]},{"unit": "EAL022-spell-2026-10-22","zh": "鄰近的（adjacent stations）","words": [{"en": "All","gloss": ""},{"en": "Departure","gloss": ""},{"en": "Signals","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "station","gloss": ""},{"en": "and","gloss": ""},{"en": null,"gloss": "拼法 ad-ja-cent；唔好漏 j"},{"en": "stations","gloss": ""},{"en": "approaching","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "incident","gloss": ""},{"en": "station","gloss": ""},{"en": "will","gloss": ""},{"en": "replace","gloss": ""},{"en": "to","gloss": ""},{"en": "Danger.","gloss": ""}],"blankIndex": 7,"answers": ["adjacent"]},{"unit": "EAL022-spell-2026-10-22","zh": "險阻訊號方面（大階 D）","words": [{"en": "The","gloss": ""},{"en": "Home","gloss": ""},{"en": "Signal","gloss": ""},{"en": "entering","gloss": ""},{"en": "the","gloss": ""},{"en": "incident","gloss": ""},{"en": "station","gloss": ""},{"en": "will","gloss": ""},{"en": "replace","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "信號 aspect 專用寫法；記得大階開頭"},{"en": ".","gloss": ""}],"blankIndex": 10,"answers": ["Danger"]}];
+    }
+  </script>
+  <script>
+
+        /** Loaded from vocab.js, then optionally overridden by localStorage / 匯入 */
+    let ITEMS = Array.isArray(window.SSCO_ITEMS) ? window.SSCO_ITEMS.slice() : [];
+    const STORAGE_KEY = "ssco-vocab-items-v1";
+    const LOG_KEY = "ssco-vocab-attempt-log-v1";
+    const LOG_MAX = 200;
+
+    function todayKey(d = new Date()) {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    }
+
+    function loadLog() {
+      try {
+        const raw = localStorage.getItem(LOG_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch (_) {
+        return [];
+      }
+    }
+
+    function saveLog(arr) {
+      try {
+        localStorage.setItem(LOG_KEY, JSON.stringify(arr.slice(-LOG_MAX)));
+      } catch (_) {}
+    }
+
+    function recordAttempt({ item, typed, ok }) {
+      if (!item) return;
+      const entry = {
+        t: Date.now(),
+        day: todayKey(),
+        unit: item.unit || "",
+        zh: item.zh || "",
+        answer: (item.answers && item.answers[0]) || "",
+        typed: String(typed || "").trim(),
+        ok: !!ok
+      };
+      const log = loadLog();
+      log.push(entry);
+      saveLog(log);
+    }
+
+    function formatTime(ts) {
+      try {
+        return new Date(ts).toLocaleString("zh-HK", {
+          month: "numeric",
+          day: "numeric",
+          hour: "2-digit",
+          minute: "2-digit"
+        });
+      } catch (_) {
+        return "";
+      }
+    }
+
+    function todayStats() {
+      const day = todayKey();
+      const log = loadLog().filter((e) => e.day === day);
+      const total = log.length;
+      const correct = log.filter((e) => e.ok).length;
+      const wrong = total - correct;
+      const rate = total ? Math.round((correct / total) * 100) : 0;
+      return { total, correct, wrong, rate, day };
+    }
+
+    function wrongLogUnique() {
+      // latest wrong per answer+unit
+      const log = loadLog().filter((e) => !e.ok && e.answer);
+      const map = new Map();
+      for (const e of log) {
+        map.set(`${e.unit}||${e.answer}`, e);
+      }
+      return [...map.values()].sort((a, b) => b.t - a.t);
+    }
+
+    function unitAccuracy() {
+      const log = loadLog();
+      const map = new Map();
+      for (const e of log) {
+        const u = e.unit || "（未標單元）";
+        if (!map.has(u)) map.set(u, { unit: u, total: 0, correct: 0 });
+        const row = map.get(u);
+        row.total += 1;
+        if (e.ok) row.correct += 1;
+      }
+      return [...map.values()]
+        .map((r) => ({
+          ...r,
+          rate: r.total ? Math.round((r.correct / r.total) * 100) : 0
+        }))
+        .sort((a, b) => a.rate - b.rate || b.total - a.total);
+    }
+
+
+    function rebuildUnitOrder() {
+      UNIT_ORDER.length = 0;
+      ITEMS.forEach((it) => {
+        if (!UNIT_ORDER.includes(it.unit)) UNIT_ORDER.push(it.unit);
+      });
+    }
+
+    function validateItems(data) {
+      if (!Array.isArray(data) || data.length === 0) throw new Error("詞庫要係非空陣列");
+      for (const it of data) {
+        if (!it || typeof it.unit !== "string") throw new Error("缺少 unit");
+        if (!it.zh || !Array.isArray(it.words) || !Array.isArray(it.answers)) {
+          throw new Error("題目格式唔啱（要有 zh / words / answers）");
+        }
+        if (typeof it.blankIndex !== "number") throw new Error("缺少 blankIndex");
+      }
+      return data;
+    }
+
+    function applyItems(data, { persist } = { persist: false }) {
+      ITEMS = validateItems(data);
+      rebuildUnitOrder();
+      if (persist) {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(ITEMS));
+        } catch (_) { /* ignore quota */ }
+      }
+      selectedUnit = "All";
+      restart();
+      const meta = document.getElementById("vocabMeta");
+      if (meta) meta.textContent = `題庫 ${ITEMS.length} 題`;
+    }
+
+    function tryLoadStored() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return false;
+        applyItems(JSON.parse(raw), { persist: false });
+        return true;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    /** Unit order for picker (All first, then each unit as first seen) */
+    const UNIT_ORDER = [];
+    rebuildUnitOrder();
+
+    const el = {
+      phraseZh: document.getElementById("phraseZh"),
+      sentence: document.getElementById("sentence"),
+      feedback: document.getElementById("feedback"),
+      progress: document.getElementById("progress"),
+      practice: document.getElementById("practice"),
+      donePanel: document.getElementById("donePanel"),
+      doneTitle: document.getElementById("doneTitle"),
+      doneSub: document.getElementById("doneSub"),
+      finalScore: document.getElementById("finalScore"),
+      btnCheck: document.getElementById("btnCheck"),
+      btnSkip: document.getElementById("btnSkip"),
+      btnRestart: document.getElementById("btnRestart"),
+      btnRecords: document.getElementById("btnRecords"),
+      recordsSheet: document.getElementById("recordsSheet"),
+      btnCloseRecords: document.getElementById("btnCloseRecords"),
+      recStats: document.getElementById("recStats"),
+      recBody: document.getElementById("recBody"),
+      btnRecWrong: document.getElementById("btnRecWrong"),
+      btnRecUnits: document.getElementById("btnRecUnits"),
+      btnRecRetry: document.getElementById("btnRecRetry"),
+      btnRecClear: document.getElementById("btnRecClear"),
+      btnRetryMissed: document.getElementById("btnRetryMissed"),
+      btnShowLog: document.getElementById("btnShowLog"),
+      btnUnitStats: document.getElementById("btnUnitStats"),
+      btnRetryLog: document.getElementById("btnRetryLog"),
+      btnClearLog: document.getElementById("btnClearLog"),
+      logPanel: document.getElementById("logPanel"),
+      unitStats: document.getElementById("unitStats"),
+      doneStats: document.getElementById("doneStats"),
+      unitBar: document.getElementById("unitBar"),
+      main: document.getElementById("main")
+    };
+
+    let selectedUnit = "All"; // "All" or unit name
+    let pool = [];           // indices into ITEMS for current unit filter
+    let order = [];          // shuffled indices into pool (values = ITEMS indices)
+    let index = 0;
+    let correctCount = 0;
+    let locked = false;
+    let awaitingNext = false; // wrong/skip: wait for Enter before next
+    let suppressEnterAdvance = false; // block same Enter that just submitted
+    let missed = [];          // ITEMS indices to review (current pass)
+    let sessionMissed = [];   // unique misses this round (for 一鍵再練)
+    let inReview = false;
+    let mainTotal = 0;        // size of first pass (for score display)
+    let inputEl = null;
+    let letterCells = [];
+    let blankTemplate = "";
+
+    function shuffle(arr) {
+      const a = arr.slice();
+      for (let i = a.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [a[i], a[j]] = [a[j], a[i]];
+      }
+      return a;
+    }
+
+    function buildPool() {
+      if (selectedUnit === "All") {
+        pool = ITEMS.map((_, i) => i);
+      } else {
+        pool = ITEMS.map((it, i) => (it.unit === selectedUnit ? i : -1)).filter((i) => i >= 0);
+      }
+    }
+
+    function total() {
+      return order.length;
+    }
+
+    function currentItem() {
+      return ITEMS[order[index]];
+    }
+
+    function normalize(s) {
+      return String(s || "")
+        .trim()
+        .replace(/[\uFF01-\uFF5E]/g, (ch) => String.fromCharCode(ch.charCodeAt(0) - 0xfee0)) // full-width → ASCII
+        .toLowerCase()
+        .replace(/\s+/g, " ")
+        .replace(/[’‘]/g, "'")
+        .replace(/[–—]/g, "-")
+        .replace(/[.,;:!?()[\]{}«»""]/g, "")
+        .replace(/\s*&\s*/g, " and ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function expandAnswerVariants(a) {
+      const out = new Set([a]);
+      const n = normalize(a);
+      out.add(n);
+      // & / and already collapsed in normalize; also accept slash spacing
+      out.add(n.replace(/\s*\/\s*/g, " / "));
+      return [...out];
+    }
+
+    function isCorrect(user, answers) {
+      const u = normalize(user);
+      if (!u) return false;
+      return answers.some((a) => {
+        const variants = expandAnswerVariants(a);
+        return variants.some((v) => normalize(v) === u);
+      });
+    }
+
+    function updateProgress() {
+      const t = total();
+      if (t === 0) {
+        el.progress.innerHTML = `<strong>0</strong> / 0`;
+        return;
+      }
+      const n = Math.min(index + 1, t);
+      const tag = inReview ? ` · <span style="color:var(--bad)">複習</span>` : "";
+      el.progress.innerHTML = `<strong>${n}</strong> / ${t}` + tag;
+    }
+
+    function setCheckLabel(mode) {
+      if (mode === "next") {
+        el.btnCheck.textContent = "下一題 Enter";
+        el.btnCheck.title = "Next (Enter)";
+      } else {
+        el.btnCheck.textContent = "檢查 Check";
+        el.btnCheck.title = "Check (Enter)";
+      }
+    }
+
+    function rememberMissed(itemIndex) {
+      if (!missed.includes(itemIndex)) missed.push(itemIndex);
+      if (!sessionMissed.includes(itemIndex)) sessionMissed.push(itemIndex);
+    }
+
+    function advanceNext() {
+      if (suppressEnterAdvance) return;
+      awaitingNext = false;
+      locked = false;
+      suppressEnterAdvance = false;
+      setCheckLabel("check");
+      index += 1;
+      renderItem();
+    }
+
+    function armAwaitingNext() {
+      awaitingNext = true;
+      suppressEnterAdvance = true;
+      setCheckLabel("next");
+      el.btnCheck.disabled = false;
+      // Ignore the same Enter that submitted; only the next Enter advances
+      setTimeout(() => {
+        suppressEnterAdvance = false;
+        try { el.btnCheck.focus(); } catch (_) {}
+      }, 280);
+    }
+
+    function clearFeedback() {
+      el.feedback.className = "feedback";
+      el.feedback.textContent = "";
+    }
+
+    function showFeedback(kind, html) {
+      el.feedback.className = "feedback show " + kind;
+      el.feedback.innerHTML = html;
+    }
+
+    function shortUnitLabel(name) {
+      if (name === "All") return "All";
+      const map = {
+        "Point Secure (EAL/118)": "EAL/118",
+        "Track Access (EAL/014)": "EAL/014",
+        "Board English / Injury-Illness UE": "Board Eng",
+        "Station Ops / Service English": "Station Ops",
+        "Roles Contrast & Traps": "Roles",
+        "EAL022-spell-2026-10-22": "EAL022 spell",
+      };
+      if (map[name]) return map[name];
+      // generic: drop long date tails / keep first ~16 chars
+      let s = String(name);
+      s = s.replace(/\s*\(.*?\)\s*/g, " ").trim();
+      if (s.length > 16) s = s.slice(0, 15) + "…";
+      return s || name;
+    }
+
+    function renderUnitBar() {
+      el.unitBar.innerHTML = "";
+      const opts = ["All", ...UNIT_ORDER];
+      let activeBtn = null;
+      opts.forEach((name) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.setAttribute("role", "tab");
+        btn.setAttribute("aria-selected", name === selectedUnit ? "true" : "false");
+        btn.className = name === selectedUnit ? "active" : "";
+        const count =
+          name === "All"
+            ? ITEMS.length
+            : ITEMS.filter((it) => it.unit === name).length;
+        const label = shortUnitLabel(name);
+        btn.textContent = `${label} (${count})`;
+        btn.title = name === "All" ? "全部單元" : name;
+        btn.addEventListener("click", () => {
+          if (selectedUnit === name) return;
+          selectedUnit = name;
+          restart();
+          renderUnitBar();
+        });
+        el.unitBar.appendChild(btn);
+        if (name === selectedUnit) activeBtn = btn;
+      });
+      if (activeBtn) {
+        requestAnimationFrame(() => {
+          activeBtn.scrollIntoView({ inline: "nearest", block: "nearest", behavior: "smooth" });
+        });
+      }
+    }
+
+    function renderItem() {
+      locked = false;
+      awaitingNext = false;
+      suppressEnterAdvance = false;
+      clearFeedback();
+      setCheckLabel("check");
+      el.practice.classList.remove("hidden");
+      el.donePanel.classList.remove("show");
+      el.btnCheck.disabled = false;
+      el.btnSkip.disabled = false;
+
+      if (index >= total()) {
+        finishOrReview();
+        return;
+      }
+
+      const item = currentItem();
+      el.phraseZh.textContent = item.zh;
+      el.phraseZh.classList.remove("fade-out");
+      updateProgress();
+
+      el.sentence.innerHTML = "";
+      item.words.forEach((w, i) => {
+        const col = document.createElement("div");
+        col.className = "word-col";
+
+        if (i === item.blankIndex) {
+          const wrap = document.createElement("div");
+          wrap.className = "word-en blank-slot";
+          wrap.appendChild(buildLetterBlank(item.answers[0]));
+          bindBlankTapFocus(wrap);
+          col.appendChild(wrap);
+        } else {
+          const span = document.createElement("span");
+          span.className = "word-en";
+          span.textContent = w.en;
+          col.appendChild(span);
+        }
+
+        if (w.gloss) {
+          if (i === item.blankIndex) {
+            const wrap = document.createElement("div");
+            wrap.className = "gloss-wrap";
+            const btn = document.createElement("button");
+            btn.type = "button";
+            btn.className = "gloss-toggle";
+            btn.setAttribute("aria-expanded", "false");
+            btn.textContent = "提示";
+            const gloss = document.createElement("span");
+            gloss.className = "gloss is-collapsed";
+            gloss.textContent = w.gloss;
+            btn.addEventListener("mousedown", (e) => {
+              e.preventDefault(); // keep letter focus
+            });
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const open = btn.getAttribute("aria-expanded") === "true";
+              const next = !open;
+              btn.setAttribute("aria-expanded", next ? "true" : "false");
+              gloss.classList.toggle("is-collapsed", !next);
+              btn.textContent = next ? "收起提示" : "提示";
+            });
+            wrap.appendChild(btn);
+            wrap.appendChild(gloss);
+            col.appendChild(wrap);
+          } else {
+            const gloss = document.createElement("span");
+            gloss.className = "gloss";
+            gloss.textContent = w.gloss;
+            col.appendChild(gloss);
+          }
+        }
+        el.sentence.appendChild(col);
+      });
+
+      requestAnimationFrame(() => {
+        focusFirstLetter();
+      });
+    }
+
+    function buildLetterBlank(template) {
+      letterCells = [];
+      blankTemplate = String(template || "");
+      const row = document.createElement("div");
+      row.className = "letter-row";
+      row.setAttribute("role", "group");
+      row.setAttribute("aria-label", "Type each letter");
+
+      let word = document.createElement("div");
+      word.className = "letter-word";
+
+      const flushWord = () => {
+        if (word.childNodes.length) {
+          row.appendChild(word);
+          word = document.createElement("div");
+          word.className = "letter-word";
+        }
+      };
+
+      const addLetterCell = () => {
+        const slot = document.createElement("div");
+        slot.className = "letter-slot";
+        const cell = document.createElement("input");
+        cell.type = "text";
+        cell.className = "letter-cell";
+        cell.maxLength = 1;
+        cell.autocomplete = "off";
+        cell.autocapitalize = "off";
+        cell.spellcheck = false;
+        cell.setAttribute("inputmode", "text");
+        cell.setAttribute("enterkeyhint", "done");
+        cell.setAttribute("autocorrect", "off");
+        cell.dataset.index = String(letterCells.length);
+        cell.setAttribute("aria-label", "Letter " + (letterCells.length + 1));
+        cell.addEventListener("input", onLetterInput);
+        cell.addEventListener("keydown", onLetterKeydown);
+        cell.addEventListener("paste", onLetterPaste);
+        slot.appendChild(cell);
+        word.appendChild(slot);
+        letterCells.push(cell);
+        bindLetterKeyboardChrome(cell);
+      };
+
+      for (let i = 0; i < blankTemplate.length; i++) {
+        const ch = blankTemplate[i];
+        if (ch === " ") {
+          flushWord();
+          continue;
+        }
+        if (!/[A-Za-z0-9]/.test(ch)) {
+          flushWord();
+          const punct = document.createElement("span");
+          punct.className = "letter-punct";
+          punct.textContent = ch;
+          row.appendChild(punct);
+          continue;
+        }
+        addLetterCell();
+      }
+      flushWord();
+      inputEl = letterCells[0] || null;
+      bindBlankTapFocus(row);
+      return row;
+    }
+
+    function isCoarsePointer() {
+      try {
+        return window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function scrollBlankAboveKeyboard() {
+      const row = letterCells[0] && letterCells[0].closest(".letter-row");
+      const slot = row && row.closest(".blank-slot");
+      const target = slot || row;
+      if (!target) return;
+      try {
+        target.scrollIntoView({ block: "center", inline: "nearest", behavior: "smooth" });
+      } catch (_) {
+        try { target.scrollIntoView(true); } catch (__) {}
+      }
+      // Extra top padding room when keyboard is open
+      const zh = document.getElementById("phraseZh");
+      if (zh) {
+        try { zh.scrollIntoView({ block: "start", behavior: "smooth" }); } catch (_) {}
+      }
+    }
+
+    function focusLetterCell(cell, { fromUserGesture } = { fromUserGesture: false }) {
+      if (!cell || cell.disabled) return false;
+      // iOS/Android only open the keyboard after a real user gesture
+      if (!fromUserGesture && isCoarsePointer()) return false;
+      try {
+        cell.focus({ preventScroll: true });
+        cell.select();
+        if (fromUserGesture || isCoarsePointer()) {
+          setTimeout(scrollBlankAboveKeyboard, 50);
+          setTimeout(scrollBlankAboveKeyboard, 300);
+        }
+        return document.activeElement === cell;
+      } catch (_) {
+        try {
+          cell.focus();
+          cell.select();
+          setTimeout(scrollBlankAboveKeyboard, 50);
+          return true;
+        } catch (__) {
+          return false;
+        }
+      }
+    }
+
+    function focusFirstEmptyLetter(opts) {
+      const target =
+        letterCells.find((c) => !c.disabled && !c.value) ||
+        letterCells.find((c) => !c.disabled);
+      return focusLetterCell(target, opts);
+    }
+
+    function focusFirstLetter() {
+      // Desktop: auto-focus. Mobile: wait for tap (see bindBlankTapFocus).
+      focusFirstEmptyLetter({ fromUserGesture: false });
+      updateBlankTapHint();
+    }
+
+    function updateBlankTapHint() {
+      const hint = document.getElementById("blankTapHint");
+      if (!hint) return;
+      const need =
+        isCoarsePointer() &&
+        letterCells.some((c) => !c.disabled) &&
+        document.activeElement !== letterCells.find((c) => !c.disabled);
+      hint.classList.toggle("need-tap", !!need && document.activeElement?.classList?.contains("letter-cell") !== true);
+      // Simpler: show while no letter-cell focused
+      const focused = letterCells.some((c) => c === document.activeElement);
+      hint.classList.toggle("need-tap", isCoarsePointer() && !focused && letterCells.some((c) => !c.disabled));
+    }
+
+    let keyboardBlurTimer = null;
+
+    function setKeyboardOpen(open) {
+      document.body.classList.toggle("keyboard-open", !!open);
+      if (open) updateBlankTapHint();
+    }
+
+    function bindBlankTapFocus(wrap) {
+      const openKeyboard = (e) => {
+        // If they already hit a letter-cell, browser handles it
+        if (e.target && e.target.classList && e.target.classList.contains("letter-cell")) {
+          setKeyboardOpen(true);
+          updateBlankTapHint();
+          return;
+        }
+        if (e.cancelable) e.preventDefault();
+        const ok = focusFirstEmptyLetter({ fromUserGesture: true });
+        if (ok) setKeyboardOpen(true);
+        updateBlankTapHint();
+      };
+      wrap.addEventListener("pointerdown", openKeyboard);
+      wrap.addEventListener("click", openKeyboard);
+    }
+
+    function bindLetterKeyboardChrome(cell) {
+      cell.addEventListener("focus", () => {
+        if (keyboardBlurTimer) {
+          clearTimeout(keyboardBlurTimer);
+          keyboardBlurTimer = null;
+        }
+        setKeyboardOpen(true);
+      });
+      cell.addEventListener("blur", () => {
+        if (keyboardBlurTimer) clearTimeout(keyboardBlurTimer);
+        // delay: allow tap on Check / next without flicker
+        keyboardBlurTimer = setTimeout(() => {
+          const ae = document.activeElement;
+          const still =
+            ae && ae.classList && ae.classList.contains("letter-cell");
+          if (!still) setKeyboardOpen(false);
+          updateBlankTapHint();
+        }, 280);
+      });
+    }
+
+    function getBlankValue() {
+      // Rebuild string from template: letters from cells, spaces/punct from template
+      let out = "";
+      let cellIdx = 0;
+      for (let i = 0; i < blankTemplate.length; i++) {
+        const ch = blankTemplate[i];
+        if (ch === " ") {
+          out += " ";
+        } else if (!/[A-Za-z0-9]/.test(ch)) {
+          out += ch;
+        } else {
+          const cell = letterCells[cellIdx++];
+          out += cell ? cell.value : "";
+        }
+      }
+      return out;
+    }
+
+    function setBlankValue(str, className) {
+      const s = String(str || "");
+      let cellIdx = 0;
+      let si = 0;
+      for (let i = 0; i < blankTemplate.length; i++) {
+        const ch = blankTemplate[i];
+        if (ch === " ") {
+          si += 1;
+          continue;
+        }
+        if (!/[A-Za-z0-9]/.test(ch)) {
+          si += 1;
+          continue;
+        }
+        const cell = letterCells[cellIdx++];
+        if (!cell) break;
+        // skip spaces in answer string while filling letters
+        while (si < s.length && s[si] === " ") si += 1;
+        cell.value = si < s.length ? s[si] : "";
+        si += 1;
+        cell.classList.remove("ok", "bad");
+        if (className) cell.classList.add(className);
+      }
+    }
+
+    function setBlankDisabled(disabled) {
+      letterCells.forEach((c) => {
+        c.disabled = disabled;
+      });
+    }
+
+    function markBlank(className) {
+      letterCells.forEach((c) => {
+        c.classList.remove("ok", "bad");
+        if (className) c.classList.add(className);
+      });
+      const row = letterCells[0] && letterCells[0].closest(".letter-row");
+      if (row) {
+        row.classList.remove("is-ok", "is-bad");
+        if (className === "ok") row.classList.add("is-ok");
+        if (className === "bad") row.classList.add("is-bad");
+      }
+    }
+
+    function onLetterInput(e) {
+      const cell = e.target;
+      let v = cell.value;
+      if (v.length > 1) v = v.slice(-1);
+      // Spaces belong in the visual gaps between words, not inside a letter slot
+      if (/\s/.test(v)) {
+        cell.value = "";
+        return;
+      }
+      cell.value = v;
+      if (v) {
+        const idx = letterCells.indexOf(cell);
+        if (idx >= 0 && idx < letterCells.length - 1) {
+          letterCells[idx + 1].focus();
+          letterCells[idx + 1].select();
+        }
+      }
+    }
+
+    function onLetterKeydown(e) {
+      const cell = e.target;
+      const idx = letterCells.indexOf(cell);
+      // Space / word-gap: jump to next letter (do not put space into a cell)
+      if (e.key === " " || e.code === "Space") {
+        e.preventDefault();
+        if (idx >= 0 && idx < letterCells.length - 1) {
+          letterCells[idx + 1].focus();
+          letterCells[idx + 1].select();
+        }
+        return;
+      }
+      if (e.key === "Backspace") {
+        if (!cell.value && idx > 0) {
+          e.preventDefault();
+          letterCells[idx - 1].focus();
+          letterCells[idx - 1].value = "";
+          letterCells[idx - 1].select();
+        }
+        return;
+      }
+      if (e.key === "ArrowLeft" && idx > 0) {
+        e.preventDefault();
+        letterCells[idx - 1].focus();
+        letterCells[idx - 1].select();
+        return;
+      }
+      if (e.key === "ArrowRight" && idx < letterCells.length - 1) {
+        e.preventDefault();
+        letterCells[idx + 1].focus();
+        letterCells[idx + 1].select();
+        return;
+      }
+      if (e.key === "Enter" && !e.shiftKey) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (awaitingNext) {
+          if (suppressEnterAdvance) return;
+          advanceNext();
+        } else {
+          check();
+        }
+      }
+    }
+
+    function onLetterPaste(e) {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData("text") || "";
+      const letters = text.replace(/\s+/g, " ").trim();
+      setBlankValue(letters);
+      const filled = letterCells.filter((c) => c.value).length;
+      const focusIdx = Math.min(filled, letterCells.length - 1);
+      if (letterCells[focusIdx]) {
+        letterCells[focusIdx].focus();
+        letterCells[focusIdx].select();
+      }
+    }
+
+    function finishOrReview() {
+      if (!inReview && missed.length > 0) {
+        inReview = true;
+        order = shuffle(missed.slice());
+        missed = [];
+        index = 0;
+        el.phraseZh.textContent = "複習錯題";
+        showFeedback("bad", `開始複習 ${order.length} 題錯題 · 再答一次`);
+        setTimeout(() => renderItem(), 700);
+        return;
+      }
+      // still missed during review → another review loop
+      if (inReview && missed.length > 0) {
+        order = shuffle(missed.slice());
+        missed = [];
+        index = 0;
+        showFeedback("bad", `仲有 ${order.length} 題未過 · 再練`);
+        setTimeout(() => renderItem(), 700);
+        return;
+      }
+      showDone();
+    }
+
+    function showDone() {
+      el.practice.classList.add("hidden");
+      el.donePanel.classList.add("show");
+      el.phraseZh.textContent = "完成！";
+      const t = mainTotal || total();
+      el.progress.innerHTML = `<strong>${t}</strong> / ${t}`;
+      if (el.doneTitle) el.doneTitle.textContent = "做得好！";
+      if (el.doneSub) {
+        el.doneSub.textContent = inReview
+          ? "主線＋錯題複習都完成喇。"
+          : "你已完成這一輪練習。";
+      }
+      el.finalScore.textContent = `第一次正確 ${correctCount} / ${t}`;
+      if (el.btnRetryMissed) {
+        if (sessionMissed.length > 0) {
+          el.btnRetryMissed.hidden = false;
+          el.btnRetryMissed.textContent = `本輪錯題再練（${sessionMissed.length}）`;
+        } else {
+          el.btnRetryMissed.hidden = true;
+        }
+      }
+      const st = todayStats();
+      if (el.doneStats) {
+        el.doneStats.textContent = st.total
+          ? `今日 ${st.total} 題 · 正確 ${st.correct}（${st.rate}%）· 錯 ${st.wrong}`
+          : "今日未有練習紀錄";
+      }
+      const wrongs = wrongLogUnique();
+      if (el.btnRetryLog) {
+        el.btnRetryLog.hidden = wrongs.length === 0;
+        el.btnRetryLog.textContent = `紀錄錯題再練（${wrongs.length}）`;
+      }
+      if (el.btnClearLog) el.btnClearLog.hidden = loadLog().length === 0;
+      if (el.btnUnitStats) el.btnUnitStats.hidden = loadLog().length === 0;
+      if (el.logPanel) {
+        el.logPanel.classList.remove("show");
+        el.logPanel.innerHTML = "";
+      }
+      if (el.unitStats) {
+        el.unitStats.hidden = true;
+        el.unitStats.innerHTML = "";
+      }
+      el.btnCheck.disabled = true;
+      el.btnSkip.disabled = true;
+      setCheckLabel("check");
+      inputEl = null;
+      letterCells = [];
+      blankTemplate = "";
+      awaitingNext = false;
+    }
+
+    function check() {
+      if (awaitingNext) {
+        advanceNext();
+        return;
+      }
+      if (locked || index >= total() || !letterCells.length) return;
+      const item = currentItem();
+      const itemIndex = order[index];
+      const user = getBlankValue();
+      locked = true;
+      setBlankDisabled(true);
+
+      if (isCorrect(user, item.answers)) {
+        if (!inReview) correctCount += 1;
+        recordAttempt({ item, typed: user, ok: true });
+        markBlank("ok");
+        showFeedback("ok", "✓ 正確！");
+        // short pause then auto-next when correct
+        setTimeout(() => {
+          if (!awaitingNext) {
+            locked = false;
+            index += 1;
+            renderItem();
+          }
+        }, 650);
+      } else {
+        rememberMissed(itemIndex);
+        recordAttempt({ item, typed: user, ok: false });
+        markBlank("bad");
+        const primary = item.answers[0] || "(無答案資料)";
+        const typed = String(user || "").trim();
+        const typedLabel = typed ? escapeHtml(typed) : "（空白／未填完）";
+        // Keep what they typed in the blank; show correct answer in the feedback box
+        showFeedback(
+          "bad",
+          `<span class="answer-block">你打咗：<span class="answer-hint mistype">${typedLabel}</span></span>` +
+          `<span class="answer-block">答案：<span class="answer-hint">${escapeHtml(primary)}</span></span>` +
+          `睇完再按 Enter 去下一題`
+        );
+        armAwaitingNext();
+      }
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function skip() {
+      if (awaitingNext) {
+        advanceNext();
+        return;
+      }
+      if (locked || index >= total()) return;
+      locked = true;
+      const item = currentItem();
+      const itemIndex = order[index];
+      rememberMissed(itemIndex);
+      recordAttempt({ item, typed: "(skip)", ok: false });
+      setBlankDisabled(true);
+      const primary = item.answers[0] || "(無答案資料)";
+      setBlankValue(primary, "bad");
+      showFeedback(
+        "bad",
+        `<span class="answer-block">跳過 · 答案：<span class="answer-hint">${escapeHtml(primary)}</span></span>再按 Enter 去下一題`
+      );
+      armAwaitingNext();
+    }
+
+    function restart() {
+      buildPool();
+      order = shuffle(pool.slice());
+      mainTotal = order.length;
+      index = 0;
+      correctCount = 0;
+      locked = false;
+      awaitingNext = false;
+      suppressEnterAdvance = false;
+      missed = [];
+      sessionMissed = [];
+      inReview = false;
+      if (el.btnRetryMissed) el.btnRetryMissed.hidden = true;
+      setCheckLabel("check");
+      renderUnitBar();
+      renderItem();
+    }
+
+    /** After a finished round: drill only items missed at least once this session */
+    function retryMissedRound() {
+      if (!sessionMissed.length) return;
+      const drill = sessionMissed.slice();
+      el.donePanel.classList.remove("show");
+      el.practice.classList.remove("hidden");
+      order = shuffle(drill);
+      mainTotal = order.length;
+      index = 0;
+      correctCount = 0;
+      locked = false;
+      awaitingNext = false;
+      suppressEnterAdvance = false;
+      missed = [];
+      sessionMissed = [];
+      inReview = false;
+      if (el.btnRetryMissed) el.btnRetryMissed.hidden = true;
+      el.btnCheck.disabled = false;
+      el.btnSkip.disabled = false;
+      setCheckLabel("check");
+      el.phraseZh.textContent = "本輪錯題再練";
+      showFeedback("bad", `再練 ${order.length} 題本輪錯過嘅字`);
+      setTimeout(() => renderItem(), 500);
+    }
+
+    function renderLogPanel() {
+      if (!el.logPanel) return;
+      const wrongs = wrongLogUnique().slice(0, 40);
+      if (!wrongs.length) {
+        el.logPanel.innerHTML = '<p class="log-empty">未有錯題紀錄。</p>';
+        el.logPanel.classList.add("show");
+        return;
+      }
+      const parts = ['<h3>錯題紀錄（最近）</h3>'];
+      for (const e of wrongs) {
+        const typed = e.typed && e.typed !== "(skip)"
+          ? `<span class="typed">${escapeHtml(e.typed)}</span>`
+          : `<span class="typed">（跳過／空白）</span>`;
+        parts.push(
+          `<div class="log-item">` +
+          `<div><span class="ans">${escapeHtml(e.answer)}</span> · ${escapeHtml(e.unit || "")}</div>` +
+          `<div>你打咗：${typed}</div>` +
+          `<div class="meta">${escapeHtml(formatTime(e.t))}${e.zh ? " · " + escapeHtml(e.zh) : ""}</div>` +
+          `</div>`
+        );
+      }
+      el.logPanel.innerHTML = parts.join("");
+      el.logPanel.classList.add("show");
+    }
+
+    function retryFromLog() {
+      const wrongs = wrongLogUnique();
+      if (!wrongs.length) return;
+      // Map answers back to ITEMS indices (first match per answer+unit)
+      const indices = [];
+      const seen = new Set();
+      for (const e of wrongs) {
+        const key = `${e.unit}||${e.answer}`;
+        if (seen.has(key)) continue;
+        const idx = ITEMS.findIndex(
+          (it) => it.unit === e.unit && it.answers && it.answers[0] === e.answer
+        );
+        if (idx >= 0) {
+          indices.push(idx);
+          seen.add(key);
+        }
+      }
+      if (!indices.length) {
+        alert("詞庫入面搵唔返呢啲錯題（可能換過詞庫）。");
+        return;
+      }
+      el.donePanel.classList.remove("show");
+      el.practice.classList.remove("hidden");
+      if (el.logPanel) {
+        el.logPanel.classList.remove("show");
+        el.logPanel.innerHTML = "";
+      }
+      if (typeof closeRecordsSheet === "function") closeRecordsSheet();
+      order = shuffle(indices);
+      mainTotal = order.length;
+      index = 0;
+      correctCount = 0;
+      locked = false;
+      awaitingNext = false;
+      suppressEnterAdvance = false;
+      missed = [];
+      sessionMissed = [];
+      inReview = false;
+      if (el.btnRetryMissed) el.btnRetryMissed.hidden = true;
+      el.btnCheck.disabled = false;
+      el.btnSkip.disabled = false;
+      setCheckLabel("check");
+      el.phraseZh.textContent = "紀錄錯題再練";
+      showFeedback("bad", `再練 ${order.length} 題紀錄入面嘅錯題`);
+      setTimeout(() => renderItem(), 500);
+    }
+
+
+    function closeRecordsSheet() {
+      if (!el.recordsSheet) return;
+      el.recordsSheet.classList.remove("show");
+      if (el.recBody) el.recBody.innerHTML = "";
+    }
+
+    function openRecordsSheet(tab) {
+      if (!el.recordsSheet) return;
+      const st = todayStats();
+      if (el.recStats) {
+        el.recStats.textContent = st.total
+          ? `今日 ${st.total} 題 · 正確 ${st.correct}（${st.rate}%）· 錯 ${st.wrong}`
+          : "今日未有練習紀錄";
+      }
+      const wrongs = wrongLogUnique();
+      if (el.btnRecRetry) {
+        el.btnRecRetry.hidden = wrongs.length === 0;
+        el.btnRecRetry.textContent = `錯題再練（${wrongs.length}）`;
+      }
+      if (el.btnRecClear) el.btnRecClear.hidden = loadLog().length === 0;
+      el.recordsSheet.classList.add("show");
+      if (tab === "units") renderRecUnits();
+      else renderRecWrong();
+    }
+
+    function renderRecWrong() {
+      if (!el.recBody) return;
+      const wrongs = wrongLogUnique().slice(0, 40);
+      if (!wrongs.length) {
+        el.recBody.innerHTML = '<p class="log-empty">未有錯題紀錄。</p>';
+        return;
+      }
+      const parts = ['<h3 style="margin:0 0 0.45rem;font-size:0.95rem;color:#e0f2fe;">錯題紀錄（最近）</h3>'];
+      for (const e of wrongs) {
+        const typed = e.typed && e.typed !== "(skip)"
+          ? `<span class="typed">${escapeHtml(e.typed)}</span>`
+          : `<span class="typed">（跳過／空白）</span>`;
+        parts.push(
+          `<div class="log-item">` +
+          `<div><span class="ans">${escapeHtml(e.answer)}</span> · ${escapeHtml(e.unit || "")}</div>` +
+          `<div>你打咗：${typed}</div>` +
+          `<div class="meta">${escapeHtml(formatTime(e.t))}${e.zh ? " · " + escapeHtml(e.zh) : ""}</div>` +
+          `</div>`
+        );
+      }
+      el.recBody.innerHTML = parts.join("");
+    }
+
+    function renderRecUnits() {
+      if (!el.recBody) return;
+      const rows = unitAccuracy();
+      if (!rows.length) {
+        el.recBody.innerHTML = '<p class="log-empty">未有練習紀錄。</p>';
+        return;
+      }
+      const parts = ['<h3 style="margin:0 0 0.45rem;font-size:0.95rem;color:#e0f2fe;">各單元正確率（累計）</h3>'];
+      for (const r of rows) {
+        parts.push(
+          `<div class="unit-row"><span>${escapeHtml(r.unit)}</span>` +
+          `<span class="rate">${r.rate}% · ${r.correct}/${r.total}</span></div>`
+        );
+      }
+      el.recBody.innerHTML = parts.join("");
+    }
+
+    if (el.btnRecords) {
+      el.btnRecords.addEventListener("click", () => {
+        if (el.recordsSheet && el.recordsSheet.classList.contains("show")) closeRecordsSheet();
+        else openRecordsSheet("wrong");
+      });
+    }
+    if (el.btnCloseRecords) el.btnCloseRecords.addEventListener("click", closeRecordsSheet);
+    if (el.btnRecWrong) el.btnRecWrong.addEventListener("click", () => openRecordsSheet("wrong"));
+    if (el.btnRecUnits) el.btnRecUnits.addEventListener("click", () => openRecordsSheet("units"));
+    if (el.btnRecRetry) {
+      el.btnRecRetry.addEventListener("click", () => {
+        closeRecordsSheet();
+        retryFromLog();
+      });
+    }
+    if (el.btnRecClear) {
+      el.btnRecClear.addEventListener("click", () => {
+        if (!confirm("清空呢部機上嘅練習／錯題紀錄？")) return;
+        try { localStorage.removeItem(LOG_KEY); } catch (_) {}
+        openRecordsSheet("wrong");
+        if (el.doneStats) el.doneStats.textContent = "今日未有練習紀錄";
+        if (el.btnRetryLog) el.btnRetryLog.hidden = true;
+        if (el.btnClearLog) el.btnClearLog.hidden = true;
+        if (el.btnUnitStats) el.btnUnitStats.hidden = true;
+        if (el.logPanel) {
+          el.logPanel.classList.remove("show");
+          el.logPanel.innerHTML = "";
+        }
+        if (el.unitStats) {
+          el.unitStats.hidden = true;
+          el.unitStats.innerHTML = "";
+        }
+      });
+    }
+
+    el.btnCheck.addEventListener("click", check);
+    el.btnSkip.addEventListener("click", skip);
+    el.btnRestart.addEventListener("click", restart);
+    if (el.btnRetryMissed) {
+      el.btnRetryMissed.addEventListener("click", retryMissedRound);
+    }
+    function renderUnitStats() {
+      if (!el.unitStats) return;
+      const rows = unitAccuracy();
+      if (!rows.length) {
+        el.unitStats.innerHTML = '<p class="log-empty">未有練習紀錄。</p>';
+        el.unitStats.hidden = false;
+        return;
+      }
+      const parts = ['<h3>各單元正確率（累計）</h3>'];
+      for (const r of rows) {
+        parts.push(
+          `<div class="unit-row"><span>${escapeHtml(r.unit)}</span>` +
+          `<span class="rate">${r.rate}% · ${r.correct}/${r.total}</span></div>`
+        );
+      }
+      el.unitStats.innerHTML = parts.join("");
+      el.unitStats.hidden = false;
+    }
+
+    if (el.btnShowLog) {
+      el.btnShowLog.addEventListener("click", () => {
+        if (el.unitStats) {
+          el.unitStats.hidden = true;
+          el.unitStats.innerHTML = "";
+        }
+        if (el.logPanel && el.logPanel.classList.contains("show")) {
+          el.logPanel.classList.remove("show");
+          el.logPanel.innerHTML = "";
+        } else {
+          renderLogPanel();
+        }
+      });
+    }
+    if (el.btnUnitStats) {
+      el.btnUnitStats.addEventListener("click", () => {
+        if (el.logPanel) {
+          el.logPanel.classList.remove("show");
+          el.logPanel.innerHTML = "";
+        }
+        if (el.unitStats && !el.unitStats.hidden && el.unitStats.innerHTML) {
+          el.unitStats.hidden = true;
+          el.unitStats.innerHTML = "";
+        } else {
+          renderUnitStats();
+        }
+      });
+    }
+    if (el.btnRetryLog) {
+      el.btnRetryLog.addEventListener("click", retryFromLog);
+    }
+    if (el.btnClearLog) {
+      el.btnClearLog.addEventListener("click", () => {
+        if (!confirm("清空呢部機上嘅練習／錯題紀錄？")) return;
+        try { localStorage.removeItem(LOG_KEY); } catch (_) {}
+        if (el.logPanel) {
+          el.logPanel.classList.remove("show");
+          el.logPanel.innerHTML = "";
+        }
+        if (el.unitStats) {
+          el.unitStats.hidden = true;
+          el.unitStats.innerHTML = "";
+        }
+        if (el.doneStats) el.doneStats.textContent = "今日未有練習紀錄";
+        if (el.btnRetryLog) el.btnRetryLog.hidden = true;
+        if (el.btnClearLog) el.btnClearLog.hidden = true;
+        if (el.btnUnitStats) el.btnUnitStats.hidden = true;
+      });
+    }
+
+    // Extra signal on iOS: visual viewport shrinks when keyboard is up
+    if (window.visualViewport) {
+      const syncVv = () => {
+        const shrink =
+          window.visualViewport.height < window.innerHeight * 0.75;
+        const typing =
+          document.activeElement &&
+          document.activeElement.classList &&
+          document.activeElement.classList.contains("letter-cell");
+        if (typing || shrink && isCoarsePointer()) {
+          if (typing) setKeyboardOpen(true);
+        }
+        if (!typing && !shrink) setKeyboardOpen(false);
+      };
+      window.visualViewport.addEventListener("resize", syncVv);
+      window.visualViewport.addEventListener("scroll", syncVv);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key !== "Enter" || e.shiftKey) return;
+      if (suppressEnterAdvance) {
+        e.preventDefault();
+        return;
+      }
+      const ae = document.activeElement;
+      if (awaitingNext) {
+        e.preventDefault();
+        advanceNext();
+        return;
+      }
+      if (ae && ae.classList && ae.classList.contains("letter-cell")) return;
+      if (!locked) {
+        e.preventDefault();
+        check();
+      }
+    });
+
+    // Vocab import / reset
+    const btnImport = document.getElementById("btnImport");
+    const fileImport = document.getElementById("fileImport");
+    const btnResetVocab = document.getElementById("btnResetVocab");
+    if (btnImport && fileImport) {
+      btnImport.addEventListener("click", () => fileImport.click());
+      fileImport.addEventListener("change", async () => {
+        const file = fileImport.files && fileImport.files[0];
+        fileImport.value = "";
+        if (!file) return;
+        try {
+          const text = await file.text();
+          let data = JSON.parse(text);
+          if (data && Array.isArray(data.items)) data = data.items;
+          applyItems(data, { persist: true });
+          showFeedback("ok", `已匯入 ${ITEMS.length} 題（已記住喺呢部瀏覽器）`);
+          setTimeout(() => {
+            if (el.feedback.textContent.includes("已匯入")) showFeedback("", "");
+          }, 2200);
+        } catch (err) {
+          alert("匯入失敗：" + (err && err.message ? err.message : String(err)));
+        }
+      });
+    }
+    if (btnResetVocab) {
+      btnResetVocab.addEventListener("click", () => {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
+        const base = Array.isArray(window.SSCO_ITEMS) ? window.SSCO_ITEMS.slice() : [];
+        applyItems(base, { persist: false });
+        showFeedback("ok", "已還原內建詞庫");
+        setTimeout(() => {
+          if (el.feedback.textContent.includes("還原")) showFeedback("", "");
+        }, 1800);
+      });
+    }
+
+    // Start: prefer saved import, else bundled vocab.js
+    if (!tryLoadStored()) {
+      if (!ITEMS.length) {
+        document.body.innerHTML =
+          '<p style="padding:2rem;font-family:sans-serif;line-height:1.6">搵唔到詞庫。請用「匯入詞庫」揀 <code>vocab.json</code>，或將 <code>vocab.js</code> 同呢個檔放埋一齊再開。</p>';
+      } else {
+        restart();
+      }
+    }
+    const meta0 = document.getElementById("vocabMeta");
+    if (meta0) meta0.textContent = `題庫 ${ITEMS.length} 題`;
+  </script>
+</body>
+</html>
