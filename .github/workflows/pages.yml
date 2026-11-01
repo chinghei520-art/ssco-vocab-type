@@ -1,9 +1,9 @@
 name: Deploy GitHub Pages
 
-# Publish the static cloze app (index.html, vocab.js, vocab.json) at the
-# site root. Creating a Pages site still needs a repo admin token, so
-# configure-pages enablement is best-effort. Deployment uses GITHUB_TOKEN
-# with pages:write and id-token:write.
+# The live site is published from the main branch root (legacy Pages).
+# GITHUB_TOKEN cannot create that site; it can only deploy when Source is
+# GitHub Actions. This workflow keeps pages:write and id-token:write, and
+# deploys only in that case so a branch publish is left alone.
 on:
   push:
     branches: [main]
@@ -28,19 +28,30 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
 
+      - name: Detect Pages build type
+        id: mode
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          build=$(gh api "repos/${GITHUB_REPOSITORY}/pages" --jq .build_type)
+          echo "build_type=${build}" | tee -a "$GITHUB_OUTPUT"
+          if [ "${build}" = "legacy" ]; then
+            echo "Pages already publishes the main branch root. Skipping Actions deploy."
+          fi
+
       - name: Configure GitHub Pages
-        id: pages
-        continue-on-error: true
+        if: steps.mode.outputs.build_type == 'workflow'
         uses: actions/configure-pages@v6
-        with:
-          enablement: true
 
       - name: Prepare site root
+        if: steps.mode.outputs.build_type == 'workflow'
         run: |
           mkdir -p _site
           cp index.html vocab.js vocab.json README.md VERSION .nojekyll _site/
 
       - name: Upload Pages artifact
+        if: steps.mode.outputs.build_type == 'workflow'
         uses: actions/upload-pages-artifact@v5
         with:
           path: _site
@@ -48,4 +59,5 @@ jobs:
 
       - name: Deploy to GitHub Pages
         id: deployment
+        if: steps.mode.outputs.build_type == 'workflow'
         uses: actions/deploy-pages@v5
