@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-app-ver="1.7">
+<html lang="zh-Hant" data-app-ver="1.8">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#1a1030" />
-  <title>SSCO Vocab v1.7</title>
+  <title>SSCO Vocab v1.8</title>
   <style>
     :root {
       --bg-top: #2a1848;
@@ -870,7 +870,7 @@
 </head>
 <body>
   <div class="top-bar">
-    <span class="brand">SSCO 英文填空 <span class="app-ver">v1.7</span></span>
+    <span class="brand">SSCO 英文填空 <span class="app-ver">v1.8</span></span>
     <div class="top-right">
       <span class="vocab-meta" id="vocabMeta" title="Current question bank size">題庫 —</span>
       <div class="progress" id="progress" aria-live="polite"><strong>1</strong> / 43</div>
@@ -959,6 +959,7 @@
     let ITEMS = Array.isArray(window.SSCO_ITEMS) ? window.SSCO_ITEMS.slice() : [];
     const STORAGE_KEY = "ssco-vocab-items-v1";
     const LOG_KEY = "ssco-vocab-attempt-log-v1";
+    const SESSION_KEY = "ssco-vocab-session-v1";
     const LOG_MAX = 200;
 
     function todayKey(d = new Date()) {
@@ -1054,7 +1055,7 @@
     const REPORT_WRONG_CAP = 20;
 
     function appVersionLabel() {
-      const raw = (document.documentElement.getAttribute("data-app-ver") || "1.7").trim();
+      const raw = (document.documentElement.getAttribute("data-app-ver") || "1.8").trim();
       return /^v/i.test(raw) ? raw : "v" + raw;
     }
 
@@ -1245,13 +1246,18 @@
       return data;
     }
 
-    function applyItems(data, { persist } = { persist: false }) {
+    function applyItems(data, { persist, keepSession } = { persist: false, keepSession: false }) {
       ITEMS = validateItems(data);
       rebuildUnitOrder();
       if (persist) {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(ITEMS));
         } catch (_) { /* ignore quota */ }
+      }
+      if (keepSession && tryResumeSession()) {
+        const meta = document.getElementById("vocabMeta");
+        if (meta) meta.textContent = `題庫 ${ITEMS.length} 題`;
+        return;
       }
       selectedUnit = "All";
       restart();
@@ -1263,7 +1269,7 @@
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return false;
-        applyItems(JSON.parse(raw), { persist: false });
+        applyItems(JSON.parse(raw), { persist: false, keepSession: true });
         return true;
       } catch (_) {
         return false;
@@ -1322,6 +1328,7 @@
     let sessionMissed = [];   // unique misses this round (for 一鍵再練)
     let inReview = false;
     let mainTotal = 0;        // size of first pass (for score display)
+    let sessionLive = false;  // false on the done panel so pagehide won't rewrite a finished round
     let inputEl = null;
     let letterCells = [];
     let blankTemplate = "";
@@ -1429,6 +1436,7 @@
         suppressEnterAdvance = false;
         try { el.btnCheck.focus(); } catch (_) {}
       }, 280);
+      touchSession();
     }
 
     function clearFeedback() {
@@ -1570,6 +1578,7 @@
       requestAnimationFrame(() => {
         focusFirstLetter();
       });
+      touchSession();
     }
 
     function buildLetterBlank(template) {
@@ -1902,6 +1911,7 @@
         order = shuffle(missed.slice());
         missed = [];
         index = 0;
+        touchSession();
         el.phraseZh.textContent = "複習錯題";
         showFeedback("bad", `開始複習 ${order.length} 題錯題 · 再答一次`);
         setTimeout(() => renderItem(), 700);
@@ -1912,6 +1922,7 @@
         order = shuffle(missed.slice());
         missed = [];
         index = 0;
+        touchSession();
         showFeedback("bad", `仲有 ${order.length} 題未過 · 再練`);
         setTimeout(() => renderItem(), 700);
         return;
@@ -1920,6 +1931,7 @@
     }
 
     function showDone() {
+      clearSession();
       el.practice.classList.add("hidden");
       el.donePanel.classList.add("show");
       el.phraseZh.textContent = "完成！";
@@ -1993,11 +2005,12 @@
         recordAttempt({ item, typed: user, ok: true });
         markBlank("ok");
         showFeedback("ok", "✓ 正確！");
-        // short pause then auto-next when correct
+        // Advance now so a close during the pause resumes on the next item
+        index += 1;
+        touchSession();
         setTimeout(() => {
           if (!awaitingNext) {
             locked = false;
-            index += 1;
             renderItem();
           }
         }, 650);
@@ -2088,6 +2101,7 @@
       setCheckLabel("check");
       el.phraseZh.textContent = "本輪錯題再練";
       showFeedback("bad", `再練 ${order.length} 題本輪錯過嘅字`);
+      touchSession();
       setTimeout(() => renderItem(), 500);
     }
 
@@ -2160,7 +2174,117 @@
       setCheckLabel("check");
       el.phraseZh.textContent = "紀錄錯題再練";
       showFeedback("bad", `再練 ${order.length} 題紀錄入面嘅錯題`);
+      touchSession();
       setTimeout(() => renderItem(), 500);
+    }
+
+    function vocabStamp() {
+      let h = 2166136261;
+      for (const it of ITEMS) {
+        const s = `${it.unit}\u0000${it.blankIndex}\u0000${(it.answers && it.answers[0]) || ""}\u0000${it.zh || ""}`;
+        for (let i = 0; i < s.length; i++) {
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+      }
+      return `${ITEMS.length}:${h >>> 0}`;
+    }
+
+    function isItemIndex(n) {
+      return Number.isInteger(n) && n >= 0 && n < ITEMS.length;
+    }
+
+    function clearSession() {
+      sessionLive = false;
+      try { localStorage.removeItem(SESSION_KEY); } catch (_) {}
+    }
+
+    function saveSession() {
+      if (!sessionLive || !order.length) return;
+      try {
+        const resumeAt = awaitingNext ? Math.min(index + 1, order.length) : index;
+        const payload = {
+          v: 1,
+          stamp: vocabStamp(),
+          unit: selectedUnit,
+          order: order.slice(),
+          index: resumeAt,
+          correctCount,
+          missed: missed.slice(),
+          sessionMissed: sessionMissed.slice(),
+          inReview: !!inReview,
+          mainTotal
+        };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(payload));
+      } catch (_) {}
+    }
+
+    function touchSession() {
+      sessionLive = true;
+      saveSession();
+    }
+
+    function showResumeHint() {
+      showFeedback("", "接返上次");
+      setTimeout(() => {
+        if (el.feedback && el.feedback.textContent === "接返上次") showFeedback("", "");
+      }, 1600);
+    }
+
+    /** Restore an unfinished round for this vocab. Returns false if none or it doesn't fit. */
+    function tryResumeSession() {
+      let data = null;
+      try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        if (!raw) return false;
+        data = JSON.parse(raw);
+      } catch (_) {
+        clearSession();
+        return false;
+      }
+      const listOk = (arr) => Array.isArray(arr) && arr.every(isItemIndex);
+      const unitOk = data && (data.unit === "All" || UNIT_ORDER.includes(data.unit));
+      if (!data || data.v !== 1 || data.stamp !== vocabStamp() || !unitOk || !listOk(data.order) || !data.order.length) {
+        clearSession();
+        return false;
+      }
+      if (!listOk(data.missed || []) || !listOk(data.sessionMissed || [])) {
+        clearSession();
+        return false;
+      }
+      if (!Number.isInteger(data.index) || data.index < 0 || data.index > data.order.length) {
+        clearSession();
+        return false;
+      }
+      selectedUnit = data.unit;
+      buildPool();
+      const poolSet = new Set(pool);
+      const missedList = Array.isArray(data.missed) ? data.missed : [];
+      const sessionMissedList = Array.isArray(data.sessionMissed) ? data.sessionMissed : [];
+      const inPool = (i) => poolSet.has(i);
+      if (!data.order.every(inPool) || !missedList.every(inPool) || !sessionMissedList.every(inPool)) {
+        clearSession();
+        return false;
+      }
+      order = data.order.slice();
+      index = data.index;
+      correctCount = Math.max(0, Number(data.correctCount) || 0);
+      missed = missedList.slice();
+      sessionMissed = sessionMissedList.slice();
+      inReview = !!data.inReview;
+      mainTotal = Math.max(0, Number(data.mainTotal) || order.length);
+      locked = false;
+      awaitingNext = false;
+      suppressEnterAdvance = false;
+      const resumeAt = index;
+      renderUnitBar();
+      if (resumeAt >= order.length && missed.length === 0) {
+        showDone();
+        return true;
+      }
+      renderItem();
+      if (resumeAt < order.length) showResumeHint();
+      return true;
     }
 
 
@@ -2426,12 +2550,17 @@
       });
     }
 
-    // Start: prefer saved import, else bundled vocab.js
+    window.addEventListener("pagehide", () => saveSession());
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") saveSession();
+    });
+
+    // Start: prefer saved import, else bundled vocab.js. Resume an unfinished round when it still matches.
     if (!tryLoadStored()) {
       if (!ITEMS.length) {
         document.body.innerHTML =
           '<p style="padding:2rem;font-family:sans-serif;line-height:1.6">搵唔到詞庫。請用「匯入詞庫」揀 <code>vocab.json</code>，或將 <code>vocab.js</code> 同呢個檔放埋一齊再開。</p>';
-      } else {
+      } else if (!tryResumeSession()) {
         restart();
       }
     }
