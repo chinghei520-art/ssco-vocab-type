@@ -1,0 +1,1 @@
+# ssco-vocab-type
