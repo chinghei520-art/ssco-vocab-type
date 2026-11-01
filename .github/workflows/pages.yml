@@ -1,0 +1,51 @@
+name: Deploy GitHub Pages
+
+# Publish the static cloze app (index.html, vocab.js, vocab.json) at the
+# site root. Creating a Pages site still needs a repo admin token, so
+# configure-pages enablement is best-effort. Deployment uses GITHUB_TOKEN
+# with pages:write and id-token:write.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Configure GitHub Pages
+        id: pages
+        continue-on-error: true
+        uses: actions/configure-pages@v6
+        with:
+          enablement: true
+
+      - name: Prepare site root
+        run: |
+          mkdir -p _site
+          cp index.html vocab.js vocab.json README.md VERSION .nojekyll _site/
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+          include-hidden-files: true
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
