@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-app-ver="1.4">
+<html lang="zh-Hant" data-app-ver="1.8">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#1a1030" />
-  <title>SSCO Vocab v1.6</title>
+  <title>SSCO Vocab v1.8</title>
   <style>
     :root {
       --bg-top: #2a1848;
@@ -96,6 +96,14 @@
       text-transform: uppercase;
       color: var(--muted);
       opacity: 0.85;
+    }
+
+    .brand .app-ver {
+      text-transform: none;
+      letter-spacing: 0.04em;
+      margin-left: 0.35rem;
+      color: var(--accent);
+      font-weight: 700;
     }
 
     .unit-bar-wrap {
@@ -542,6 +550,29 @@
       display: none !important;
     }
 
+    .done-panel .done-copy {
+      margin-top: 0.35rem;
+      padding: 0.7rem 1.25rem;
+      border-radius: 999px;
+      border: 1px solid rgba(125, 211, 252, 0.5);
+      background: rgba(125, 211, 252, 0.22);
+      color: #e0f2fe;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .done-panel .done-copy:hover {
+      background: rgba(125, 211, 252, 0.35);
+    }
+
+    .done-panel .done-copy.copied,
+    .records-sheet .rec-actions button.copied {
+      border-color: rgba(74, 222, 128, 0.55);
+      background: rgba(74, 222, 128, 0.2);
+      color: #bbf7d0;
+    }
+
     .done-actions {
       display: flex;
       flex-wrap: wrap;
@@ -711,6 +742,74 @@
       color: #fecaca;
     }
 
+    .records-sheet .rec-actions button.copy {
+      border: 1px solid rgba(125, 211, 252, 0.45);
+      font-weight: 700;
+    }
+
+    .copy-fallback {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 1rem;
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .copy-fallback[hidden] { display: none !important; }
+
+    .copy-fallback .box {
+      width: min(96vw, 28rem);
+      max-height: min(80vh, 32rem);
+      overflow: auto;
+      background: #0f172a;
+      border: 1px solid var(--pill-border);
+      border-radius: 16px;
+      padding: 0.9rem 1rem 1rem;
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+    }
+
+    .copy-fallback h2 {
+      font-size: 1.05rem;
+      margin: 0 0 0.35rem;
+      color: #e0f2fe;
+    }
+
+    .copy-fallback p {
+      color: var(--muted);
+      font-size: 0.88rem;
+      line-height: 1.45;
+    }
+
+    .copy-fallback textarea {
+      width: 100%;
+      min-height: 14rem;
+      margin: 0.65rem 0 0.75rem;
+      background: rgba(0, 0, 0, 0.35);
+      color: var(--text);
+      border: 1px solid var(--pill-border);
+      border-radius: 12px;
+      padding: 0.65rem 0.75rem;
+      font: inherit;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      resize: vertical;
+    }
+
+    .copy-fallback button {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: rgba(125, 211, 252, 0.22);
+      color: #e0f2fe;
+      cursor: pointer;
+    }
+
     body.keyboard-open .records-sheet { display: none !important; }
 
 
@@ -771,7 +870,7 @@
 </head>
 <body>
   <div class="top-bar">
-    <span class="brand">SSCO 英文填空</span>
+    <span class="brand">SSCO 英文填空 <span class="app-ver">v1.8</span></span>
     <div class="top-right">
       <span class="vocab-meta" id="vocabMeta" title="Current question bank size">題庫 —</span>
       <div class="progress" id="progress" aria-live="polite"><strong>1</strong> / 43</div>
@@ -797,6 +896,7 @@
       <p class="score" id="finalScore"></p>
       <p class="done-stats" id="doneStats"></p>
       <div class="done-actions">
+        <button type="button" class="done-copy" id="btnCopyReport" data-label="複製報告" title="複製進度報告，可貼去對話">複製報告</button>
         <button type="button" class="done-retry" id="btnRetryMissed" hidden>本輪錯題再練</button>
         <button type="button" class="done-retry" id="btnShowLog">錯題紀錄</button>
         <button type="button" class="done-retry" id="btnUnitStats" hidden>各單元正確率</button>
@@ -815,12 +915,22 @@
     </div>
     <p class="rec-stats" id="recStats"></p>
     <div class="rec-actions">
+      <button type="button" class="copy" id="btnRecCopy" data-label="複製報告" title="複製進度報告，可貼去對話">複製報告</button>
       <button type="button" id="btnRecWrong">錯題</button>
       <button type="button" id="btnRecUnits">各單元</button>
       <button type="button" id="btnRecRetry" hidden>錯題再練</button>
       <button type="button" class="danger" id="btnRecClear" hidden>清空</button>
     </div>
     <div id="recBody"></div>
+  </div>
+
+  <div class="copy-fallback" id="copyFallback" hidden>
+    <div class="box" role="dialog" aria-modal="true" aria-labelledby="copyFallbackTitle">
+      <h2 id="copyFallbackTitle">請手動複製</h2>
+      <p>複製未成功。請揀選下面文字，再貼去對話。</p>
+      <textarea id="copyFallbackText" readonly aria-label="進度報告"></textarea>
+      <button type="button" id="btnCopyFallbackClose">關閉</button>
+    </div>
   </div>
 
   <nav class="toolbar" aria-label="Practice controls">
@@ -849,6 +959,7 @@
     let ITEMS = Array.isArray(window.SSCO_ITEMS) ? window.SSCO_ITEMS.slice() : [];
     const STORAGE_KEY = "ssco-vocab-items-v1";
     const LOG_KEY = "ssco-vocab-attempt-log-v1";
+    const SESSION_KEY = "ssco-vocab-session-v1";
     const LOG_MAX = 200;
 
     function todayKey(d = new Date()) {
@@ -941,6 +1052,180 @@
         .sort((a, b) => a.rate - b.rate || b.total - a.total);
     }
 
+    const REPORT_WRONG_CAP = 20;
+
+    function appVersionLabel() {
+      const raw = (document.documentElement.getAttribute("data-app-ver") || "1.8").trim();
+      return /^v/i.test(raw) ? raw : "v" + raw;
+    }
+
+    function reportTimestamp() {
+      try {
+        const parts = Object.fromEntries(
+          new Intl.DateTimeFormat("en-GB", {
+            timeZone: "Asia/Hong_Kong",
+            year: "numeric",
+            month: "2-digit",
+            day: "2-digit",
+            hour: "2-digit",
+            minute: "2-digit",
+            hourCycle: "h23"
+          }).formatToParts(new Date()).map((p) => [p.type, p.value])
+        );
+        return `${parts.year}-${parts.month}-${parts.day} ${parts.hour}:${parts.minute}`;
+      } catch (_) {
+        return formatTime(Date.now());
+      }
+    }
+
+    function oneLine(s) {
+      return String(s == null ? "" : s).replace(/\s+/g, " ").trim();
+    }
+
+    /** Plain-text progress report for pasting into chat. Reuses today / unit / wrong helpers. */
+    function buildProgressReport() {
+      const st = todayStats();
+      const units = unitAccuracy();
+      const allWrongs = wrongLogUnique();
+      const wrongs = allWrongs.slice(0, REPORT_WRONG_CAP);
+      const lines = [];
+      lines.push("# SSCO Vocab 進度報告");
+      lines.push(`時間：${reportTimestamp()}（香港）`);
+      lines.push(`版本：${appVersionLabel()}`);
+      if (Array.isArray(ITEMS) && ITEMS.length) {
+        const names = UNIT_ORDER.map((u) => shortUnitLabel(u)).filter(Boolean);
+        lines.push(
+          `題庫：${ITEMS.length} 題` + (names.length ? ` · 單元：${names.join("、")}` : "")
+        );
+      }
+      lines.push("");
+      lines.push("## 今日");
+      lines.push(
+        st.total
+          ? `嘗試 ${st.total} · 正確 ${st.correct} · 正確率 ${st.rate}% · 錯 ${st.wrong}`
+          : "未有練習紀錄"
+      );
+      lines.push("");
+      lines.push("## 各單元正確率（累計）");
+      if (!units.length) {
+        lines.push("未有練習紀錄");
+      } else {
+        for (const r of units) {
+          lines.push(`- ${oneLine(r.unit)}：${r.rate}%（${r.correct}/${r.total}）`);
+        }
+      }
+      lines.push("");
+      lines.push(
+        allWrongs.length > wrongs.length
+          ? `## 最近錯題（${wrongs.length}／共 ${allWrongs.length}，每題最新一次）`
+          : "## 最近錯題（每題最新一次）"
+      );
+      if (!wrongs.length) {
+        lines.push("未有錯題紀錄");
+      } else {
+        wrongs.forEach((e, i) => {
+          const unit = oneLine(e.unit) || "未標單元";
+          const answer = oneLine(e.answer) || "（無答案）";
+          const typedRaw = oneLine(e.typed);
+          const typed = !typedRaw || typedRaw === "(skip)" ? "（跳過／空白）" : typedRaw;
+          const when = formatTime(e.t);
+          lines.push(
+            `${i + 1}. ${unit} · ${answer} · 打咗 ${typed}` + (when ? ` · ${when}` : "")
+          );
+        });
+      }
+      lines.push("");
+      return lines.join("\n");
+    }
+
+    function legacyCopyText(text) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.setAttribute("aria-hidden", "true");
+      ta.style.position = "fixed";
+      ta.style.top = "0";
+      ta.style.left = "0";
+      ta.style.width = "2em";
+      ta.style.height = "2em";
+      ta.style.padding = "0";
+      ta.style.border = "none";
+      ta.style.outline = "none";
+      ta.style.boxShadow = "none";
+      ta.style.background = "transparent";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      try { ta.setSelectionRange(0, text.length); } catch (_) {}
+      let ok = false;
+      try { ok = document.execCommand("copy"); } catch (_) { ok = false; }
+      document.body.removeChild(ta);
+      return ok;
+    }
+
+    async function writeClipboard(text) {
+      try {
+        if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+          await navigator.clipboard.writeText(text);
+          return true;
+        }
+      } catch (_) {}
+      try {
+        return legacyCopyText(text);
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function flashCopyButton(btn) {
+      if (!btn) return;
+      const original = btn.getAttribute("data-label") || "複製報告";
+      btn.textContent = "已複製";
+      btn.classList.add("copied");
+      clearTimeout(btn._copyTimer);
+      btn._copyTimer = setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove("copied");
+      }, 1600);
+    }
+
+    function showCopyFallback(text) {
+      const box = document.getElementById("copyFallback");
+      const ta = document.getElementById("copyFallbackText");
+      if (!box || !ta) {
+        window.alert(text);
+        return;
+      }
+      ta.value = text;
+      box.hidden = false;
+      const selectAll = () => {
+        try {
+          ta.focus();
+          ta.select();
+          ta.setSelectionRange(0, ta.value.length);
+        } catch (_) {}
+      };
+      selectAll();
+      setTimeout(selectAll, 30);
+    }
+
+    function hideCopyFallback() {
+      const box = document.getElementById("copyFallback");
+      if (box) box.hidden = true;
+    }
+
+    async function copyProgressReport(btn) {
+      const text = buildProgressReport();
+      const ok = await writeClipboard(text);
+      if (ok) {
+        flashCopyButton(btn);
+        hideCopyFallback();
+        return;
+      }
+      showCopyFallback(text);
+    }
+
 
     function rebuildUnitOrder() {
       UNIT_ORDER.length = 0;
@@ -961,13 +1246,18 @@
       return data;
     }
 
-    function applyItems(data, { persist } = { persist: false }) {
+    function applyItems(data, { persist, keepSession } = { persist: false, keepSession: false }) {
       ITEMS = validateItems(data);
       rebuildUnitOrder();
       if (persist) {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(ITEMS));
         } catch (_) { /* ignore quota */ }
+      }
+      if (keepSession && tryResumeSession()) {
+        const meta = document.getElementById("vocabMeta");
+        if (meta) meta.textContent = `題庫 ${ITEMS.length} 題`;
+        return;
       }
       selectedUnit = "All";
       restart();
@@ -979,7 +1269,7 @@
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
         if (!raw) return false;
-        applyItems(JSON.parse(raw), { persist: false });
+        applyItems(JSON.parse(raw), { persist: false, keepSession: true });
         return true;
       } catch (_) {
         return false;
@@ -1017,6 +1307,8 @@
       btnUnitStats: document.getElementById("btnUnitStats"),
       btnRetryLog: document.getElementById("btnRetryLog"),
       btnClearLog: document.getElementById("btnClearLog"),
+      btnCopyReport: document.getElementById("btnCopyReport"),
+      btnRecCopy: document.getElementById("btnRecCopy"),
       logPanel: document.getElementById("logPanel"),
       unitStats: document.getElementById("unitStats"),
       doneStats: document.getElementById("doneStats"),
@@ -1036,6 +1328,7 @@
     let sessionMissed = [];   // unique misses this round (for 一鍵再練)
     let inReview = false;
     let mainTotal = 0;        // size of first pass (for score display)
+    let sessionLive = false;  // false on the done panel so pagehide won't rewrite a finished round
     let inputEl = null;
     let letterCells = [];
     let blankTemplate = "";
@@ -1143,6 +1436,7 @@
         suppressEnterAdvance = false;
         try { el.btnCheck.focus(); } catch (_) {}
       }, 280);
+      touchSession();
     }
 
     function clearFeedback() {
@@ -1284,6 +1578,7 @@
       requestAnimationFrame(() => {
         focusFirstLetter();
       });
+      touchSession();
     }
 
     function buildLetterBlank(template) {
@@ -1616,6 +1911,7 @@
         order = shuffle(missed.slice());
         missed = [];
         index = 0;
+        touchSession();
         el.phraseZh.textContent = "複習錯題";
         showFeedback("bad", `開始複習 ${order.length} 題錯題 · 再答一次`);
         setTimeout(() => renderItem(), 700);
@@ -1626,6 +1922,7 @@
         order = shuffle(missed.slice());
         missed = [];
         index = 0;
+        touchSession();
         showFeedback("bad", `仲有 ${order.length} 題未過 · 再練`);
         setTimeout(() => renderItem(), 700);
         return;
@@ -1634,6 +1931,7 @@
     }
 
     function showDone() {
+      clearSession();
       el.practice.classList.add("hidden");
       el.donePanel.classList.add("show");
       el.phraseZh.textContent = "完成！";
@@ -1682,6 +1980,12 @@
       letterCells = [];
       blankTemplate = "";
       awaitingNext = false;
+      try {
+        if (document.activeElement && document.activeElement !== document.body) {
+          document.activeElement.blur();
+        }
+      } catch (_) {}
+      setKeyboardOpen(false);
     }
 
     function check() {
@@ -1701,11 +2005,12 @@
         recordAttempt({ item, typed: user, ok: true });
         markBlank("ok");
         showFeedback("ok", "✓ 正確！");
-        // short pause then auto-next when correct
+        // Advance now so a close during the pause resumes on the next item
+        index += 1;
+        touchSession();
         setTimeout(() => {
           if (!awaitingNext) {
             locked = false;
-            index += 1;
             renderItem();
           }
         }, 650);
@@ -1796,6 +2101,7 @@
       setCheckLabel("check");
       el.phraseZh.textContent = "本輪錯題再練";
       showFeedback("bad", `再練 ${order.length} 題本輪錯過嘅字`);
+      touchSession();
       setTimeout(() => renderItem(), 500);
     }
 
@@ -1868,7 +2174,117 @@
       setCheckLabel("check");
       el.phraseZh.textContent = "紀錄錯題再練";
       showFeedback("bad", `再練 ${order.length} 題紀錄入面嘅錯題`);
+      touchSession();
       setTimeout(() => renderItem(), 500);
+    }
+
+    function vocabStamp() {
+      let h = 2166136261;
+      for (const it of ITEMS) {
+        const s = `${it.unit}\u0000${it.blankIndex}\u0000${(it.answers && it.answers[0]) || ""}\u0000${it.zh || ""}`;
+        for (let i = 0; i < s.length; i++) {
+          h ^= s.charCodeAt(i);
+          h = Math.imul(h, 16777619);
+        }
+      }
+      return `${ITEMS.length}:${h >>> 0}`;
+    }
+
+    function isItemIndex(n) {
+      return Number.isInteger(n) && n >= 0 && n < ITEMS.length;
+    }
+
+    function clearSession() {
+      sessionLive = false;
+      try { localStorage.removeItem(SESSION_KEY); } catch (_) {}
+    }
+
+    function saveSession() {
+      if (!sessionLive || !order.length) return;
+      try {
+        const resumeAt = awaitingNext ? Math.min(index + 1, order.length) : index;
+        const payload = {
+          v: 1,
+          stamp: vocabStamp(),
+          unit: selectedUnit,
+          order: order.slice(),
+          index: resumeAt,
+          correctCount,
+          missed: missed.slice(),
+          sessionMissed: sessionMissed.slice(),
+          inReview: !!inReview,
+          mainTotal
+        };
+        localStorage.setItem(SESSION_KEY, JSON.stringify(payload));
+      } catch (_) {}
+    }
+
+    function touchSession() {
+      sessionLive = true;
+      saveSession();
+    }
+
+    function showResumeHint() {
+      showFeedback("", "接返上次");
+      setTimeout(() => {
+        if (el.feedback && el.feedback.textContent === "接返上次") showFeedback("", "");
+      }, 1600);
+    }
+
+    /** Restore an unfinished round for this vocab. Returns false if none or it doesn't fit. */
+    function tryResumeSession() {
+      let data = null;
+      try {
+        const raw = localStorage.getItem(SESSION_KEY);
+        if (!raw) return false;
+        data = JSON.parse(raw);
+      } catch (_) {
+        clearSession();
+        return false;
+      }
+      const listOk = (arr) => Array.isArray(arr) && arr.every(isItemIndex);
+      const unitOk = data && (data.unit === "All" || UNIT_ORDER.includes(data.unit));
+      if (!data || data.v !== 1 || data.stamp !== vocabStamp() || !unitOk || !listOk(data.order) || !data.order.length) {
+        clearSession();
+        return false;
+      }
+      if (!listOk(data.missed || []) || !listOk(data.sessionMissed || [])) {
+        clearSession();
+        return false;
+      }
+      if (!Number.isInteger(data.index) || data.index < 0 || data.index > data.order.length) {
+        clearSession();
+        return false;
+      }
+      selectedUnit = data.unit;
+      buildPool();
+      const poolSet = new Set(pool);
+      const missedList = Array.isArray(data.missed) ? data.missed : [];
+      const sessionMissedList = Array.isArray(data.sessionMissed) ? data.sessionMissed : [];
+      const inPool = (i) => poolSet.has(i);
+      if (!data.order.every(inPool) || !missedList.every(inPool) || !sessionMissedList.every(inPool)) {
+        clearSession();
+        return false;
+      }
+      order = data.order.slice();
+      index = data.index;
+      correctCount = Math.max(0, Number(data.correctCount) || 0);
+      missed = missedList.slice();
+      sessionMissed = sessionMissedList.slice();
+      inReview = !!data.inReview;
+      mainTotal = Math.max(0, Number(data.mainTotal) || order.length);
+      locked = false;
+      awaitingNext = false;
+      suppressEnterAdvance = false;
+      const resumeAt = index;
+      renderUnitBar();
+      if (resumeAt >= order.length && missed.length === 0) {
+        showDone();
+        return true;
+      }
+      renderItem();
+      if (resumeAt < order.length) showResumeHint();
+      return true;
     }
 
 
@@ -2046,6 +2462,20 @@
         if (el.btnUnitStats) el.btnUnitStats.hidden = true;
       });
     }
+    if (el.btnCopyReport) {
+      el.btnCopyReport.addEventListener("click", () => copyProgressReport(el.btnCopyReport));
+    }
+    if (el.btnRecCopy) {
+      el.btnRecCopy.addEventListener("click", () => copyProgressReport(el.btnRecCopy));
+    }
+    const btnCopyFallbackClose = document.getElementById("btnCopyFallbackClose");
+    if (btnCopyFallbackClose) btnCopyFallbackClose.addEventListener("click", hideCopyFallback);
+    const copyFallbackEl = document.getElementById("copyFallback");
+    if (copyFallbackEl) {
+      copyFallbackEl.addEventListener("click", (e) => {
+        if (e.target === copyFallbackEl) hideCopyFallback();
+      });
+    }
 
     // Extra signal on iOS: visual viewport shrinks when keyboard is up
     if (window.visualViewport) {
@@ -2120,12 +2550,17 @@
       });
     }
 
-    // Start: prefer saved import, else bundled vocab.js
+    window.addEventListener("pagehide", () => saveSession());
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "hidden") saveSession();
+    });
+
+    // Start: prefer saved import, else bundled vocab.js. Resume an unfinished round when it still matches.
     if (!tryLoadStored()) {
       if (!ITEMS.length) {
         document.body.innerHTML =
           '<p style="padding:2rem;font-family:sans-serif;line-height:1.6">搵唔到詞庫。請用「匯入詞庫」揀 <code>vocab.json</code>，或將 <code>vocab.js</code> 同呢個檔放埋一齊再開。</p>';
-      } else {
+      } else if (!tryResumeSession()) {
         restart();
       }
     }
