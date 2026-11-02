@@ -3312,5 +3312,255 @@
     "answers": [
       "for further investigation"
     ]
+  },
+  {
+    "unit": "Injury-Severity-2026-11-02",
+    "zh": "非預期事件（複數）",
+    "words": [
+      {
+        "en": "All",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "ADMN Ch.3 總稱"
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": "classified",
+        "gloss": ""
+      },
+      {
+        "en": "by",
+        "gloss": ""
+      },
+      {
+        "en": "severity",
+        "gloss": ""
+      },
+      {
+        "en": "before",
+        "gloss": ""
+      },
+      {
+        "en": "ODMS",
+        "gloss": ""
+      },
+      {
+        "en": "entry.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 1,
+    "answers": [
+      "undesired events",
+      "Undesired events",
+      "undesired event"
+    ]
+  },
+  {
+    "unit": "Injury-Severity-2026-11-02",
+    "zh": "表面無明顯傷",
+    "words": [
+      {
+        "en": "Injury",
+        "gloss": ""
+      },
+      {
+        "en": "severity:",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021＋ADMN severity 四類之一"
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": "Minor",
+        "gloss": ""
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": "Serious",
+        "gloss": ""
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": "Fatal",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 2,
+    "answers": [
+      "None apparent",
+      "none apparent",
+      "None Apparent"
+    ]
+  },
+  {
+    "unit": "Injury-Severity-2026-11-02",
+    "zh": "輕傷",
+    "words": [
+      {
+        "en": "Injury",
+        "gloss": ""
+      },
+      {
+        "en": "severity:",
+        "gloss": ""
+      },
+      {
+        "en": "None",
+        "gloss": ""
+      },
+      {
+        "en": "apparent",
+        "gloss": ""
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021＋ADMN severity 四類之一"
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": "Serious",
+        "gloss": ""
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": "Fatal",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 5,
+    "answers": [
+      "Minor"
+    ]
+  },
+  {
+    "unit": "Injury-Severity-2026-11-02",
+    "zh": "重傷",
+    "words": [
+      {
+        "en": "Injury",
+        "gloss": ""
+      },
+      {
+        "en": "severity:",
+        "gloss": ""
+      },
+      {
+        "en": "None",
+        "gloss": ""
+      },
+      {
+        "en": "apparent",
+        "gloss": ""
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": "Minor",
+        "gloss": ""
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021＋ADMN severity 四類之一"
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": "Fatal",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 7,
+    "answers": [
+      "Serious"
+    ]
+  },
+  {
+    "unit": "Injury-Severity-2026-11-02",
+    "zh": "致命",
+    "words": [
+      {
+        "en": "Injury",
+        "gloss": ""
+      },
+      {
+        "en": "severity:",
+        "gloss": ""
+      },
+      {
+        "en": "None",
+        "gloss": ""
+      },
+      {
+        "en": "apparent",
+        "gloss": ""
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": "Minor",
+        "gloss": ""
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": "Serious",
+        "gloss": ""
+      },
+      {
+        "en": "/",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021＋ADMN severity 四類之一"
+      }
+    ],
+    "blankIndex": 9,
+    "answers": [
+      "Fatal"
+    ]
   }
 ]
