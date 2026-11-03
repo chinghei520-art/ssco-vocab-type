@@ -3562,5 +3562,431 @@ window.SSCO_ITEMS = [
     "answers": [
       "Fatal"
     ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "抓痕／划傷（複數）",
+    "words": [
+      {
+        "en": "Minor",
+        "gloss": ""
+      },
+      {
+        "en": "injury:",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021 Minor"
+      },
+      {
+        "en": ",",
+        "gloss": ""
+      },
+      {
+        "en": "bruises",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "abrasion.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 2,
+    "answers": [
+      "scratches",
+      "Scratches"
+    ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "瘀傷",
+    "words": [
+      {
+        "en": "Minor",
+        "gloss": ""
+      },
+      {
+        "en": "injury:",
+        "gloss": ""
+      },
+      {
+        "en": "scratches,",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021 Minor"
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "abrasion.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 3,
+    "answers": [
+      "bruises",
+      "Bruises"
+    ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "擦傷",
+    "words": [
+      {
+        "en": "Minor",
+        "gloss": ""
+      },
+      {
+        "en": "injury:",
+        "gloss": ""
+      },
+      {
+        "en": "scratches,",
+        "gloss": ""
+      },
+      {
+        "en": "bruises",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021 Minor"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 5,
+    "answers": [
+      "abrasion",
+      "Abrasion"
+    ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "暈厥",
+    "words": [
+      {
+        "en": "None",
+        "gloss": ""
+      },
+      {
+        "en": "apparent:",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021 None apparent"
+      },
+      {
+        "en": ",",
+        "gloss": ""
+      },
+      {
+        "en": "stomach-ache",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "cramping.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 2,
+    "answers": [
+      "fainting",
+      "Fainting"
+    ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "肚痛",
+    "words": [
+      {
+        "en": "None",
+        "gloss": ""
+      },
+      {
+        "en": "apparent:",
+        "gloss": ""
+      },
+      {
+        "en": "fainting,",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021 None apparent"
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "cramping.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 3,
+    "answers": [
+      "stomach-ache",
+      "Stomach-ache"
+    ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "抽筋",
+    "words": [
+      {
+        "en": "None",
+        "gloss": ""
+      },
+      {
+        "en": "apparent:",
+        "gloss": ""
+      },
+      {
+        "en": "fainting,",
+        "gloss": ""
+      },
+      {
+        "en": "stomach-ache",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021 None apparent"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 5,
+    "answers": [
+      "cramping",
+      "Cramping"
+    ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "口頭地",
+    "words": [
+      {
+        "en": "Report",
+        "gloss": ""
+      },
+      {
+        "en": "OCC",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021；唔係 varbally"
+      },
+      {
+        "en": "once",
+        "gloss": ""
+      },
+      {
+        "en": "hospitalization",
+        "gloss": ""
+      },
+      {
+        "en": "of",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "injured",
+        "gloss": ""
+      },
+      {
+        "en": "is",
+        "gloss": ""
+      },
+      {
+        "en": "learnt.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 2,
+    "answers": [
+      "verbally",
+      "Verbally"
+    ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "出軌",
+    "words": [
+      {
+        "en": "Form",
+        "gloss": ""
+      },
+      {
+        "en": "A:",
+        "gloss": ""
+      },
+      {
+        "en": "fatality",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "serious",
+        "gloss": ""
+      },
+      {
+        "en": "injury;",
+        "gloss": ""
+      },
+      {
+        "en": "train",
+        "gloss": ""
+      },
+      {
+        "en": "collision;",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021 RB Form A"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 8,
+    "answers": [
+      "derailment",
+      "Derailment"
+    ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "碰撞",
+    "words": [
+      {
+        "en": "Form",
+        "gloss": ""
+      },
+      {
+        "en": "A:",
+        "gloss": ""
+      },
+      {
+        "en": "fatality",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "serious",
+        "gloss": ""
+      },
+      {
+        "en": "injury;",
+        "gloss": ""
+      },
+      {
+        "en": "train",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021；唔係 collepsion"
+      },
+      {
+        "en": ";",
+        "gloss": ""
+      },
+      {
+        "en": "derailment.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 7,
+    "answers": [
+      "collision",
+      "Collision"
+    ]
+  },
+  {
+    "unit": "EAL021-UE-2026-11-03",
+    "zh": "致命事故",
+    "words": [
+      {
+        "en": "Form",
+        "gloss": ""
+      },
+      {
+        "en": "A:",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "EAL/021 Form A"
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "serious",
+        "gloss": ""
+      },
+      {
+        "en": "injury;",
+        "gloss": ""
+      },
+      {
+        "en": "train",
+        "gloss": ""
+      },
+      {
+        "en": "collision;",
+        "gloss": ""
+      },
+      {
+        "en": "derailment.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 2,
+    "answers": [
+      "fatality",
+      "Fatality"
+    ]
   }
 ];
