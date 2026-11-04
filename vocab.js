@@ -2783,5 +2783,282 @@ window.SSCO_ITEMS = [
       "accompanied",
       "Accompanied"
     ]
+  },
+  {
+    "unit": "Serious-Injury-UE-2026-11-04",
+    "zh": "骨折（名詞）",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "passenger",
+        "gloss": ""
+      },
+      {
+        "en": "sustained",
+        "gloss": ""
+      },
+      {
+        "en": "a",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "a fracture"
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "left",
+        "gloss": ""
+      },
+      {
+        "en": "arm.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 4,
+    "answers": [
+      "fracture",
+      "Fracture"
+    ]
+  },
+  {
+    "unit": "Serious-Injury-UE-2026-11-04",
+    "zh": "脫骹",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "passenger",
+        "gloss": ""
+      },
+      {
+        "en": "sustained",
+        "gloss": ""
+      },
+      {
+        "en": "a",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "a dislocation"
+      },
+      {
+        "en": "of",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "right",
+        "gloss": ""
+      },
+      {
+        "en": "shoulder.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 4,
+    "answers": [
+      "dislocation",
+      "Dislocation"
+    ]
+  },
+  {
+    "unit": "Serious-Injury-UE-2026-11-04",
+    "zh": "燒傷（複數）",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "passenger",
+        "gloss": ""
+      },
+      {
+        "en": "sustained",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "burns（唔加 a）"
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": "both",
+        "gloss": ""
+      },
+      {
+        "en": "hands.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 3,
+    "answers": [
+      "burns",
+      "Burns"
+    ]
+  },
+  {
+    "unit": "Serious-Injury-UE-2026-11-04",
+    "zh": "內傷（複數）",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "passenger",
+        "gloss": ""
+      },
+      {
+        "en": "sustained",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "internal injuries"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 3,
+    "answers": [
+      "internal injuries",
+      "Internal injuries"
+    ]
+  },
+  {
+    "unit": "Serious-Injury-UE-2026-11-04",
+    "zh": "失去一隻眼",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "injury",
+        "gloss": ""
+      },
+      {
+        "en": "included",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "loss of an eye（唔寫 lost）"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 3,
+    "answers": [
+      "loss of an eye",
+      "Loss of an eye"
+    ]
+  },
+  {
+    "unit": "Serious-Injury-UE-2026-11-04",
+    "zh": "截肢",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "passenger",
+        "gloss": ""
+      },
+      {
+        "en": "sustained",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "amputation of a limb"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 3,
+    "answers": [
+      "amputation of a limb",
+      "Amputation of a limb"
+    ]
+  },
+  {
+    "unit": "Serious-Injury-UE-2026-11-04",
+    "zh": "即時入院",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "passenger",
+        "gloss": ""
+      },
+      {
+        "en": "was",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "admitted to a hospital"
+      },
+      {
+        "en": "immediately",
+        "gloss": ""
+      },
+      {
+        "en": "following",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "accident",
+        "gloss": ""
+      },
+      {
+        "en": "for",
+        "gloss": ""
+      },
+      {
+        "en": "observation.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 3,
+    "answers": [
+      "admitted to a hospital",
+      "Admitted to a hospital"
+    ]
   }
 ];
