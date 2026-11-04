@@ -3988,5 +3988,52 @@ window.SSCO_ITEMS = [
       "fatality",
       "Fatality"
     ]
+  },
+  {
+    "unit": "DailyLOG-UE-2026-11-04",
+    "zh": "陪同／陪伴（過去分詞／被動）",
+    "words": [
+      {
+        "en": "A",
+        "gloss": ""
+      },
+      {
+        "en": "passenger",
+        "gloss": ""
+      },
+      {
+        "en": "feeling",
+        "gloss": ""
+      },
+      {
+        "en": "unwell",
+        "gloss": ""
+      },
+      {
+        "en": "was",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "was accompanied by；He was accompanied by a friend."
+      },
+      {
+        "en": "by",
+        "gloss": ""
+      },
+      {
+        "en": "a",
+        "gloss": ""
+      },
+      {
+        "en": "friend.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 5,
+    "answers": [
+      "accompanied",
+      "Accompanied"
+    ]
   }
 ];
