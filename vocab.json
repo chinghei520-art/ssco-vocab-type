@@ -3060,5 +3060,200 @@
       "admitted to a hospital",
       "Admitted to a hospital"
     ]
+  },
+  {
+    "unit": "DailyLOG-UE-2026-11-05",
+    "zh": "到場處理（唔用 investigate）",
+    "words": [
+      {
+        "en": "SCO",
+        "gloss": ""
+      },
+      {
+        "en": "proceeded",
+        "gloss": ""
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "scene",
+        "gloss": ""
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "attend"
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "passenger.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 6,
+    "answers": [
+      "attend",
+      "Attend"
+    ]
+  },
+  {
+    "unit": "DailyLOG-UE-2026-11-05",
+    "zh": "明顯的",
+    "words": [
+      {
+        "en": "No",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "apparent"
+      },
+      {
+        "en": "physical",
+        "gloss": ""
+      },
+      {
+        "en": "injury",
+        "gloss": ""
+      },
+      {
+        "en": "was",
+        "gloss": ""
+      },
+      {
+        "en": "reported.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 1,
+    "answers": [
+      "apparent",
+      "Apparent"
+    ]
+  },
+  {
+    "unit": "DailyLOG-UE-2026-11-05",
+    "zh": "運送中（分詞）",
+    "words": [
+      {
+        "en": "A167",
+        "gloss": ""
+      },
+      {
+        "en": "departed",
+        "gloss": ""
+      },
+      {
+        "en": "from",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "station",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "conveying"
+      },
+      {
+        "en": "Mr.",
+        "gloss": ""
+      },
+      {
+        "en": "Yau",
+        "gloss": ""
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": "PWH.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 5,
+    "answers": [
+      "conveying",
+      "Conveying"
+    ]
+  },
+  {
+    "unit": "DailyLOG-UE-2026-11-05",
+    "zh": "經東鐵交通控制",
+    "words": [
+      {
+        "en": "Ambulance",
+        "gloss": ""
+      },
+      {
+        "en": "A167",
+        "gloss": ""
+      },
+      {
+        "en": "was",
+        "gloss": ""
+      },
+      {
+        "en": "summoned",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "via TC-EAL"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 4,
+    "answers": [
+      "via TC-EAL",
+      "Via TC-EAL"
+    ]
+  },
+  {
+    "unit": "DailyLOG-UE-2026-11-05",
+    "zh": "被朋友陪同",
+    "words": [
+      {
+        "en": "He",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "was accompanied by a friend"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 1,
+    "answers": [
+      "was accompanied by a friend",
+      "Was accompanied by a friend"
+    ]
   }
 ]
