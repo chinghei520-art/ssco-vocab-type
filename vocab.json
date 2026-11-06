@@ -3255,5 +3255,166 @@
       "was accompanied by a friend",
       "Was accompanied by a friend"
     ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-06",
+    "zh": "我會檢查對方是否仍在場地範圍內",
+    "words": [
+      {
+        "en": "I",
+        "gloss": ""
+      },
+      {
+        "en": "would",
+        "gloss": ""
+      },
+      {
+        "en": "check",
+        "gloss": ""
+      },
+      {
+        "en": "whether",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "other",
+        "gloss": ""
+      },
+      {
+        "en": "party",
+        "gloss": ""
+      },
+      {
+        "en": "is",
+        "gloss": ""
+      },
+      {
+        "en": "still",
+        "gloss": ""
+      },
+      {
+        "en": "on",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "處所／場地"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 11,
+    "answers": [
+      "premises",
+      "Premises"
+    ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-06",
+    "zh": "職員會照顧投訴人並記錄詳情",
+    "words": [
+      {
+        "en": "Staff",
+        "gloss": ""
+      },
+      {
+        "en": "would",
+        "gloss": ""
+      },
+      {
+        "en": "look",
+        "gloss": ""
+      },
+      {
+        "en": "after",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "投訴人／報案乘客"
+      },
+      {
+        "en": "and",
+        "gloss": ""
+      },
+      {
+        "en": "record",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "details.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 5,
+    "answers": [
+      "complainant",
+      "Complainant"
+    ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-06",
+    "zh": "我會記錄時間、地點及外貌描述",
+    "words": [
+      {
+        "en": "I",
+        "gloss": ""
+      },
+      {
+        "en": "would",
+        "gloss": ""
+      },
+      {
+        "en": "record",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "time,",
+        "gloss": ""
+      },
+      {
+        "en": "location",
+        "gloss": ""
+      },
+      {
+        "en": "and",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "外貌／情況描述"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 7,
+    "answers": [
+      "descriptions",
+      "Descriptions"
+    ]
   }
 ]
