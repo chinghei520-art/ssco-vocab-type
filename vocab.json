@@ -3416,5 +3416,111 @@
       "descriptions",
       "Descriptions"
     ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-06b",
+    "zh": "我會記錄所有與案件有關的資料",
+    "words": [
+      {
+        "en": "I",
+        "gloss": ""
+      },
+      {
+        "en": "will",
+        "gloss": ""
+      },
+      {
+        "en": "record",
+        "gloss": ""
+      },
+      {
+        "en": "all",
+        "gloss": ""
+      },
+      {
+        "en": "information",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "與…有關（唔係 relay）"
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "case.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 5,
+    "answers": [
+      "relating to",
+      "Relating to"
+    ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-06b",
+    "zh": "因其他人私隱，我不能向他們提供閉路電視",
+    "words": [
+      {
+        "en": "I",
+        "gloss": ""
+      },
+      {
+        "en": "cannot",
+        "gloss": ""
+      },
+      {
+        "en": "release",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "CCTV",
+        "gloss": ""
+      },
+      {
+        "en": "footage",
+        "gloss": ""
+      },
+      {
+        "en": "due",
+        "gloss": ""
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "私隱"
+      },
+      {
+        "en": "of",
+        "gloss": ""
+      },
+      {
+        "en": "other",
+        "gloss": ""
+      },
+      {
+        "en": "persons.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 9,
+    "answers": [
+      "privacy",
+      "Privacy"
+    ]
   }
 ]
