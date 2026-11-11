@@ -2339,5 +2339,64 @@ window.SSCO_ITEMS = [
       "privacy",
       "Privacy"
     ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-11",
+    "zh": "（EAL/036）CCTV 片段屬什麼級別，唔可以交畀公眾？",
+    "words": [
+      {
+        "en": "CCTV",
+        "gloss": ""
+      },
+      {
+        "en": "footage",
+        "gloss": ""
+      },
+      {
+        "en": "is",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "受限資料；Hei 堂上拼成 restrected"
+      },
+      {
+        "en": "and",
+        "gloss": ""
+      },
+      {
+        "en": "must",
+        "gloss": ""
+      },
+      {
+        "en": "not",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": "provided",
+        "gloss": ""
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "public.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 3,
+    "answers": [
+      "Restricted",
+      "restricted"
+    ]
   }
 ];
