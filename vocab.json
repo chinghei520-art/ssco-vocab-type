@@ -342,38 +342,6 @@
   },
   {
     "unit": "Station Ops / Service English",
-    "zh": "救護經行車控制召喚——填 via TC。",
-    "words": [
-      {
-        "en": "Ambulance",
-        "gloss": ""
-      },
-      {
-        "en": "was",
-        "gloss": ""
-      },
-      {
-        "en": "summoned",
-        "gloss": ""
-      },
-      {
-        "en": null,
-        "gloss": "經行車控制員"
-      },
-      {
-        "en": "-EAL.",
-        "gloss": ""
-      }
-    ],
-    "blankIndex": 3,
-    "answers": [
-      "via TC",
-      "via TC-EAL",
-      "viaTC"
-    ]
-  },
-  {
-    "unit": "Station Ops / Service English",
     "zh": "Police 後面用 was 定 were？",
     "words": [
       {
@@ -2013,41 +1981,6 @@
     "answers": [
       "conveying",
       "Conveying"
-    ]
-  },
-  {
-    "unit": "DailyLOG-UE-2026-11-05",
-    "zh": "經東鐵交通控制",
-    "words": [
-      {
-        "en": "Ambulance",
-        "gloss": ""
-      },
-      {
-        "en": "A167",
-        "gloss": ""
-      },
-      {
-        "en": "was",
-        "gloss": ""
-      },
-      {
-        "en": "summoned",
-        "gloss": ""
-      },
-      {
-        "en": null,
-        "gloss": "via TC-EAL"
-      },
-      {
-        "en": ".",
-        "gloss": ""
-      }
-    ],
-    "blankIndex": 4,
-    "answers": [
-      "via TC-EAL",
-      "Via TC-EAL"
     ]
   },
   {
