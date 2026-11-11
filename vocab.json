@@ -2398,5 +2398,284 @@
       "Restricted",
       "restricted"
     ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-11b",
+    "zh": "（面試）人已離站後，唔應該派人出站做甚麼？",
+    "words": [
+      {
+        "en": "Staff",
+        "gloss": ""
+      },
+      {
+        "en": "should",
+        "gloss": ""
+      },
+      {
+        "en": "not",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": "deployed",
+        "gloss": ""
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "巡邏；Hei 寫成 pattrol"
+      },
+      {
+        "en": "outside",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "station",
+        "gloss": ""
+      },
+      {
+        "en": "after",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "person(s)",
+        "gloss": ""
+      },
+      {
+        "en": "concerned",
+        "gloss": ""
+      },
+      {
+        "en": "have",
+        "gloss": ""
+      },
+      {
+        "en": "left.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 6,
+    "answers": [
+      "patrol",
+      "Patrol"
+    ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-11b",
+    "zh": "（面試）向同事解釋時，colleague 點串？",
+    "words": [
+      {
+        "en": "I",
+        "gloss": ""
+      },
+      {
+        "en": "would",
+        "gloss": ""
+      },
+      {
+        "en": "tell",
+        "gloss": ""
+      },
+      {
+        "en": "my",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "同事；Hei 寫成 college"
+      },
+      {
+        "en": "that",
+        "gloss": ""
+      },
+      {
+        "en": "we",
+        "gloss": ""
+      },
+      {
+        "en": "must",
+        "gloss": ""
+      },
+      {
+        "en": "not",
+        "gloss": ""
+      },
+      {
+        "en": "review",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "CCTV",
+        "gloss": ""
+      },
+      {
+        "en": "footage",
+        "gloss": ""
+      },
+      {
+        "en": "ourselves.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 4,
+    "answers": [
+      "colleague",
+      "Colleague"
+    ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-11b",
+    "zh": "（EAL/036）睇 CCTV 要先有 DSM 甚麼？",
+    "words": [
+      {
+        "en": "CCTV",
+        "gloss": ""
+      },
+      {
+        "en": "footage",
+        "gloss": ""
+      },
+      {
+        "en": "may",
+        "gloss": ""
+      },
+      {
+        "en": "only",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": "reviewed",
+        "gloss": ""
+      },
+      {
+        "en": "under",
+        "gloss": ""
+      },
+      {
+        "en": "DSM",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "授權；Hei 寫成 authorzation"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 8,
+    "answers": [
+      "authorisation",
+      "Authorisation"
+    ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-11b",
+    "zh": "（10-11 LOG）現場不能再採取甚麼行動？",
+    "words": [
+      {
+        "en": "No",
+        "gloss": ""
+      },
+      {
+        "en": "further",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "執法；Hei 寫成 enforcment"
+      },
+      {
+        "en": "action",
+        "gloss": ""
+      },
+      {
+        "en": "could",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": "taken",
+        "gloss": ""
+      },
+      {
+        "en": "on",
+        "gloss": ""
+      },
+      {
+        "en": "scene.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 2,
+    "answers": [
+      "enforcement",
+      "Enforcement"
+    ]
+  },
+  {
+    "unit": "Stage3-CCTV-UE-2026-11-11b",
+    "zh": "（10-11 LOG）職員已經做過甚麼 PA？",
+    "words": [
+      {
+        "en": "Staff",
+        "gloss": ""
+      },
+      {
+        "en": "had",
+        "gloss": ""
+      },
+      {
+        "en": "already",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "廣播（過去式）；Hei 寫成 boadcase"
+      },
+      {
+        "en": "a",
+        "gloss": ""
+      },
+      {
+        "en": "Smoking",
+        "gloss": ""
+      },
+      {
+        "en": "PA.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 3,
+    "answers": [
+      "broadcast",
+      "Broadcast"
+    ]
   }
 ]
