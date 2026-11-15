@@ -579,3 +579,37 @@ test("unconfigured controller never opens a session and keeps the anon log", asy
   assert.equal(secret.getStatus().code, "config-rejected");
   assert.match(secret.getStatus().detail, /服務帳戶或密鑰/);
 });
+
+test("a lost redirect is visible while signed out and does not touch local records", async function () {
+  const storage = memoryStorage();
+  storage.setItem(sync.ANON_LOG_KEY, JSON.stringify([
+    anonEntry({ t: 10, answer: "keep", typed: "keep", ok: true })
+  ]));
+  storage.setItem("ssco-vocab-session-v1", "{\"v\":1}");
+  storage.setItem("ssco-vocab-items-v1", "[1]");
+  const ctl = sync.createHistoryController({
+    storage: storage,
+    forceCloud: true,
+    listenWindow: false,
+    autoRetry: false,
+    openSession(handlers) {
+      handlers.onUser(null);
+      const err = new Error("redirect-result-missing");
+      err.code = "auth/redirect-result-missing";
+      handlers.onError(err);
+      return {
+        async signIn() {},
+        async signOut() { await handlers.onUser(null); },
+        connect() { throw new Error("not used"); }
+      };
+    }
+  });
+  await ctl.ready;
+  assert.equal(ctl.getStatus().code, "error");
+  assert.match(ctl.getStatus().detail, /仍然未登入/);
+  assert.equal(ctl.getStatus().detail.includes("會再試"), false);
+  assert.equal(ctl.getEntries().length, 1);
+  assert.equal(ctl.getEntries()[0].answer, "keep");
+  assert.equal(storage.getItem("ssco-vocab-session-v1"), "{\"v\":1}");
+  assert.equal(storage.getItem("ssco-vocab-items-v1"), "[1]");
+});

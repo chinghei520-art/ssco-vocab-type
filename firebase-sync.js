@@ -24,12 +24,48 @@
     });
   }
 
-  function isCoarsePointer() {
-    try {
-      return window.matchMedia && window.matchMedia("(hover: none) and (pointer: coarse)").matches;
-    } catch (_) {
-      return false;
+  var REDIRECT_PENDING_KEY = "ssco-vocab-auth-redirect-v1";
+
+  // iPhone Safari and iPhone Chrome (CriOS) are both WebKit. Desktop Chrome is not.
+  function isIosWebKit(ua, platform, maxTouchPoints) {
+    var agent = String(ua || "");
+    if (/iPad|iPhone|iPod/.test(agent)) return true;
+    if (/CriOS|FxiOS|EdgiOS/.test(agent)) return true;
+    if (platform === "MacIntel" && Number(maxTouchPoints) > 1) return true;
+    return false;
+  }
+
+  // Firebase's signInWithRedirect helper stores state on *.firebaseapp.com.
+  // Safari 16.1+ and Chrome block that third-party storage, so iPhone returns
+  // to this page with getRedirectResult() === null and no error.
+  // https://firebase.google.com/docs/auth/web/redirect-best-practices
+  // Option 2: use signInWithPopup. Do not fall back to redirect.
+  function signInPlan(env) {
+    if (env && env.popupBlocked) {
+      return { method: "error", code: "auth/popup-blocked" };
     }
+    return { method: "popup" };
+  }
+
+  function interpretRedirectResult(input) {
+    var pending = !!(input && input.pending);
+    var resultUser = input && input.result && input.result.user;
+    var currentUser = input && input.user;
+    if (resultUser || currentUser) return { ok: true };
+    if (!pending) return { ok: true, ignored: true };
+    var err = new Error("redirect-result-missing");
+    err.code = "auth/redirect-result-missing";
+    return { ok: false, error: err };
+  }
+
+  function readRedirectPending() {
+    try { return sessionStorage.getItem(REDIRECT_PENDING_KEY) === "1"; }
+    catch (_) { return false; }
+  }
+
+  function clearRedirectPending() {
+    try { sessionStorage.removeItem(REDIRECT_PENDING_KEY); }
+    catch (_) { /* ignore */ }
   }
 
   function toUser(user) {
@@ -66,7 +102,17 @@
         if (typeof onError === "function") onError(err);
       });
 
-      sdk.auth.getRedirectResult(auth).catch(function (err) {
+      sdk.auth.getRedirectResult(auth).then(function (result) {
+        var pending = readRedirectPending();
+        clearRedirectPending();
+        var outcome = interpretRedirectResult({
+          pending: pending,
+          result: result,
+          user: auth.currentUser
+        });
+        if (!outcome.ok && typeof onError === "function") onError(outcome.error);
+      }).catch(function (err) {
+        clearRedirectPending();
         if (typeof onError === "function") onError(err);
       });
 
@@ -161,11 +207,22 @@
 
       return {
         signIn: function () {
-          if (isCoarsePointer()) return sdk.auth.signInWithRedirect(auth, provider);
-          return sdk.auth.signInWithPopup(auth, provider).catch(function (err) {
+          var plan = signInPlan({});
+          if (plan.method !== "popup") {
+            var blocked = new Error(plan.code || "auth/popup-blocked");
+            blocked.code = plan.code || "auth/popup-blocked";
+            return Promise.reject(blocked);
+          }
+          var resolver = sdk.auth.browserPopupRedirectResolver;
+          var pending = resolver
+            ? sdk.auth.signInWithPopup(auth, provider, resolver)
+            : sdk.auth.signInWithPopup(auth, provider);
+          return pending.catch(function (err) {
             var code = String((err && err.code) || "");
             if (code.indexOf("popup-blocked") !== -1 || code.indexOf("operation-not-supported") !== -1) {
-              return sdk.auth.signInWithRedirect(auth, provider);
+              var surfaced = new Error(code || "auth/popup-blocked");
+              surfaced.code = code || "auth/popup-blocked";
+              throw surfaced;
             }
             throw err;
           });
@@ -181,5 +238,12 @@
     });
   }
 
-  root.SSCOFirebaseSync = { openSession: openSession, SDK_VERSION: SDK_VERSION };
+  root.SSCOFirebaseSync = {
+    openSession: openSession,
+    SDK_VERSION: SDK_VERSION,
+    isIosWebKit: isIosWebKit,
+    signInPlan: signInPlan,
+    interpretRedirectResult: interpretRedirectResult
+  };
+  if (typeof module === "object" && module.exports) module.exports = root.SSCOFirebaseSync;
 })(typeof globalThis !== "undefined" ? globalThis : this);

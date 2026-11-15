@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-app-ver="1.9">
+<html lang="zh-Hant" data-app-ver="2.0">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#1a1030" />
-  <title>SSCO Vocab v1.9</title>
+  <title>SSCO Vocab v2.0</title>
   <style>
     :root {
       --bg-top: #2a1848;
@@ -783,6 +783,30 @@
       line-height: 1.45;
     }
 
+    .auth-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.85rem;
+    }
+
+    .auth-actions button {
+      border: 0;
+      border-radius: 999px;
+      padding: 0.45rem 0.9rem;
+      font: inherit;
+      font-size: 0.85rem;
+      font-weight: 700;
+      background: rgba(125, 211, 252, 0.22);
+      color: #e0f2fe;
+      cursor: pointer;
+    }
+
+    .auth-actions .cancel {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+    }
+
     .copy-fallback textarea {
       width: 100%;
       min-height: 14rem;
@@ -887,7 +911,7 @@
 </head>
 <body>
   <div class="top-bar">
-    <span class="brand">SSCO 英文填空 <span class="app-ver">v1.9</span></span>
+    <span class="brand">SSCO 英文填空 <span class="app-ver">v2.0</span></span>
     <div class="top-right">
       <span class="vocab-meta" id="vocabMeta" title="Current question bank size">題庫 —</span>
       <div class="progress" id="progress" aria-live="polite"><strong>1</strong> / 43</div>
@@ -941,6 +965,17 @@
       <button type="button" class="danger" id="btnRecClear" hidden>清空</button>
     </div>
     <div id="recBody"></div>
+  </div>
+
+  <div class="copy-fallback" id="authConfirm" hidden>
+    <div class="box" role="dialog" aria-modal="true" aria-labelledby="authConfirmTitle">
+      <h2 id="authConfirmTitle">登入 Google</h2>
+      <p id="authConfirmText"></p>
+      <div class="auth-actions">
+        <button type="button" id="btnAuthConfirmOk">繼續登入</button>
+        <button type="button" class="cancel" id="btnAuthConfirmCancel">取消</button>
+      </div>
+    </div>
   </div>
 
   <div class="copy-fallback" id="copyFallback" hidden>
@@ -1083,7 +1118,7 @@
     const REPORT_WRONG_CAP = 20;
 
     function appVersionLabel() {
-      const raw = (document.documentElement.getAttribute("data-app-ver") || "1.9").trim();
+      const raw = (document.documentElement.getAttribute("data-app-ver") || "2.0").trim();
       return /^v/i.test(raw) ? raw : "v" + raw;
     }
 
@@ -2637,6 +2672,24 @@
       });
       window.SSCO_HISTORY = historyCtl;
     }
+    const authConfirm = document.getElementById("authConfirm");
+    const authConfirmText = document.getElementById("authConfirmText");
+    function hideAuthConfirm() {
+      if (authConfirm) authConfirm.hidden = true;
+    }
+    function showAuthConfirm(text) {
+      if (!authConfirm || !authConfirmText) return;
+      authConfirmText.textContent = text;
+      authConfirm.hidden = false;
+    }
+    function startSignIn() {
+      if (!historyCtl) return;
+      historyCtl.signIn().then(function () {
+        refreshRecordViews();
+      }).catch(function (err) {
+        alert(historyCtl.errorText(err));
+      });
+    }
     if (btnAccount) {
       btnAccount.addEventListener("click", async () => {
         if (!historyCtl) return;
@@ -2654,12 +2707,28 @@
             return;
           }
           const prompt = historyCtl.signInPrompt();
-          if (prompt && !confirm(prompt)) return;
-          await historyCtl.signIn();
-          refreshRecordViews();
+          if (prompt) {
+            showAuthConfirm(prompt);
+            return;
+          }
+          startSignIn();
         } catch (err) {
           alert(historyCtl.errorText(err));
         }
+      });
+    }
+    const btnAuthConfirmOk = document.getElementById("btnAuthConfirmOk");
+    const btnAuthConfirmCancel = document.getElementById("btnAuthConfirmCancel");
+    if (btnAuthConfirmOk) {
+      btnAuthConfirmOk.addEventListener("click", () => {
+        hideAuthConfirm();
+        startSignIn();
+      });
+    }
+    if (btnAuthConfirmCancel) btnAuthConfirmCancel.addEventListener("click", hideAuthConfirm);
+    if (authConfirm) {
+      authConfirm.addEventListener("click", (e) => {
+        if (e.target === authConfirm) hideAuthConfirm();
       });
     }
 

@@ -2,7 +2,7 @@
   "name": "ssco-vocab-type",
   "private": true,
   "scripts": {
-    "test": "node --test test/history-sync.test.js test/vocab-and-config.test.js",
+    "test": "node --test test/history-sync.test.js test/vocab-and-config.test.js test/firebase-auth-flow.test.js",
     "test:rules": "firebase emulators:exec --only firestore --project demo-ssco-vocab \"node --test test/firestore.rules.test.js\"",
     "test:browser": "node test/browser-ui.mjs"
   },

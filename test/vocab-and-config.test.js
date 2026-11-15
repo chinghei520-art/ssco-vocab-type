@@ -58,13 +58,13 @@ test("committed firebase config is the public web config and not a service accou
   assert.match(cfg.apiKey, /^AIza[0-9A-Za-z_-]{30,}$/);
 });
 
-test("shell version is v1.9 in the page shell", function () {
+test("shell version is v2.0 in the page shell", function () {
   const html = fs.readFileSync(path.join(root, "index.html"), "utf8");
   const version = fs.readFileSync(path.join(root, "VERSION"), "utf8");
-  assert.match(html, /data-app-ver="1\.9"/);
-  assert.match(html, /<title>SSCO Vocab v1\.9<\/title>/);
-  assert.match(html, /class="app-ver">v1\.9</);
-  assert.match(version, /^v1\.9 — /);
+  assert.match(html, /data-app-ver="2\.0"/);
+  assert.match(html, /<title>SSCO Vocab v2\.0<\/title>/);
+  assert.match(html, /class="app-ver">v2\.0</);
+  assert.match(version, /^v2\.0 — /);
   assert.equal(html.includes("ssco-vocab-attempt-log-v1"), true);
   assert.equal(html.includes("ssco-vocab-items-v1"), true);
   assert.equal(html.includes("ssco-vocab-session-v1"), true);

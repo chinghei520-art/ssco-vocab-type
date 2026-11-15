@@ -187,8 +187,11 @@
     if (code.includes("unconfigured")) return COPY.unconfiguredClick;
     if (code.includes("not-ready")) return "登入功能未準備好，請等一陣再試。";
     if (code.includes("unauthorized-domain")) return "呢個網址未加入 Firebase 授權網域";
-    if (code.includes("popup-blocked") || code.includes("popup-closed-by-browser")) {
-      return "彈出視窗被攔截，請允許彈出視窗再試";
+    if (code.includes("redirect-result-missing")) {
+      return "登入未完成。手機瀏覽器攔截咗跨網站登入狀態，所以返回之後仍然未登入。請再撳「登入」，用彈出視窗完成。紀錄同詞庫都未刪。";
+    }
+    if (code.includes("popup-blocked") || code.includes("operation-not-supported") || code.includes("popup-closed-by-browser")) {
+      return "彈出視窗被攔截。請允許呢個網站開視窗，再撳登入。唔使關閉追蹤保護，紀錄同詞庫都未刪。";
     }
     if (code.includes("popup-closed") || code.includes("cancelled") || code.includes("canceled")) {
       return "已取消登入";
@@ -370,6 +373,7 @@
     let hadUser = false;
     let code = configuredFlag ? "checking" : (configProblem === "secret" ? "config-rejected" : "local-only");
     let errorDetail = "";
+    let errorKind = "";
     let gen = 0;
     let transport = null;
     let sessionApi = null;
@@ -407,7 +411,10 @@
       if (statusCode === "signing-in") return COPY.signingIn;
       if (statusCode === "syncing" || statusCode === "migrating") return COPY.syncing;
       if (statusCode === "offline") return COPY.offline;
-      if (statusCode === "error") return "同步未成功：" + (errorDetail || "請稍後再試") + "。紀錄仍留喺呢部機，會再試。";
+      if (statusCode === "error") {
+        if (errorKind === "auth") return errorDetail || "登入未完成。請再撳登入。紀錄同詞庫都未刪。";
+        return "同步未成功：" + (errorDetail || "請稍後再試") + "。紀錄仍留喺呢部機，會再試。";
+      }
       if (statusCode === "synced") {
         const who = email ? "已同步 · " + email + " · " : "已同步 · ";
         return who + "合併 " + count + " 筆";
@@ -433,6 +440,7 @@
     }
 
     function setCode(next) {
+      if (next !== "error") errorKind = "";
       code = next;
       if (typeof opts.onStatus === "function") {
         try { opts.onStatus(getStatus()); } catch (_) { /* UI must not break sync */ }
@@ -567,6 +575,18 @@
       return local.clearRev > remote.clearRev || local.clearedThrough > remote.clearedThrough;
     }
 
+    function noteAuthError(err) {
+      errorKind = "auth";
+      errorDetail = errorText(err);
+      lastError = err;
+      setCode("error");
+    }
+
+    function isAuthFlowError(err) {
+      const code = String((err && (err.code || err.message)) || "");
+      return code.includes("auth/") || code.includes("popup") || code.includes("redirect-result") || code.includes("unauthorized-domain");
+    }
+
     function handleFlushError(err, myGen) {
       if (myGen !== gen || !activeUid) return;
       lastError = err;
@@ -578,6 +598,7 @@
         setTimeout(function () { scheduleFlush(); }, wait);
         return;
       }
+      errorKind = "";
       errorDetail = errorText(err);
       setCode("error");
       if (opts.autoRetry === false) return;
@@ -765,9 +786,7 @@
         if (!activeUid) {
           if (isCancelError(err)) setCode(hadUser ? "signed-out-after" : "signed-out");
           else {
-            errorDetail = errorText(err);
-            lastError = err;
-            setCode("error");
+            noteAuthError(err);
           }
         }
         throw err;
@@ -886,6 +905,10 @@
               return userChain;
             },
             onError: function (err) {
+              if (!activeUid && isAuthFlowError(err)) {
+                noteAuthError(err);
+                return;
+              }
               handleFlushError(err, gen);
             }
           });
