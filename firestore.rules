@@ -1,0 +1,100 @@
+rules_version = '2';
+// Per-user attempt history for the static SSCO vocab app.
+// Deploy with: firebase deploy --only firestore:rules --project YOUR_PROJECT_ID
+// A signed-in person can read and write only users/{their uid}/...
+// Attempt rows are immutable. The clear tombstone (sync/state) can move
+// forward but cannot be deleted or moved backward, so cleared rows cannot
+// be recreated at or before clearedThrough.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function attemptIdOk(id) {
+      return id is string
+        && id.size() >= 8
+        && id.size() <= 80
+        && id.matches('^[A-Za-z0-9_-]+$');
+    }
+
+    function validAttempt(data) {
+      return data.keys().hasOnly(['id', 't', 'day', 'unit', 'zh', 'answer', 'typed', 'ok', 'v'])
+        && attemptIdOk(data.id)
+        && data.t is int
+        && data.t > 0
+        && data.day is string
+        && data.day.size() > 0
+        && data.day.size() <= 16
+        && data.unit is string
+        && data.unit.size() <= 200
+        && data.zh is string
+        && data.zh.size() <= 500
+        && data.answer is string
+        && data.answer.size() <= 300
+        && data.typed is string
+        && data.typed.size() <= 300
+        && data.ok is bool
+        && data.v == 1;
+    }
+
+    function sameAttempt(next, prev) {
+      return next.id == prev.id
+        && next.t == prev.t
+        && next.day == prev.day
+        && next.unit == prev.unit
+        && next.zh == prev.zh
+        && next.answer == prev.answer
+        && next.typed == prev.typed
+        && next.ok == prev.ok
+        && next.v == prev.v;
+    }
+
+    function notCleared(uid) {
+      let path = /databases/$(database)/documents/users/$(uid)/sync/state;
+      return !exists(path) || request.resource.data.t > int(get(path).data.clearedThrough);
+    }
+
+    match /users/{uid}/attempts/{attemptId} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && attemptId == request.resource.data.id
+        && validAttempt(request.resource.data)
+        && notCleared(uid);
+      allow update: if isOwner(uid)
+        && attemptId == request.resource.data.id
+        && validAttempt(request.resource.data)
+        && sameAttempt(request.resource.data, resource.data)
+        && notCleared(uid);
+      allow delete: if isOwner(uid);
+    }
+
+    match /users/{uid}/sync/{docId} {
+      allow read: if isOwner(uid);
+      allow create, update: if isOwner(uid)
+        && docId == 'state'
+        && request.resource.data.keys().hasOnly(['clearRev', 'clearedThrough', 'updatedAt'])
+        && request.resource.data.clearRev is int
+        && request.resource.data.clearRev >= 0
+        && request.resource.data.clearedThrough is int
+        && request.resource.data.clearedThrough >= 0
+        && request.resource.data.updatedAt == request.time
+        && (
+          !exists(/databases/$(database)/documents/users/$(uid)/sync/state)
+          || (
+            request.resource.data.clearRev >= resource.data.clearRev
+            && request.resource.data.clearedThrough >= resource.data.clearedThrough
+          )
+        );
+      allow delete: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "name": "ssco-vocab-type",
+  "private": true,
+  "scripts": {
+    "test": "node --test test/history-sync.test.js test/vocab-and-config.test.js",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-ssco-vocab \"node --test test/firestore.rules.test.js\"",
+    "test:browser": "node test/browser-ui.mjs"
+  },
+  "devDependencies": {
+    "@firebase/rules-unit-testing": "4.0.1",
+    "firebase": "11.10.0",
+    "firebase-tools": "15.36.0",
+    "playwright": "1.56.1"
+  }
+}
