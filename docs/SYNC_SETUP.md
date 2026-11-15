@@ -6,6 +6,8 @@ Google sign-in can merge **attempt history only** across browsers for the same a
 
 An unauthenticated Firestore read of this project is denied. Signing in with Google and checking two browsers against the live project is still a manual step; automated tests do not perform that sign-in.
 
+iPhone Safari and iPhone Chrome use Google sign-in in a popup. A full-page redirect comes back unsigned with no error, because those browsers block the cross-site storage Firebase's redirect helper uses on `firebaseapp.com`. The app URL and `authDomain` stay as they are, so this browser's saved log is not moved.
+
 ## Why Firebase
 
 The site is static GitHub Pages. Firebase Auth (Google) plus Cloud Firestore is enough: the browser signs in, and security rules — not a secret in the repo — decide who can read which rows. The Spark plan covers Auth and Firestore without turning on billing. No admin SDK, Cloud Function, or service account is required for this design.

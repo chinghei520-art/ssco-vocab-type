@@ -222,6 +222,16 @@ async function textOf(locator) {
   return ((await locator.textContent()) || "").trim();
 }
 
+async function clickAccountSignIn(page) {
+  await releaseKeyboard(page);
+  await page.locator("#btnAccount", { hasText: "登入" }).evaluate((el) => el.click());
+  const opened = await page.locator("#authConfirm").evaluate((el) => !el.hidden).catch(() => false);
+  if (!opened) return "";
+  const prompt = await textOf(page.locator("#authConfirmText"));
+  await page.locator("#btnAuthConfirmOk").click();
+  return prompt;
+}
+
 async function releaseKeyboard(page) {
   await page.evaluate(() => new Promise((resolve) => {
     requestAnimationFrame(() => requestAnimationFrame(resolve));
@@ -269,8 +279,8 @@ try {
   acceptDialogs(page, localDialogs);
   await page.goto(base + "/index.html", { waitUntil: "domcontentloaded" });
   await page.locator(".app-ver").waitFor();
-  check("version", (await textOf(page.locator(".app-ver"))) === "v1.9");
-  check("title", await page.title() === "SSCO Vocab v1.9");
+  check("version", (await textOf(page.locator(".app-ver"))) === "v2.0");
+  check("title", await page.title() === "SSCO Vocab v2.0");
   check("vocab count", (await textOf(page.locator("#vocabMeta"))).includes("55"));
   check("local banner", (await textOf(page.locator("#syncBanner"))).includes("未設定雲端"));
   check("account button", (await textOf(page.locator("#btnAccount"))) === "本機", await textOf(page.locator("#btnAccount")));
@@ -296,7 +306,7 @@ try {
   await page.locator("#btnRecCopy").click();
   await page.waitForFunction(() => window.__copied && window.__copied.includes("進度報告"));
   const report = await page.evaluate(() => window.__copied);
-  check("report version", report.includes("v1.9"));
+  check("report version", report.includes("v2.0"));
   check("report scope", report.includes("紀錄範圍：本機（未設定雲端）"));
   check("report answer", report.includes(answered.answer) || report.includes("正確"));
   await page.screenshot({ path: path.join(shots, "ssco-local-records.png") });
@@ -384,19 +394,15 @@ try {
     localStorage.setItem("ssco-vocab-attempt-log-v1", JSON.stringify([row]));
   }, aliceSeed);
   await a.synced.reload({ waitUntil: "domcontentloaded" });
-  await releaseKeyboard(a.synced);
-  await a.synced.locator("#btnAccount", { hasText: "登入" }).waitFor();
-  await a.synced.locator("#btnAccount").click();
+  const claimPrompt = await clickAccountSignIn(a.synced);
   await a.synced.locator("#syncBanner").getByText("alice@example.com").waitFor({ timeout: 8000 });
   const bannerA = await textOf(a.synced.locator("#syncBanner"));
   check("signed-in banner", bannerA.includes("已同步") && bannerA.includes("合併 1 筆"), bannerA);
-  check("claim confirm", a.dialogs.some((text) => text.includes("第一個登入")));
+  check("claim confirm", claimPrompt.includes("第一個登入"), claimPrompt);
   await a.synced.screenshot({ path: path.join(shots, "ssco-synced.png") });
 
   const b = await openSynced({ uid: "alice", email: "alice@example.com" });
-  await releaseKeyboard(b.synced);
-  await b.synced.locator("#btnAccount", { hasText: "登入" }).waitFor();
-  await b.synced.locator("#btnAccount").click();
+  await clickAccountSignIn(b.synced);
   await b.synced.locator("#syncBanner").getByText("合併 1 筆").waitFor({ timeout: 8000 });
   check("second browser sees migrated row", true);
 
@@ -431,8 +437,7 @@ try {
   check("sign-out hides account rows", !(await textOf(a.synced.locator("#syncBanner"))).includes("alice@example.com"));
 
   await a.synced.evaluate(() => { window.__SSCO_TEST_USER = { uid: "bob", email: "bob@example.com" }; });
-  await releaseKeyboard(a.synced);
-  await a.synced.locator("#btnAccount", { hasText: "登入" }).click();
+  await clickAccountSignIn(a.synced);
   await waitBanner(a.synced, "bob@example.com");
   const bobBanner = await textOf(a.synced.locator("#syncBanner"));
   check("bob does not see alice history", bobBanner.includes("合併 0 筆"), bobBanner);
@@ -456,6 +461,22 @@ try {
   check("live config reaches signed-out", configuredBanner.includes("未登入"), configuredBanner);
   check("live config offers Google sign-in", (await textOf(configured.locator("#btnAccount"))) === "登入", await textOf(configured.locator("#btnAccount")));
   check("live config did not start a sign-in", configuredDialogs.length === 0);
+  const authPlan = await configured.evaluate(() => {
+    const api = window.SSCOFirebaseSync;
+    const safari = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.1 Mobile/15E148 Safari/604.1";
+    const crios = "Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) CriOS/131.0.6778.73 Mobile/15E148 Safari/604.1";
+    return {
+      loaded: !!api,
+      safari: api.isIosWebKit(safari, "iPhone", 5),
+      crios: api.isIosWebKit(crios, "iPhone", 5),
+      popup: api.signInPlan({}).method,
+      blocked: api.signInPlan({ popupBlocked: true }).method
+    };
+  });
+  check("ios safari is webkit", authPlan.safari === true);
+  check("ios chrome is webkit", authPlan.crios === true);
+  check("sign-in plan is popup", authPlan.popup === "popup", authPlan.popup);
+  check("popup blocked does not redirect", authPlan.blocked === "error", authPlan.blocked);
   await configured.close();
 } finally {
   await browser.close();
