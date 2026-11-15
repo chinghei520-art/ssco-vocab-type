@@ -253,6 +253,11 @@ async function typeCurrentAnswer(page) {
 
 try {
   const page = await browser.newPage({ viewport: { width: 1280, height: 800 } });
+  await page.route("**/firebase-config.js", (route) => route.fulfill({
+    status: 200,
+    contentType: "text/javascript; charset=utf-8",
+    body: "window.SSCO_FIREBASE_CONFIG = null;\n"
+  }));
   await page.addInitScript(() => {
     window.__copied = "";
     Object.defineProperty(navigator, "clipboard", {
@@ -341,6 +346,11 @@ try {
   await page.close();
 
   const mobile = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  await mobile.route("**/firebase-config.js", (route) => route.fulfill({
+    status: 200,
+    contentType: "text/javascript; charset=utf-8",
+    body: "window.SSCO_FIREBASE_CONFIG = null;\n"
+  }));
   await mobile.goto(base + "/index.html", { waitUntil: "domcontentloaded" });
   await releaseKeyboard(mobile);
   await mobile.locator("#btnAccount").waitFor();
@@ -431,6 +441,22 @@ try {
 
   await a.context.close();
   await b.context.close();
+
+  const configured = await browser.newPage({ viewport: { width: 1100, height: 800 } });
+  const configuredDialogs = [];
+  acceptDialogs(configured, configuredDialogs);
+  await configured.goto(base + "/index.html", { waitUntil: "domcontentloaded" });
+  await releaseKeyboard(configured);
+  await configured.waitForFunction(() => {
+    const el = document.getElementById("syncBanner");
+    const text = el && el.textContent ? el.textContent : "";
+    return text.includes("未登入") || text.includes("同步未成功");
+  }, null, { timeout: 20000 });
+  const configuredBanner = await textOf(configured.locator("#syncBanner"));
+  check("live config reaches signed-out", configuredBanner.includes("未登入"), configuredBanner);
+  check("live config offers Google sign-in", (await textOf(configured.locator("#btnAccount"))) === "登入", await textOf(configured.locator("#btnAccount")));
+  check("live config did not start a sign-in", configuredDialogs.length === 0);
+  await configured.close();
 } finally {
   await browser.close();
   server.close();

@@ -2,9 +2,9 @@
 
 Google sign-in can merge **attempt history only** across browsers for the same account. Vocabulary (`ssco-vocab-items-v1`) and the unfinished round (`ssco-vocab-session-v1`) stay on the device.
 
-Until `firebase-config.js` sets a real web config, the app does not load Firebase and keeps the previous local-only behavior. The committed file is `window.SSCO_FIREBASE_CONFIG = null` on purpose. Do not invent a project id or paste a key that is not yours.
+`firebase-config.js` now holds the public web config for Firebase project `ssco-vocab` (Spark, no service account). If that object is removed or set back to `null`, the app does not load Firebase and keeps the on-device log. Do not replace it with a key from a different project, and do not commit a service account.
 
-This repository does not contain a provisioned backend. Nothing here has been verified against a live Firebase project or two real clients.
+An unauthenticated Firestore read of this project is denied. Signing in with Google and checking two browsers against the live project is still a manual step; automated tests do not perform that sign-in.
 
 ## Why Firebase
 

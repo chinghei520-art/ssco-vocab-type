@@ -43,14 +43,19 @@ test("bundled vocab.js matches vocab.json and deleted units stay deleted", funct
   }
 });
 
-test("committed firebase config is empty of credentials", function () {
+test("committed firebase config is the public web config and not a service account", function () {
   const src = fs.readFileSync(path.join(root, "firebase-config.js"), "utf8");
-  assert.match(src, /SSCO_FIREBASE_CONFIG\s*=\s*null/);
-  assert.doesNotMatch(src, /private_key|BEGIN PRIVATE KEY|client_secret|AIza/i);
+  assert.doesNotMatch(src, /private_key|BEGIN PRIVATE KEY|client_secret|service_account/i);
   const context = { window: {} };
   vm.runInNewContext(src, context);
-  assert.equal(context.window.SSCO_FIREBASE_CONFIG, null);
-  assert.equal(sync.inspectConfig(context.window.SSCO_FIREBASE_CONFIG).ok, false);
+  const cfg = context.window.SSCO_FIREBASE_CONFIG;
+  assert.equal(sync.inspectConfig(cfg).ok, true);
+  assert.equal(cfg.projectId, "ssco-vocab");
+  assert.equal(cfg.authDomain, "ssco-vocab.firebaseapp.com");
+  assert.equal(cfg.messagingSenderId, "824416630235");
+  assert.equal(cfg.appId, "1:824416630235:web:dcb6ea98d5262a10daa3fe");
+  assert.equal(cfg.storageBucket, "ssco-vocab.firebasestorage.app");
+  assert.match(cfg.apiKey, /^AIza[0-9A-Za-z_-]{30,}$/);
 });
 
 test("shell version is v1.9 in the page shell", function () {
