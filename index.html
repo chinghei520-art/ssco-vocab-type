@@ -1158,7 +1158,7 @@
           <h2 id="progressTableTitle">進度表</h2>
           <button type="button" class="unit-toggle" id="btnToggleUnits" aria-pressed="false">顯示來源單元</button>
         </div>
-        <p class="scope-note" id="homeScope">排程暫時跟呢部機（雲端複習規則未公布）。</p>
+        <p class="scope-note" id="homeScope" hidden></p>
         <div class="card-list" id="cardList"></div>
       </section>
     </section>
@@ -1194,7 +1194,7 @@
       <h2>進度表</h2>
       <button type="button" class="rec-close" id="btnCloseProgress">關閉</button>
     </div>
-    <p class="scope-note" id="progressScope">排程暫時跟呢部機（雲端複習規則未公布）。</p>
+    <p class="scope-note" id="progressScope" hidden></p>
     <div class="rec-actions">
       <button type="button" class="unit-toggle" id="btnSheetToggleUnits" aria-pressed="false">顯示來源單元</button>
     </div>
@@ -1246,10 +1246,10 @@
   </div>
 
   <nav class="toolbar" aria-label="Practice controls">
-    <button type="button" id="btnSkip" title="Skip (S)">跳過</button>
-    <span class="sep" aria-hidden="true"></span>
-    <button type="button" class="primary" id="btnCheck" title="Check (Enter)">檢查</button>
-    <span class="sep" aria-hidden="true"></span>
+    <button type="button" class="answer-only" id="btnSkip" title="Skip (S)" hidden>跳過</button>
+    <span class="sep answer-only" aria-hidden="true" hidden></span>
+    <button type="button" class="primary answer-only" id="btnCheck" title="Check (Enter)" hidden>檢查</button>
+    <span class="sep answer-only" aria-hidden="true" hidden></span>
     <button type="button" id="btnRestart" title="Home">主頁</button>
     <span class="sep" aria-hidden="true"></span>
     <button type="button" class="ghost" id="btnProgress" title="進度表">進度表</button>
@@ -3251,10 +3251,14 @@
       document.body.dataset.screen = screen;
       const home = document.getElementById("home");
       const phrase = document.getElementById("phraseZh");
+      const answering = screen === "answer";
       if (home) home.hidden = screen !== "cards";
       if (phrase) phrase.hidden = screen === "cards";
       if (el.practice) el.practice.classList.toggle("hidden", screen !== "answer");
       if (el.donePanel) el.donePanel.classList.toggle("show", screen === "done");
+      document.querySelectorAll(".answer-only").forEach(function (node) {
+        node.hidden = !answering;
+      });
       if (screen === prev) return;
       if (screen === "answer") {
         closeProgressSheet();

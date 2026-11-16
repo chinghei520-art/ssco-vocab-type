@@ -95,7 +95,13 @@ test("the page shell is v2.2 and the progress table stays separate from records"
   assert.match(html, /<h2>練習紀錄<\/h2>/);
   assert.match(html, /id="btnToggleUnits"[^>]*aria-pressed="false"/);
   assert.match(html, /顯示來源單元/);
-  assert.match(html, /排程暫時跟呢部機/);
+  assert.equal(view.SCOPE_NOTE, "");
+  assert.equal(html.includes("排程暫時跟呢部機"), false);
+  assert.equal(html.includes("雲端複習規則未公布"), false);
+  assert.match(html, /id="homeScope"[^>]*hidden/);
+  assert.match(html, /id="progressScope"[^>]*hidden/);
+  assert.match(html, /id="btnSkip"[^>]*hidden/);
+  assert.match(html, /id="btnCheck"[^>]*hidden/);
   assert.match(html, /trialMetricLines\(view\)/);
   assert.match(html, /延遲獨立拼寫率/);
   assert.match(html, /今日獨立首次/);
@@ -129,4 +135,6 @@ test("the page shell is v2.2 and the progress table stays separate from records"
   const screenFn = html.slice(html.indexOf("function setScreen"), html.indexOf("function showHome"));
   assert.match(screenFn, /screen !== "cards"/);
   assert.match(screenFn, /screen !== "answer"/);
+  assert.match(screenFn, /answering = screen === "answer"/);
+  assert.match(screenFn, /node\.hidden = !answering/);
 });

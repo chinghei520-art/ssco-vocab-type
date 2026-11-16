@@ -12,7 +12,9 @@
 })(typeof globalThis !== "undefined" ? globalThis : this, function () {
   "use strict";
 
-  const SCOPE_NOTE = "排程暫時跟呢部機（雲端複習規則未公布）。";
+  /* The sync banner owns any per-device warning. This stays empty so the
+     progress table does not claim review rules are unpublished. */
+  const SCOPE_NOTE = "";
   const SHOW_UNITS_DEFAULT = false;
   const DEFAULT_SORT = "status";
   const UNIT_PREF_VALUE = "1";

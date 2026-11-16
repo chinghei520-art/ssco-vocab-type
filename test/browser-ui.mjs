@@ -294,7 +294,9 @@ try {
   check("metric title", (await textOf(page.locator("#trialMetricTitle"))) === "延遲獨立拼寫率");
   check("today independent nearby", (await textOf(page.locator("#homeMetricToday"))).includes("今日獨立首次") && (await textOf(page.locator("#homeMetricToday"))).includes("唔算獨立"));
   check("progress heading", (await textOf(page.locator("#progressTableTitle"))) === "進度表");
-  check("scope note", (await textOf(page.locator("#homeScope"))).includes("排程暫時跟呢部機"));
+  check("scope note stays empty", (await textOf(page.locator("#homeScope"))) === "" && await page.locator("#homeScope").isHidden());
+  check("no unpublished rules claim", !(await page.locator("body").innerText()).includes("雲端複習規則未公布") && !(await page.locator("body").innerText()).includes("排程暫時跟呢部機"));
+  check("cards page hides skip and check", await page.locator("#btnSkip").isHidden() && await page.locator("#btnCheck").isHidden());
   check("units collapsed", (await page.locator("#btnToggleUnits").getAttribute("aria-pressed")) === "false");
   check("unit text hidden", await page.locator("#cardList .source-unit").first().isHidden());
   check("answer hidden", await page.locator("#cardList .answer").first().isHidden());
@@ -341,6 +343,8 @@ try {
   check("cloze cells", await page.locator(".letter-cell").count() > 0);
   check("answer page hides the card list", await page.locator("#home").isHidden() && await page.locator("#cardList").isHidden());
   check("answer page shows the prompt", await page.locator("#phraseZh").isVisible());
+  await releaseKeyboard(page);
+  check("answer page shows skip and check", await page.locator("#btnSkip").isVisible() && await page.locator("#btnCheck").isVisible());
   const leakedCards = await page.locator("#cardList .zh").evaluateAll((nodes) => nodes.filter((node) => node.getClientRects().length > 0).length);
   check("no card row is on the answer page", leakedCards === 0, String(leakedCards));
   const answerTop = await page.evaluate(() => ({
@@ -451,6 +455,7 @@ try {
   check("mobile progress title", (await textOf(mobile.locator("#progressTableTitle"))) === "進度表");
   const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
   check("mobile does not overflow sideways", overflow);
+  check("mobile cards hide skip and check", await mobile.locator("#btnSkip").isHidden() && await mobile.locator("#btnCheck").isHidden());
   await mobile.locator("#trialMetricTitle").scrollIntoViewIfNeeded();
   await mobile.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-mobile.png" });
   await mobile.screenshot({ path: "/opt/cursor/artifacts/ssco-mobile-dashboard.png" });
@@ -465,6 +470,7 @@ try {
   await releaseKeyboard(mobile);
   check("mobile answer hides the card list", await mobile.locator("#home").isHidden());
   check("mobile answer shows the blank", await mobile.locator("#phraseZh").isVisible() && await mobile.locator(".letter-cell").first().isVisible());
+  check("mobile answer shows skip and check", await mobile.locator("#btnSkip").isVisible() && await mobile.locator("#btnCheck").isVisible());
   const mobileLeaked = await mobile.locator("#cardList .zh").evaluateAll((nodes) => nodes.filter((node) => node.getClientRects().length > 0).length);
   check("mobile answer has no card rows", mobileLeaked === 0, String(mobileLeaked));
   const mobileScreen = await mobile.evaluate(() => document.body.dataset.screen);
@@ -473,6 +479,7 @@ try {
   await mobile.locator("#btnRestart").click();
   await mobile.locator("#progressTableTitle").waitFor();
   check("mobile home is separate again", await mobile.locator("#practice").isHidden() && await mobile.locator("#cardList .card-row").first().isVisible());
+  check("mobile home hides skip and check again", await mobile.locator("#btnSkip").isHidden() && await mobile.locator("#btnCheck").isHidden());
   await mobile.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-mobile-home-return.png" });
   await releaseKeyboard(mobile);
   await mobile.locator("#btnAccount").waitFor();
