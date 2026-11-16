@@ -613,3 +613,35 @@ test("a lost redirect is visible while signed out and does not touch local recor
   assert.equal(storage.getItem("ssco-vocab-session-v1"), "{\"v\":1}");
   assert.equal(storage.getItem("ssco-vocab-items-v1"), "[1]");
 });
+
+test("review events are not capped at 200 and are not mixed into the attempt log", async function () {
+  const storage = memoryStorage();
+  const cloud = createMemoryCloud();
+  const ctl = await boot({ storage: storage, cloud: cloud, uid: "alice" });
+  await ctl.signIn();
+  for (let i = 0; i < 220; i++) {
+    ctl.appendReview({
+      id: "r_" + String(i).padStart(16, "0"),
+      cardId: "c_0123456789abcdef",
+      t: 1700000000000 + i,
+      sessionId: "s" + i,
+      kind: "new",
+      outcome: "correct",
+      hint: false,
+      revealed: false,
+      initial: true,
+      v: 2
+    });
+  }
+  assert.equal(ctl.getReviews().length, 220);
+  assert.equal(ctl.getEntries().length, 0);
+  const legacy = eventlessAttempt();
+  ctl.record(legacy);
+  await ctl.flush();
+  assert.equal(ctl.getEntries().length, 1);
+  assert.equal(ctl.getReviews().length, 220);
+});
+
+function eventlessAttempt() {
+  return { day: "2026-11-15", unit: "U", zh: "舊", answer: "old", typed: "old", ok: true };
+}

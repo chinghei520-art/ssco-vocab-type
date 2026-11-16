@@ -54,6 +54,37 @@ service cloud.firestore {
         && next.v == prev.v;
     }
 
+    function validReview(data) {
+      return data.keys().hasOnly(['id', 'cardId', 't', 'sessionId', 'kind', 'outcome', 'hint', 'revealed', 'initial', 'v'])
+        && attemptIdOk(data.id)
+        && data.cardId is string
+        && data.cardId.size() == 18
+        && data.cardId.matches('^c_[0-9a-f]{16}$')
+        && data.t is int
+        && data.t > 0
+        && data.sessionId is string
+        && data.sessionId.size() <= 80
+        && (data.kind == 'new' || data.kind == 'review' || data.kind == 'manual' || data.kind == 'remediation')
+        && (data.outcome == 'correct' || data.outcome == 'incorrect' || data.outcome == 'skip' || data.outcome == 'expose')
+        && data.hint is bool
+        && data.revealed is bool
+        && data.initial is bool
+        && data.v == 2;
+    }
+
+    function sameReview(next, prev) {
+      return next.id == prev.id
+        && next.cardId == prev.cardId
+        && next.t == prev.t
+        && next.sessionId == prev.sessionId
+        && next.kind == prev.kind
+        && next.outcome == prev.outcome
+        && next.hint == prev.hint
+        && next.revealed == prev.revealed
+        && next.initial == prev.initial
+        && next.v == prev.v;
+    }
+
     function notCleared(uid) {
       let path = /databases/$(database)/documents/users/$(uid)/sync/state;
       return !exists(path) || request.resource.data.t > int(get(path).data.clearedThrough);
@@ -69,6 +100,20 @@ service cloud.firestore {
         && attemptId == request.resource.data.id
         && validAttempt(request.resource.data)
         && sameAttempt(request.resource.data, resource.data)
+        && notCleared(uid);
+      allow delete: if isOwner(uid);
+    }
+
+    match /users/{uid}/reviews/{eventId} {
+      allow read: if isOwner(uid);
+      allow create: if isOwner(uid)
+        && eventId == request.resource.data.id
+        && validReview(request.resource.data)
+        && notCleared(uid);
+      allow update: if isOwner(uid)
+        && eventId == request.resource.data.id
+        && validReview(request.resource.data)
+        && sameReview(request.resource.data, resource.data)
         && notCleared(uid);
       allow delete: if isOwner(uid);
     }

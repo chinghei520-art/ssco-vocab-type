@@ -279,13 +279,20 @@ try {
   acceptDialogs(page, localDialogs);
   await page.goto(base + "/index.html", { waitUntil: "domcontentloaded" });
   await page.locator(".app-ver").waitFor();
-  check("version", (await textOf(page.locator(".app-ver"))) === "v2.0");
-  check("title", await page.title() === "SSCO Vocab v2.0");
+  check("version", (await textOf(page.locator(".app-ver"))) === "v2.1");
+  check("title", await page.title() === "SSCO Vocab v2.1");
   check("vocab count", (await textOf(page.locator("#vocabMeta"))).includes("55"));
   check("local banner", (await textOf(page.locator("#syncBanner"))).includes("未設定雲端"));
   check("account button", (await textOf(page.locator("#btnAccount"))) === "本機", await textOf(page.locator("#btnAccount")));
   const units = await page.evaluate(() => window.SSCO_ITEMS.map((item) => item.unit).filter((unit, i, all) => all.indexOf(unit) === i));
   check("live units", units.length === 10 && !units.includes("Point Secure (EAL/118)") && !units.includes("EAL022-spell-2026-10-22"));
+  await page.locator("#homeCounts").getByText("新卡", { exact: false }).waitFor();
+  check("dashboard due label", (await textOf(page.locator("#homeCounts"))).includes("未到期"));
+  check("no unit bar", await page.locator(".unit-bar-wrap").evaluate((el) => getComputedStyle(el).display === "none"));
+  await page.screenshot({ path: "/opt/cursor/artifacts/ssco-dashboard.png" });
+  await page.screenshot({ path: "/opt/cursor/artifacts/ssco-detail.png", clip: { x: 0, y: 180, width: 900, height: 500 } }).catch(() => {});
+  await page.locator("#btnStartToday").click();
+  await page.locator(".letter-cell").first().waitFor();
   check("cloze cells", await page.locator(".letter-cell").count() > 0);
   check("hint button", await page.locator(".gloss-toggle").count() > 0);
   const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundImage);
@@ -306,7 +313,7 @@ try {
   await page.locator("#btnRecCopy").click();
   await page.waitForFunction(() => window.__copied && window.__copied.includes("進度報告"));
   const report = await page.evaluate(() => window.__copied);
-  check("report version", report.includes("v2.0"));
+  check("report version", report.includes("v2.1"));
   check("report scope", report.includes("紀錄範圍：本機（未設定雲端）"));
   check("report answer", report.includes(answered.answer) || report.includes("正確"));
   await page.screenshot({ path: path.join(shots, "ssco-local-records.png") });
@@ -324,7 +331,8 @@ try {
     answers: ["probe"]
   }]);
   await page.locator("#fileImport").setInputFiles({ name: "vocab.json", mimeType: "application/json", buffer: Buffer.from(imported) });
-  await page.locator("#feedback").getByText("已匯入 1 題").waitFor();
+  await page.locator("#vocabMeta").getByText("題庫 1 題").waitFor();
+  await page.locator("#homeWarn").getByText("已匯入 1 題").waitFor();
   check("import count", (await page.locator("#vocabMeta").innerText()).includes("1"));
   await releaseKeyboard(page);
   await page.locator("#btnResetVocab").click();
@@ -362,6 +370,8 @@ try {
     body: "window.SSCO_FIREBASE_CONFIG = null;\n"
   }));
   await mobile.goto(base + "/index.html", { waitUntil: "domcontentloaded" });
+  await mobile.locator("#home").waitFor();
+  await mobile.screenshot({ path: "/opt/cursor/artifacts/ssco-mobile-dashboard.png" });
   await releaseKeyboard(mobile);
   await mobile.locator("#btnAccount").waitFor();
   const box = await mobile.locator("#btnAccount").boundingBox();
@@ -406,6 +416,8 @@ try {
   await b.synced.locator("#syncBanner").getByText("合併 1 筆").waitFor({ timeout: 8000 });
   check("second browser sees migrated row", true);
 
+  await a.synced.locator("#btnStartToday").click();
+  await a.synced.locator(".letter-cell").first().waitFor();
   const promptBefore = await textOf(a.synced.locator("#phraseZh"));
   await typeCurrentAnswer(a.synced);
   await a.synced.waitForFunction((prev) => document.getElementById("phraseZh").textContent !== prev, promptBefore);
@@ -478,6 +490,23 @@ try {
   check("sign-in plan is popup", authPlan.popup === "popup", authPlan.popup);
   check("popup blocked does not redirect", authPlan.blocked === "error", authPlan.blocked);
   await configured.close();
+
+  const offlineSched = await browser.newPage({ viewport: { width: 1100, height: 800 } });
+  await offlineSched.route("**/firebase-config.js", (route) => route.fulfill({
+    status: 200,
+    contentType: "text/javascript; charset=utf-8",
+    body: "window.SSCO_FIREBASE_CONFIG = null;\n"
+  }));
+  await offlineSched.route("**/ts-fsrs-6.0.0.umd.js", (route) => route.fulfill({
+    status: 200,
+    contentType: "text/javascript; charset=utf-8",
+    body: "/* library unavailable */\n"
+  }));
+  await offlineSched.goto(base + "/index.html", { waitUntil: "domcontentloaded" });
+  await offlineSched.locator("#homeWarn").getByText("排程庫未載入").waitFor({ timeout: 8000 });
+  check("missing library stays honest", (await textOf(offlineSched.locator("#homeWarn"))).includes("不會假裝"));
+  await offlineSched.screenshot({ path: "/opt/cursor/artifacts/ssco-schedule-error.png" });
+  await offlineSched.close();
 } finally {
   await browser.close();
   server.close();
