@@ -180,6 +180,50 @@
               updatedAt: sdk.fs.serverTimestamp()
             });
           },
+          pullReviews: function () {
+            var reviewsCol = sdk.fs.collection(db, "users", uid, "reviews");
+            return sdk.fs.getDocs(reviewsCol).then(function (snap) {
+              return snap.docs.map(function (item) { return item.data(); });
+            });
+          },
+          pushReviews: function (list) {
+            var reviewsCol = sdk.fs.collection(db, "users", uid, "reviews");
+            var rejected = [];
+            var index = 0;
+            function step() {
+              if (index >= list.length) return Promise.resolve({ rejected: rejected });
+              var entry = list[index];
+              index += 1;
+              return sdk.fs.setDoc(sdk.fs.doc(reviewsCol, entry.id), entry).then(function () {
+                return step();
+              }).catch(function (err) {
+                if (isDenied(err)) {
+                  rejected.push(entry.id);
+                  return step();
+                }
+                throw err;
+              });
+            }
+            return step();
+          },
+          deleteClearedReviews: function (through) {
+            var reviewsCol = sdk.fs.collection(db, "users", uid, "reviews");
+            var q = sdk.fs.query(reviewsCol, sdk.fs.where("t", "<=", through));
+            return sdk.fs.getDocs(q).then(function (snap) {
+              var docs = snap.docs;
+              var start = 0;
+              function next() {
+                if (start >= docs.length) return Promise.resolve();
+                var batch = sdk.fs.writeBatch(db);
+                var slice = docs.slice(start, start + 400);
+                start += 400;
+                if (!slice.length) return Promise.resolve();
+                slice.forEach(function (item) { batch.delete(item.ref); });
+                return batch.commit().then(next);
+              }
+              return next();
+            });
+          },
           deleteCleared: function (through) {
             var q = sdk.fs.query(attemptsCol, sdk.fs.where("t", "<=", through));
             return sdk.fs.getDocs(q).then(function (snap) {

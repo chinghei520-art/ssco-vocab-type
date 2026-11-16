@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-app-ver="2.0">
+<html lang="zh-Hant" data-app-ver="2.1">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#1a1030" />
-  <title>SSCO Vocab v2.0</title>
+  <title>SSCO Vocab v2.1</title>
   <style>
     :root {
       --bg-top: #2a1848;
@@ -53,7 +53,7 @@
       align-items: center;
       justify-content: flex-start;
       gap: 1.25rem;
-      padding: 6.5rem 0 6.5rem;
+      padding: 4.4rem 0 6.5rem;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
     }
@@ -107,6 +107,7 @@
     }
 
     .unit-bar-wrap {
+      display: none;
       position: fixed;
       top: calc(2.55rem + env(safe-area-inset-top));
       left: 0;
@@ -846,7 +847,7 @@
     }
 
     @media (max-width: 480px) {
-      .shell { gap: 1.1rem; padding: 6.25rem 0 5.75rem; justify-content: flex-start; }
+      .shell { gap: 1.1rem; padding: 4.2rem 0 5.75rem; justify-content: flex-start; }
       .sentence { gap: 0.4rem 0.55rem; row-gap: 0.95rem; }
       .letter-slot { width: 1.15em; min-width: 1.15em; flex-basis: 1.15em; }
       .unit-bar button { font-size: 0.68rem; padding: 0.35rem 0.6rem; }
@@ -907,11 +908,73 @@
     }
     #fileImport { display: none; }
 
+    .home {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+    .home h1 {
+      font-size: clamp(1.35rem, 4vw, 1.8rem);
+      text-align: center;
+    }
+    .home-counts, .home-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.45rem;
+      justify-content: center;
+    }
+    .home-counts span, .home button, .card-row button {
+      border: 1px solid var(--pill-border);
+      background: var(--pill);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 0.35rem 0.75rem;
+      font: inherit;
+      font-size: 0.82rem;
+    }
+    .home button.primary {
+      background: rgba(125, 211, 252, 0.22);
+      color: #e0f2fe;
+      font-weight: 700;
+      cursor: pointer;
+    }
+    .home-note, .card-row .meta {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.45;
+      text-align: center;
+    }
+    .card-list {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.45rem;
+      max-height: 46vh;
+      overflow: auto;
+    }
+    .card-row {
+      text-align: left;
+      border: 1px solid var(--pill-border);
+      border-radius: 12px;
+      padding: 0.55rem 0.7rem;
+      background: rgba(0, 0, 0, 0.18);
+    }
+    .card-row .zh { font-weight: 700; }
+    .card-row .answer { display: none; margin-top: 0.25rem; color: #fde68a; }
+    .card-row.show-answer .answer { display: block; }
+    .schedule-effect {
+      font-size: 0.78rem;
+      color: var(--muted);
+      text-align: center;
+      min-height: 1.1em;
+    }
+
   </style>
 </head>
 <body>
   <div class="top-bar">
-    <span class="brand">SSCO 英文填空 <span class="app-ver">v2.0</span></span>
+    <span class="brand">SSCO 英文填空 <span class="app-ver">v2.1</span></span>
     <div class="top-right">
       <span class="vocab-meta" id="vocabMeta" title="Current question bank size">題庫 —</span>
       <div class="progress" id="progress" aria-live="polite"><strong>1</strong> / 43</div>
@@ -924,12 +987,25 @@
 
   <main class="shell" id="main">
     <p class="sync-banner" id="syncBanner" role="status">未設定雲端，紀錄只留喺呢部機</p>
+    <section id="home" class="home" hidden>
+      <h1>今日練習</h1>
+      <div class="home-counts" id="homeCounts"></div>
+      <div class="home-actions">
+        <button type="button" class="primary" id="btnStartToday">開始今日練習</button>
+        <button type="button" id="btnExtra">額外練習</button>
+      </div>
+      <p class="home-note" id="homeMetric"></p>
+      <p class="home-note" id="homeWarn"></p>
+      <p class="home-note" id="homeCriterion"></p>
+      <div class="card-list" id="cardList"></div>
+    </section>
     <h1 class="phrase-zh" id="phraseZh" aria-live="polite"></h1>
 
     <div class="practice" id="practice">
       <div class="sentence" id="sentence" role="group" aria-label="English sentence with blank"></div>
       <p class="blank-tap-hint" id="blankTapHint">撳底線開始打字</p>
       <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
+      <p class="schedule-effect" id="scheduleEffect"></p>
     </div>
 
     <div class="done-panel" id="donePanel" aria-live="polite">
@@ -992,7 +1068,7 @@
     <span class="sep" aria-hidden="true"></span>
     <button type="button" class="primary" id="btnCheck" title="Check (Enter)">檢查</button>
     <span class="sep" aria-hidden="true"></span>
-    <button type="button" id="btnRestart" title="Restart">重來</button>
+    <button type="button" id="btnRestart" title="Home">主頁</button>
     <span class="sep" aria-hidden="true"></span>
     <button type="button" class="ghost" id="btnRecords" title="Practice log">紀錄</button>
     <button type="button" class="ghost" id="btnAccount" title="Google 帳戶同步">本機</button>
@@ -1009,6 +1085,8 @@
       window.SSCO_ITEMS = [{"unit": "Point Secure (EAL/118)","zh": "邊個角色合資格用手燈／旗號控制列車，並調校同 secure 道岔？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "手號員"},{"en": "is","gloss": ""},{"en": "a","gloss": ""},{"en": "person","gloss": ""},{"en": "qualified","gloss": ""},{"en": "to","gloss": ""},{"en": "control","gloss": ""},{"en": "movement","gloss": ""},{"en": "of","gloss": ""},{"en": "trains","gloss": ""},{"en": "by","gloss": ""},{"en": "handlamp","gloss": ""},{"en": "or","gloss": ""},{"en": "flags,","gloss": ""},{"en": "and","gloss": ""},{"en": "to","gloss": ""},{"en": "set","gloss": ""},{"en": "and","gloss": ""},{"en": "secure","gloss": ""},{"en": "points.","gloss": ""}],"blankIndex": 1,"answers": ["Handsignalman","Hand Signalman"]},{"unit": "Point Secure (EAL/118)","zh": "Handsignalman 聽邊個指示去調校／secure point？","words": [{"en": "Handsignalman","gloss": ""},{"en": "sets","gloss": ""},{"en": "and","gloss": ""},{"en": "secures","gloss": ""},{"en": "the","gloss": ""},{"en": "point(s)","gloss": ""},{"en": "under","gloss": ""},{"en": "the","gloss": ""},{"en": "instruction","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": null,"gloss": "行車控制員（TC）"},{"en": ".","gloss": ""}],"blankIndex": 11,"answers": ["Traffic Controller","TC"]},{"unit": "Point Secure (EAL/118)","zh": "Manual Point Operation 入面，「夾緊 + 塞 scotch」合稱咩？","words": [{"en": "In","gloss": ""},{"en": "Manual","gloss": ""},{"en": "Point","gloss": ""},{"en": "Operation,","gloss": ""},{"en": null,"gloss": "固定／鎖妥（道岔）"},{"en": "means","gloss": ""},{"en": "the","gloss": ""},{"en": "switch","gloss": ""},{"en": "tongue","gloss": ""},{"en": "rail","gloss": ""},{"en": "is","gloss": ""},{"en": "clamped","gloss": ""},{"en": "completely","gloss": ""},{"en": "closed","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "stock","gloss": ""},{"en": "rail,","gloss": ""},{"en": "and","gloss": ""},{"en": "a","gloss": ""},{"en": "scotch","gloss": ""},{"en": "is","gloss": ""},{"en": "inserted","gloss": ""},{"en": "in","gloss": ""},{"en": "the","gloss": ""},{"en": "opening.","gloss": ""}],"blankIndex": 4,"answers": ["Secure"]},{"unit": "Point Secure (EAL/118)","zh": "尖軌要點樣處理先至完全貼住基本軌？（過去分詞）","words": [{"en": "The","gloss": ""},{"en": "switch","gloss": ""},{"en": "tongue","gloss": ""},{"en": "rail","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": null,"gloss": "已夾緊"},{"en": "completely","gloss": ""},{"en": "closed","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "stock","gloss": ""},{"en": "rail.","gloss": ""}],"blankIndex": 6,"answers": ["clamped"]},{"unit": "Point Secure (EAL/118)","zh": "switch tongue rail 要夾緊貼住邊條軌？","words": [{"en": "The","gloss": ""},{"en": "switch","gloss": ""},{"en": "tongue","gloss": ""},{"en": "rail","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "clamped","gloss": ""},{"en": "completely","gloss": ""},{"en": "closed","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": null,"gloss": "基本軌"},{"en": ".","gloss": ""}],"blankIndex": 11,"answers": ["stock rail","stockrail"]},{"unit": "Point Secure (EAL/118)","zh": "塞喺 tip 軌同基本軌開口嘅係咩？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "道岔塞"},{"en": "is","gloss": ""},{"en": "inserted","gloss": ""},{"en": "in","gloss": ""},{"en": "the","gloss": ""},{"en": "opening","gloss": ""},{"en": "between","gloss": ""},{"en": "the","gloss": ""},{"en": "switch","gloss": ""},{"en": "tongue","gloss": ""},{"en": "rail","gloss": ""},{"en": "and","gloss": ""},{"en": "the","gloss": ""},{"en": "stock","gloss": ""},{"en": "rail.","gloss": ""}],"blankIndex": 1,"answers": ["scotch","point scotch"]},{"unit": "Point Secure (EAL/118)","zh": "point 無人看管時，clamp 要點？","words": [{"en": "If","gloss": ""},{"en": "the","gloss": ""},{"en": "point","gloss": ""},{"en": "is","gloss": ""},{"en": "left","gloss": ""},{"en": "unattended,","gloss": ""},{"en": "the","gloss": ""},{"en": "clamp","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": null,"gloss": "已上掛鎖"},{"en": ".","gloss": ""}],"blankIndex": 10,"answers": ["padlocked"]},{"unit": "Point Secure (EAL/118)","zh": "邊種情況要 padlock the clamp？","words": [{"en": "If","gloss": ""},{"en": "the","gloss": ""},{"en": "point","gloss": ""},{"en": "is","gloss": ""},{"en": "left","gloss": ""},{"en": null,"gloss": "無人看管"},{"en": ",","gloss": ""},{"en": "the","gloss": ""},{"en": "clamp","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "padlocked.","gloss": ""}],"blankIndex": 5,"answers": ["unattended"]},{"unit": "Point Secure (EAL/118)","zh": "開車前所有 point（不論迎面定背向）都要 clamp & scotch——填 regardless 後面。","words": [{"en": "All","gloss": ""},{"en": "points,","gloss": ""},{"en": "regardless","gloss": ""},{"en": null,"gloss": "迎面或背向"},{"en": ",","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "clamped","gloss": ""},{"en": "and","gloss": ""},{"en": "scotched","gloss": ""},{"en": "before","gloss": ""},{"en": "train","gloss": ""},{"en": "moving.","gloss": ""}],"blankIndex": 3,"answers": ["facing or trailing","facing / trailing","of facing or trailing"]},{"unit": "Point Secure (EAL/118)","zh": "point 喺邊類軌道損壞時，通常會派 Handsignalman？","words": [{"en": "When","gloss": ""},{"en": "point(s)","gloss": ""},{"en": "become","gloss": ""},{"en": "defective","gloss": ""},{"en": "on","gloss": ""},{"en": "a","gloss": ""},{"en": null,"gloss": "行走路線／營運線"},{"en": ",","gloss": ""},{"en": "Handsignalman","gloss": ""},{"en": "may","gloss": ""},{"en": "be","gloss": ""},{"en": "assigned","gloss": ""},{"en": "to","gloss": ""},{"en": "keep","gloss": ""},{"en": "trains","gloss": ""},{"en": "moving.","gloss": ""}],"blankIndex": 6,"answers": ["running line","Running Line"]},{"unit": "Track Access (EAL/014)","zh": "入軌申請平常要預先經邊個系統輸入？（唔係 PPE）","words": [{"en": "Request","gloss": ""},{"en": "for","gloss": ""},{"en": "access","gloss": ""},{"en": "to","gloss": ""},{"en": "track","gloss": ""},{"en": "must","gloss": ""},{"en": "be","gloss": ""},{"en": "input","gloss": ""},{"en": "via","gloss": ""},{"en": null,"gloss": "軌道進入申請系統"},{"en": "in","gloss": ""},{"en": "advance.","gloss": ""}],"blankIndex": 9,"answers": ["ETMS"]},{"unit": "Track Access (EAL/014)","zh": "例外授權係喺 TC／EPIC 嘅咩範圍之內？","words": [{"en": "Request","gloss": ""},{"en": "via","gloss": ""},{"en": "ETMS","gloss": ""},{"en": "is","gloss": ""},{"en": "required","gloss": ""},{"en": "except","gloss": ""},{"en": "authorization","gloss": ""},{"en": "is","gloss": ""},{"en": "given","gloss": ""},{"en": "by","gloss": ""},{"en": "TC","gloss": ""},{"en": "or","gloss": ""},{"en": "EPIC","gloss": ""},{"en": "within","gloss": ""},{"en": "the","gloss": ""},{"en": null,"gloss": "封閉／佔用"},{"en": ".","gloss": ""}],"blankIndex": 15,"answers": ["possession","Possession"]},{"unit": "Track Access (EAL/014)","zh": "行車時間、Running Line & Reception Track——報邊兩個？","words": [{"en": "During","gloss": ""},{"en": "Traffic","gloss": ""},{"en": "Hours,","gloss": ""},{"en": "the","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "work","gloss": ""},{"en": "on","gloss": ""},{"en": "a","gloss": ""},{"en": "Running","gloss": ""},{"en": "Line","gloss": ""},{"en": "&","gloss": ""},{"en": "Reception","gloss": ""},{"en": "Track","gloss": ""},{"en": "reports","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "行車控制員與站控"},{"en": ".","gloss": ""}],"blankIndex": 18,"answers": ["TC & SC","TC and SC","TC&SC","TC / SC"]},{"unit": "Track Access (EAL/014)","zh": "行車時間、Yard & Reception track——報邊個？","words": [{"en": "During","gloss": ""},{"en": "Traffic","gloss": ""},{"en": "Hours,","gloss": ""},{"en": "the","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "work","gloss": ""},{"en": "on","gloss": ""},{"en": "a","gloss": ""},{"en": "Yard","gloss": ""},{"en": "&","gloss": ""},{"en": "Reception","gloss": ""},{"en": "track","gloss": ""},{"en": "reports","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "車廠相關負責人"},{"en": ".","gloss": ""}],"blankIndex": 17,"answers": ["YM","Yard Master","yard master"]},{"unit": "Track Access (EAL/014)","zh": "入軌前必須指派邊種 protection？","words": [{"en": "Before","gloss": ""},{"en": "gaining","gloss": ""},{"en": "access,","gloss": ""},{"en": "the","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "work","gloss": ""},{"en": "must","gloss": ""},{"en": "appoint","gloss": ""},{"en": null,"gloss": "瞭望員"},{"en": "protection.","gloss": ""}],"blankIndex": 12,"answers": ["Lookoutman","Lookout man"]},{"unit": "Track Access (EAL/014)","zh": "EAL/014 用邊個例子做「做工負責人」？","words": [{"en": "The","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "work","gloss": ""},{"en": "(Example:","gloss": ""},{"en": null,"gloss": "負責道岔作業嘅站控"},{"en": ")","gloss": ""},{"en": "must","gloss": ""},{"en": "appoint","gloss": ""},{"en": "Lookoutman","gloss": ""},{"en": "protection.","gloss": ""}],"blankIndex": 8,"answers": ["SC for Point operations","SC for point operations","SC for Point Operations"]},{"unit": "Track Access (EAL/014)","zh": "Possession in TH、行車線——報 SC 同邊個？","words": [{"en": "During","gloss": ""},{"en": "Possession","gloss": ""},{"en": "in","gloss": ""},{"en": "Traffic","gloss": ""},{"en": "Hours","gloss": ""},{"en": "on","gloss": ""},{"en": "a","gloss": ""},{"en": "Running","gloss": ""},{"en": "Line,","gloss": ""},{"en": "report","gloss": ""},{"en": "to","gloss": ""},{"en": "SC","gloss": ""},{"en": "&","gloss": ""},{"en": null,"gloss": "工程負責人"},{"en": ".","gloss": ""}],"blankIndex": 13,"answers": ["EPIC"]},{"unit": "Track Access (EAL/014)","zh": "邊段時間行車線入軌要報 TC & SC？","words": [{"en": "During","gloss": ""},{"en": null,"gloss": "行車時間"},{"en": ",","gloss": ""},{"en": "Running","gloss": ""},{"en": "Line","gloss": ""},{"en": "&","gloss": ""},{"en": "Reception","gloss": ""},{"en": "Track","gloss": ""},{"en": "access","gloss": ""},{"en": "is","gloss": ""},{"en": "reported","gloss": ""},{"en": "to","gloss": ""},{"en": "TC","gloss": ""},{"en": "&","gloss": ""},{"en": "SC.","gloss": ""}],"blankIndex": 1,"answers": ["Traffic Hours","traffic hours","TH"]},{"unit": "Track Access (EAL/014)","zh": "入軌前要同意嘅項目之一（防護安排）？","words": [{"en": "Before","gloss": ""},{"en": "gaining","gloss": ""},{"en": "access,","gloss": ""},{"en": "agree","gloss": ""},{"en": "the","gloss": ""},{"en": "means","gloss": ""},{"en": "for","gloss": ""},{"en": "track","gloss": ""},{"en": "access,","gloss": ""},{"en": "clear-by","gloss": ""},{"en": "time,","gloss": ""},{"en": null,"gloss": "防護安排"},{"en": ",","gloss": ""},{"en": "special","gloss": ""},{"en": "safety","gloss": ""},{"en": "instructions,","gloss": ""},{"en": "and","gloss": ""},{"en": "communication.","gloss": ""}],"blankIndex": 11,"answers": ["protection arrangements","protection arrangement"]},{"unit": "Track Access (EAL/014)","zh": "唔喺邊度／淨空不足時要特別小心？","words": [{"en": "Staff","gloss": ""},{"en": "must","gloss": ""},{"en": "take","gloss": ""},{"en": "particular","gloss": ""},{"en": "care","gloss": ""},{"en": "when","gloss": ""},{"en": "not","gloss": ""},{"en": "in","gloss": ""},{"en": "a","gloss": ""},{"en": null,"gloss": "安全位置"},{"en": "or","gloss": ""},{"en": "where","gloss": ""},{"en": "there","gloss": ""},{"en": "is","gloss": ""},{"en": "limited","gloss": ""},{"en": "clearance.","gloss": ""}],"blankIndex": 9,"answers": ["place of safety","Place of Safety"]},{"unit": "Board English / Injury-Illness UE","zh": "「已前往現場」正確過去式？（唔係 procced）","words": [{"en": "SCO","gloss": ""},{"en": "Mak","gloss": ""},{"en": "immediately","gloss": ""},{"en": null,"gloss": "已前往"},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "scene","gloss": ""},{"en": "to","gloss": ""},{"en": "attend","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "passenger.","gloss": ""}],"blankIndex": 3,"answers": ["proceeded"]},{"unit": "Board English / Injury-Illness UE","zh": "職員已照料／處理乘客——填短語。","words": [{"en": "Station","gloss": ""},{"en": "staff","gloss": ""},{"en": null,"gloss": "已照料"},{"en": "the","gloss": ""},{"en": "passenger","gloss": ""},{"en": "until","gloss": ""},{"en": "paramedics","gloss": ""},{"en": "arrived.","gloss": ""}],"blankIndex": 2,"answers": ["attended to"]},{"unit": "Board English / Injury-Illness UE","zh": "乘客拒絕救護——過去式。","words": [{"en": "The","gloss": ""},{"en": "passenger","gloss": ""},{"en": null,"gloss": "已拒絕"},{"en": "ambulance","gloss": ""},{"en": "assistance","gloss": ""},{"en": "and","gloss": ""},{"en": "left","gloss": ""},{"en": "the","gloss": ""},{"en": "station","gloss": ""},{"en": "by","gloss": ""},{"en": "himself.","gloss": ""}],"blankIndex": 2,"answers": ["declined"]},{"unit": "Board English / Injury-Illness UE","zh": "乘客保持清醒（唔係 remind conscious）。","words": [{"en": "The","gloss": ""},{"en": "passenger","gloss": ""},{"en": null,"gloss": "保持清醒"},{"en": "and","gloss": ""},{"en": "reported","gloss": ""},{"en": "no","gloss": ""},{"en": "physical","gloss": ""},{"en": "injuries.","gloss": ""}],"blankIndex": 2,"answers": ["remained conscious"]},{"unit": "Board English / Injury-Illness UE","zh": "無身體外傷正確寫法（唔加 in）。","words": [{"en": "The","gloss": ""},{"en": "passenger","gloss": ""},{"en": "remained","gloss": ""},{"en": "conscious","gloss": ""},{"en": "and","gloss": ""},{"en": "reported","gloss": ""},{"en": null,"gloss": "無身體外傷"},{"en": ".","gloss": ""}],"blankIndex": 6,"answers": ["no physical injuries","no physical injury"]},{"unit": "Board English / Injury-Illness UE","zh": "已召喚警察——過去分詞；Police were。","words": [{"en": "Police","gloss": ""},{"en": "were","gloss": ""},{"en": null,"gloss": "已召喚"},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "station.","gloss": ""}],"blankIndex": 2,"answers": ["summoned"]},{"unit": "Board English / Injury-Illness UE","zh": "「受傷」用邊個動詞？（前面唔加 was）","words": [{"en": "The","gloss": ""},{"en": "passenger","gloss": ""},{"en": null,"gloss": "遭受（傷）"},{"en": "a","gloss": ""},{"en": "minor","gloss": ""},{"en": "injury","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "left","gloss": ""},{"en": "arm.","gloss": ""}],"blankIndex": 2,"answers": ["sustained"]},{"unit": "Board English / Injury-Illness UE","zh": "提供咩去護送乘客休息？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "輪椅"},{"en": "was","gloss": ""},{"en": "provided","gloss": ""},{"en": "to","gloss": ""},{"en": "convey","gloss": ""},{"en": "the","gloss": ""},{"en": "passenger","gloss": ""},{"en": "to","gloss": ""},{"en": "rest.","gloss": ""}],"blankIndex": 1,"answers": ["wheelchair"]},{"unit": "Board English / Injury-Illness UE","zh": "護送／運送乘客用邊個動詞？","words": [{"en": "A","gloss": ""},{"en": "wheelchair","gloss": ""},{"en": "was","gloss": ""},{"en": "provided","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "護送／運送"},{"en": "the","gloss": ""},{"en": "passenger","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "platform","gloss": ""},{"en": "seat.","gloss": ""}],"blankIndex": 5,"answers": ["convey"]},{"unit": "Board English / Injury-Illness UE","zh": "括號入面常寫嘅急救資格稱呼？","words": [{"en": "SCO","gloss": ""},{"en": "Mak","gloss": ""},{"en": "(","gloss": ""},{"en": null,"gloss": "合格急救員"},{"en": ")","gloss": ""},{"en": "proceeded","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "scene","gloss": ""},{"en": "to","gloss": ""},{"en": "attend","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "passenger.","gloss": ""}],"blankIndex": 3,"answers": ["qualified First Aider","Qualified First Aider","qualified first aider"]},{"unit": "Station Ops / Service English","zh": "重設——過去式仍係呢個拼法（唔係 reseted）。","words": [{"en": "The","gloss": ""},{"en": "PEP","gloss": ""},{"en": "was","gloss": ""},{"en": null,"gloss": "重設"},{"en": "after","gloss": ""},{"en": "the","gloss": ""},{"en": "incident.","gloss": ""}],"blankIndex": 3,"answers": ["reset"]},{"unit": "Station Ops / Service English","zh": "已調配人手去月台。","words": [{"en": "Additional","gloss": ""},{"en": "staff","gloss": ""},{"en": "were","gloss": ""},{"en": null,"gloss": "已調配"},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "platform.","gloss": ""}],"blankIndex": 3,"answers": ["deployed","deploy"]},{"unit": "Station Ops / Service English","zh": "列車停妥於月台。","words": [{"en": "The","gloss": ""},{"en": "train","gloss": ""},{"en": null,"gloss": "已停妥"},{"en": "at","gloss": ""},{"en": "the","gloss": ""},{"en": "platform.","gloss": ""}],"blankIndex": 2,"answers": ["berthed","berth"]},{"unit": "Station Ops / Service English","zh": "故障設備已隔離。","words": [{"en": "The","gloss": ""},{"en": "defective","gloss": ""},{"en": "equipment","gloss": ""},{"en": "was","gloss": ""},{"en": null,"gloss": "已隔離"},{"en": ".","gloss": ""}],"blankIndex": 4,"answers": ["isolated","isolate"]},{"unit": "Station Ops / Service English","zh": "啟動咗邊類計劃去減低服務影響？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "應變／後備"},{"en": "plan","gloss": ""},{"en": "was","gloss": ""},{"en": "activated","gloss": ""},{"en": "to","gloss": ""},{"en": "minimise","gloss": ""},{"en": "service","gloss": ""},{"en": "impact.","gloss": ""}],"blankIndex": 1,"answers": ["contingency"]},{"unit": "Station Ops / Service English","zh": "受影響車站之間列車服務已暫停。","words": [{"en": "Train","gloss": ""},{"en": "service","gloss": ""},{"en": "was","gloss": ""},{"en": null,"gloss": "已暫停"},{"en": "between","gloss": ""},{"en": "the","gloss": ""},{"en": "affected","gloss": ""},{"en": "stations.","gloss": ""}],"blankIndex": 3,"answers": ["suspended","suspend"]},{"unit": "Station Ops / Service English","zh": "月台發生咗咩類型事故（報告用語）？","words": [{"en": "A","gloss": ""},{"en": null,"gloss": "乘客意外"},{"en": "occurred","gloss": ""},{"en": "on","gloss": ""},{"en": "the","gloss": ""},{"en": "platform;","gloss": ""},{"en": "Police","gloss": ""},{"en": "were","gloss": ""},{"en": "summoned.","gloss": ""}],"blankIndex": 1,"answers": ["passenger accident","Passenger Accident"]},{"unit": "Station Ops / Service English","zh": "point 變得故障／損壞——形容詞。","words": [{"en": "In","gloss": ""},{"en": "the","gloss": ""},{"en": "event","gloss": ""},{"en": "of","gloss": ""},{"en": "signalling","gloss": ""},{"en": "equipment","gloss": ""},{"en": "failure","gloss": ""},{"en": "or","gloss": ""},{"en": "point(s)","gloss": ""},{"en": "becoming","gloss": ""},{"en": null,"gloss": "故障的"},{"en": "…","gloss": ""}],"blankIndex": 10,"answers": ["defective"]},{"unit": "Station Ops / Service English","zh": "救護經行車控制召喚——填 via TC。","words": [{"en": "Ambulance","gloss": ""},{"en": "was","gloss": ""},{"en": "summoned","gloss": ""},{"en": null,"gloss": "經行車控制員"},{"en": "-EAL.","gloss": ""}],"blankIndex": 3,"answers": ["via TC","via TC-EAL","viaTC"]},{"unit": "Station Ops / Service English","zh": "Police 後面用 was 定 were？","words": [{"en": "Police","gloss": ""},{"en": null,"gloss": "（複數）係"},{"en": "summoned","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "station.","gloss": ""}],"blankIndex": 1,"answers": ["were"]},{"unit": "Roles Contrast & Traps","zh": "訊號故障時通常派邊個去人手 set/secure point？","words": [{"en": "Under","gloss": ""},{"en": "EAL/118,","gloss": ""},{"en": null,"gloss": "手號員（EAL/118）"},{"en": "is","gloss": ""},{"en": "normally","gloss": ""},{"en": "assigned","gloss": ""},{"en": "to","gloss": ""},{"en": "manually","gloss": ""},{"en": "set","gloss": ""},{"en": "and","gloss": ""},{"en": "secure","gloss": ""},{"en": "points","gloss": ""},{"en": "under","gloss": ""},{"en": "TC","gloss": ""},{"en": "when","gloss": ""},{"en": "signalling","gloss": ""},{"en": "fails.","gloss": ""}],"blankIndex": 2,"answers": ["Handsignalman","Hand Signalman"]},{"unit": "Roles Contrast & Traps","zh": "EAL/014：邊個係「做工負責人」例子？","words": [{"en": "Under","gloss": ""},{"en": "EAL/014,","gloss": ""},{"en": null,"gloss": ""},{"en": "is","gloss": ""},{"en": "an","gloss": ""},{"en": "example","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "work","gloss": ""},{"en": "for","gloss": ""},{"en": "track","gloss": ""},{"en": "access.","gloss": ""}],"blankIndex": 2,"answers": ["SC for Point operations","SC for point operations","SC for Point Operations"]},{"unit": "Roles Contrast & Traps","zh": "入軌前指派 _____ protection——唔好同 PPE 撈亂。","words": [{"en": "Do","gloss": ""},{"en": "not","gloss": ""},{"en": "confuse","gloss": ""},{"en": "PPE","gloss": ""},{"en": "with","gloss": ""},{"en": "appointing","gloss": ""},{"en": null,"gloss": ""},{"en": "protection","gloss": ""},{"en": "before","gloss": ""},{"en": "track","gloss": ""},{"en": "access.","gloss": ""}],"blankIndex": 6,"answers": ["Lookoutman","Lookout man"]},{"unit": "Roles Contrast & Traps","zh": "入軌申請平常要預先經邊個系統輸入？（唔係 PPE）","words": [{"en": "Normal","gloss": ""},{"en": "track","gloss": ""},{"en": "access","gloss": ""},{"en": "applications","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "entered","gloss": ""},{"en": "in","gloss": ""},{"en": null,"gloss": "工程臨時管理系統"},{"en": "in","gloss": ""},{"en": "advance","gloss": ""},{"en": "(do","gloss": ""},{"en": "not","gloss": ""},{"en": "confuse","gloss": ""},{"en": "with","gloss": ""},{"en": "PPE).","gloss": ""}],"blankIndex": 8,"answers": ["ETMS"]},{"unit": "Roles Contrast & Traps","zh": "Traffic Hours＋Running Line & Reception Track → 匯報邊兩個？（唔係拆 YM）","words": [{"en": "During","gloss": ""},{"en": "Traffic","gloss": ""},{"en": "Hours,","gloss": ""},{"en": "for","gloss": ""},{"en": "work","gloss": ""},{"en": "on","gloss": ""},{"en": "the","gloss": ""},{"en": "Running","gloss": ""},{"en": "Line","gloss": ""},{"en": "&","gloss": ""},{"en": "Reception","gloss": ""},{"en": "Track,","gloss": ""},{"en": "report","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "行車控制員與站控"},{"en": ".","gloss": ""}],"blankIndex": 14,"answers": ["TC & SC","TC and SC","TC&SC"]},{"unit": "Roles Contrast & Traps","zh": "開車前所有 point（迎面或背向）要點做？（唔係 line clear／keep lock）","words": [{"en": "All","gloss": ""},{"en": "points,","gloss": ""},{"en": "regardless","gloss": ""},{"en": "facing","gloss": ""},{"en": "or","gloss": ""},{"en": "trailing,","gloss": ""},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": null,"gloss": "夾緊並塞 scotch"},{"en": "before","gloss": ""},{"en": "train","gloss": ""},{"en": "moving.","gloss": ""}],"blankIndex": 8,"answers": ["clamped and scotched","clamped & scotched","clamp and scotch","clamped and scotch"]},{"unit": "Roles Contrast & Traps","zh": "無人看守時，要 padlock 邊樣？","words": [{"en": "If","gloss": ""},{"en": "the","gloss": ""},{"en": "point","gloss": ""},{"en": "is","gloss": ""},{"en": "left","gloss": ""},{"en": "unattended,","gloss": ""},{"en": null,"gloss": "道岔夾（要上鎖嗰件）"},{"en": "shall","gloss": ""},{"en": "be","gloss": ""},{"en": "padlocked.","gloss": ""}],"blankIndex": 6,"answers": ["the clamp","clamp"]},{"unit": "Roles Contrast & Traps","zh": "Secure 定義第一截：邊條軌要 clamp 完全貼住 stock rail？","words": [{"en": "Secure","gloss": ""},{"en": "means","gloss": ""},{"en": "the","gloss": ""},{"en": null,"gloss": "尖軌／tip 軌"},{"en": "is","gloss": ""},{"en": "clamped","gloss": ""},{"en": "completely","gloss": ""},{"en": "closed","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "stock","gloss": ""},{"en": "rail,","gloss": ""},{"en": "and","gloss": ""},{"en": "a","gloss": ""},{"en": "scotch","gloss": ""},{"en": "is","gloss": ""},{"en": "inserted","gloss": ""},{"en": "in","gloss": ""},{"en": "the","gloss": ""},{"en": "opening.","gloss": ""}],"blankIndex": 3,"answers": ["switch tongue rail","switch tongue","tongue rail"]},{"unit": "Roles Contrast & Traps","zh": "HSM（EAL/118）唔好撈亂邊個 EAL/014「做工負責人」例子？","words": [{"en": "Do","gloss": ""},{"en": "not","gloss": ""},{"en": "confuse","gloss": ""},{"en": "Handsignalman","gloss": ""},{"en": "(EAL/118","gloss": ""},{"en": "under","gloss": ""},{"en": "TC)","gloss": ""},{"en": "with","gloss": ""},{"en": null,"gloss": "負責道岔作業嘅站控"},{"en": "(EAL/014","gloss": ""},{"en": "person","gloss": ""},{"en": "in","gloss": ""},{"en": "charge","gloss": ""},{"en": "example).","gloss": ""}],"blankIndex": 8,"answers": ["SC for Point operations"]},{"unit": "Roles Contrast & Traps","zh": "指派 Lookoutman protection ≠ 著邊樣？（常見撈亂）","words": [{"en": "Appointing","gloss": ""},{"en": "Lookoutman","gloss": ""},{"en": "protection","gloss": ""},{"en": "is","gloss": ""},{"en": "not","gloss": ""},{"en": "the","gloss": ""},{"en": "same","gloss": ""},{"en": "as","gloss": ""},{"en": "wearing","gloss": ""},{"en": null,"gloss": "個人防護裝備"},{"en": ".","gloss": ""}],"blankIndex": 9,"answers": ["PPE","personal protective equipment"]},{"unit": "Roles Contrast & Traps","zh": "Police 後面用 was 定 were？（Board English 常見錯）","words": [{"en": "Police","gloss": ""},{"en": null,"gloss": "（複數）係"},{"en": "summoned","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "station.","gloss": ""}],"blankIndex": 1,"answers": ["were"]},{"unit": "EAL022-spell-2026-10-22","zh": "照亮／亮起（ESI 燈號）","words": [{"en": "All","gloss": ""},{"en": "ESIs","gloss": ""},{"en": "of","gloss": ""},{"en": "both","gloss": ""},{"en": "up","gloss": ""},{"en": "and","gloss": ""},{"en": "down","gloss": ""},{"en": "track","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "station","gloss": ""},{"en": "will","gloss": ""},{"en": null,"gloss": "動詞；拼法 illu-mi-nate（過去／現在同形）"},{"en": ".","gloss": ""}],"blankIndex": 12,"answers": ["illuminate"]},{"unit": "EAL022-spell-2026-10-22","zh": "鄰近的（adjacent stations）","words": [{"en": "All","gloss": ""},{"en": "Departure","gloss": ""},{"en": "Signals","gloss": ""},{"en": "of","gloss": ""},{"en": "the","gloss": ""},{"en": "station","gloss": ""},{"en": "and","gloss": ""},{"en": null,"gloss": "拼法 ad-ja-cent；唔好漏 j"},{"en": "stations","gloss": ""},{"en": "approaching","gloss": ""},{"en": "to","gloss": ""},{"en": "the","gloss": ""},{"en": "incident","gloss": ""},{"en": "station","gloss": ""},{"en": "will","gloss": ""},{"en": "replace","gloss": ""},{"en": "to","gloss": ""},{"en": "Danger.","gloss": ""}],"blankIndex": 7,"answers": ["adjacent"]},{"unit": "EAL022-spell-2026-10-22","zh": "險阻訊號方面（大階 D）","words": [{"en": "The","gloss": ""},{"en": "Home","gloss": ""},{"en": "Signal","gloss": ""},{"en": "entering","gloss": ""},{"en": "the","gloss": ""},{"en": "incident","gloss": ""},{"en": "station","gloss": ""},{"en": "will","gloss": ""},{"en": "replace","gloss": ""},{"en": "to","gloss": ""},{"en": null,"gloss": "信號 aspect 專用寫法；記得大階開頭"},{"en": ".","gloss": ""}],"blankIndex": 10,"answers": ["Danger"]}];
     }
   </script>
+  <script src="vendor/ts-fsrs-6.0.0.umd.js"></script>
+  <script src="scheduler.js"></script>
   <script src="history-sync.js"></script>
   <script>
 
@@ -1118,7 +1196,7 @@
     const REPORT_WRONG_CAP = 20;
 
     function appVersionLabel() {
-      const raw = (document.documentElement.getAttribute("data-app-ver") || "2.0").trim();
+      const raw = (document.documentElement.getAttribute("data-app-ver") || "2.1").trim();
       return /^v/i.test(raw) ? raw : "v" + raw;
     }
 
@@ -1324,7 +1402,7 @@
         return;
       }
       selectedUnit = "All";
-      restart();
+      showHome();
       const meta = document.getElementById("vocabMeta");
       if (meta) meta.textContent = `題庫 ${ITEMS.length} 題`;
     }
@@ -1393,6 +1471,11 @@
     let inReview = false;
     let mainTotal = 0;        // size of first pass (for score display)
     let sessionLive = false;  // false on the done panel so pagehide won't rewrite a finished round
+    let hintShown = false;
+    let answerRevealed = false;
+    let roundMode = "today";
+    let practiceSessionId = "";
+    let homeFlash = "";
     let inputEl = null;
     let letterCells = [];
     let blankTemplate = "";
@@ -1565,10 +1648,18 @@
     }
 
     function renderItem() {
+      const home = document.getElementById("home");
+      if (home) home.hidden = true;
+      const phrase = document.getElementById("phraseZh");
+      if (phrase) phrase.hidden = false;
+      hintShown = false;
+      answerRevealed = false;
       locked = false;
       awaitingNext = false;
       suppressEnterAdvance = false;
       clearFeedback();
+      const effect = document.getElementById("scheduleEffect");
+      if (effect) effect.textContent = "";
       setCheckLabel("check");
       el.practice.classList.remove("hidden");
       el.donePanel.classList.remove("show");
@@ -1620,6 +1711,7 @@
             });
             btn.addEventListener("click", (e) => {
               e.stopPropagation();
+              hintShown = true;
               const open = btn.getAttribute("aria-expanded") === "true";
               const next = !open;
               btn.setAttribute("aria-expanded", next ? "true" : "false");
@@ -2066,6 +2158,7 @@
 
       if (isCorrect(user, item.answers)) {
         if (!inReview) correctCount += 1;
+        noteSchedule("correct");
         recordAttempt({ item, typed: user, ok: true });
         markBlank("ok");
         showFeedback("ok", "✓ 正確！");
@@ -2080,6 +2173,8 @@
         }, 650);
       } else {
         rememberMissed(itemIndex);
+        noteSchedule("incorrect");
+        answerRevealed = true;
         recordAttempt({ item, typed: user, ok: false });
         markBlank("bad");
         const primary = item.answers[0] || "(無答案資料)";
@@ -2114,6 +2209,7 @@
       const item = currentItem();
       const itemIndex = order[index];
       rememberMissed(itemIndex);
+      noteSchedule("skip");
       recordAttempt({ item, typed: "(skip)", ok: false });
       setBlankDisabled(true);
       const primary = item.answers[0] || "(無答案資料)";
@@ -2277,7 +2373,9 @@
           missed: missed.slice(),
           sessionMissed: sessionMissed.slice(),
           inReview: !!inReview,
-          mainTotal
+          mainTotal,
+          practiceSessionId: practiceSessionId,
+          roundMode: roundMode
         };
         localStorage.setItem(SESSION_KEY, JSON.stringify(payload));
       } catch (_) {}
@@ -2337,6 +2435,9 @@
       sessionMissed = sessionMissedList.slice();
       inReview = !!data.inReview;
       mainTotal = Math.max(0, Number(data.mainTotal) || order.length);
+      practiceSessionId = typeof data.practiceSessionId === "string" ? data.practiceSessionId : "";
+      roundMode = data.roundMode === "extra" ? "extra" : "today";
+      if (!practiceSessionId) practiceSessionId = "s_" + Date.now().toString(16);
       locked = false;
       awaitingNext = false;
       suppressEnterAdvance = false;
@@ -2495,7 +2596,7 @@
 
     el.btnCheck.addEventListener("click", check);
     el.btnSkip.addEventListener("click", skip);
-    el.btnRestart.addEventListener("click", restart);
+    el.btnRestart.addEventListener("click", goHome);
     if (el.btnRetryMissed) {
       el.btnRetryMissed.addEventListener("click", retryMissedRound);
     }
@@ -2619,7 +2720,9 @@
           let data = JSON.parse(text);
           if (data && Array.isArray(data.items)) data = data.items;
           applyItems(data, { persist: true });
-          showFeedback("ok", `已匯入 ${ITEMS.length} 題（已記住喺呢部瀏覽器）`);
+          homeFlash = `已匯入 ${ITEMS.length} 題（已記住喺呢部瀏覽器）`;
+          showFeedback("ok", homeFlash);
+          renderHome();
           setTimeout(() => {
             if (el.feedback.textContent.includes("已匯入")) showFeedback("", "");
           }, 2200);
@@ -2633,7 +2736,9 @@
         try { localStorage.removeItem(STORAGE_KEY); } catch (_) {}
         const base = Array.isArray(window.SSCO_ITEMS) ? window.SSCO_ITEMS.slice() : [];
         applyItems(base, { persist: false });
-        showFeedback("ok", "已還原內建詞庫");
+        homeFlash = "已還原內建詞庫";
+        showFeedback("ok", homeFlash);
+        renderHome();
         setTimeout(() => {
           if (el.feedback.textContent.includes("還原")) showFeedback("", "");
         }, 1800);
@@ -2667,7 +2772,11 @@
           if (!window.SSCOFirebaseSync) await loadScript("firebase-sync.js");
           return window.SSCOFirebaseSync.openSession(window.SSCO_FIREBASE_CONFIG, handlers);
         },
-        onChange: () => refreshRecordViews(),
+        onChange: () => {
+          refreshRecordViews();
+          const home = document.getElementById("home");
+          if (home && !home.hidden) renderHome();
+        },
         onStatus: (status) => renderSyncStatus(status)
       });
       window.SSCO_HISTORY = historyCtl;
@@ -2732,6 +2841,171 @@
       });
     }
 
+    function newPracticeSessionId() {
+      return "s_" + Date.now().toString(16) + Math.random().toString(16).slice(2, 8);
+    }
+
+    function noteSchedule(outcome) {
+      const effect = document.getElementById("scheduleEffect");
+      if (!window.SSCOScheduler || !historyCtl) {
+        if (effect) effect.textContent = "";
+        return;
+      }
+      const item = currentItem();
+      if (!item) return;
+      if (!practiceSessionId) practiceSessionId = newPracticeSessionId();
+      const observation = {
+        id: "r_" + Date.now().toString(16) + Math.random().toString(16).slice(2, 10),
+        cardId: SSCOScheduler.cardId(item),
+        t: Date.now(),
+        sessionId: practiceSessionId,
+        kind: inReview ? "remediation" : (roundMode === "extra" ? "manual" : "review"),
+        outcome: outcome,
+        hint: hintShown,
+        revealed: answerRevealed && outcome !== "incorrect",
+        initial: !inReview,
+        v: 2
+      };
+      let planned = null;
+      try {
+        planned = SSCOScheduler.plan(historyCtl.getReviews(), observation, null);
+      } catch (_) {
+        planned = null;
+      }
+      if (!planned) return;
+      historyCtl.appendReview(planned.event);
+      if (effect) effect.textContent = planned.effect || "";
+    }
+
+    function showHome() {
+      const home = document.getElementById("home");
+      if (home) home.hidden = false;
+      const phrase = document.getElementById("phraseZh");
+      if (phrase) phrase.hidden = true;
+      el.practice.classList.add("hidden");
+      el.donePanel.classList.remove("show");
+      renderHome();
+    }
+
+    function renderHome() {
+      const counts = document.getElementById("homeCounts");
+      const metric = document.getElementById("homeMetric");
+      const warn = document.getElementById("homeWarn");
+      const criterion = document.getElementById("homeCriterion");
+      const list = document.getElementById("cardList");
+      if (!counts || !window.SSCOScheduler) return;
+      const paint = function (fsrs) {
+        const events = historyCtl ? historyCtl.getReviews() : [];
+        const view = SSCOScheduler.summarize(ITEMS, events, Date.now(), fsrs);
+        if (el.progress) el.progress.innerHTML = `<strong>${view.order.length}</strong> 今日`;
+        counts.innerHTML = "";
+        [["到期", view.due.length], ["新卡", view.fresh.length], ["未到期", view.waiting.length]].forEach(function (pair) {
+          const span = document.createElement("span");
+          span.textContent = pair[0] + " " + pair[1];
+          counts.appendChild(span);
+        });
+        if (metric) {
+          const today = view.todayIndependent;
+          metric.textContent =
+            "今日獨立首次 " + today.correct + "/" + today.total +
+            " · 今日補救 " + view.remediationCount + "（唔算獨立） · 延遲獨立拼寫率 " +
+            view.delayedCount + "/" + view.denominator + "（含未學）";
+        }
+        if (warn) {
+          warn.textContent = homeFlash || (view.available
+            ? "FSRS-6 目標記得率 90%（模型目標，不是保證）。到期先，然後新卡。"
+            : "排程庫未載入。可以練習，但唔會計間隔，亦不會假裝有複習日期。");
+        }
+        if (criterion) criterion.textContent = view.criterion;
+        if (!list) return;
+        list.innerHTML = "";
+        view.rows.forEach(function (row) {
+          const box = document.createElement("div");
+          box.className = "card-row";
+          const status = row.status === "due" ? "到期" : row.status === "waiting" ? "未到期" : "新卡";
+          box.innerHTML =
+            "<div class=\"zh\">" + escapeHtml(row.zh) + "</div>" +
+            "<div class=\"meta\">" + status + " · 上次 " + escapeHtml(row.lastLabel) + " · 到期 " + escapeHtml(row.dueLabel) + "</div>" +
+            "<div class=\"answer\">" + escapeHtml(row.answer) + "</div>";
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.textContent = "顯示答案";
+          btn.addEventListener("click", function () {
+            const open = box.classList.toggle("show-answer");
+            btn.textContent = open ? "隱藏答案" : "顯示答案";
+          });
+          box.appendChild(btn);
+          list.appendChild(box);
+        });
+      };
+      const pending = SSCOScheduler.engine();
+      if (pending && typeof pending.then === "function") pending.then(paint).catch(function () { paint(null); });
+      else paint(null);
+    }
+
+    function beginQueue(indexes, mode) {
+      const home = document.getElementById("home");
+      if (home) home.hidden = true;
+      const phrase = document.getElementById("phraseZh");
+      if (phrase) phrase.hidden = false;
+      roundMode = mode;
+      practiceSessionId = newPracticeSessionId();
+      selectedUnit = "All";
+      buildPool();
+      order = indexes.filter(function (n) { return Number.isInteger(n) && n >= 0 && n < ITEMS.length; });
+      mainTotal = order.length;
+      index = 0;
+      correctCount = 0;
+      missed = [];
+      sessionMissed = [];
+      inReview = false;
+      locked = false;
+      awaitingNext = false;
+      if (!order.length) {
+        showHome();
+        const warn = document.getElementById("homeWarn");
+        if (warn && mode === "today") warn.textContent = "今日沒有到期或新卡。未到期的可以用額外練習，唔會推後到期。";
+        return;
+      }
+      renderUnitBar();
+      renderItem();
+    }
+
+    async function startToday() {
+      const fsrs = window.SSCOScheduler ? await SSCOScheduler.engine() : null;
+      const view = SSCOScheduler.summarize(ITEMS, historyCtl ? historyCtl.getReviews() : [], Date.now(), fsrs);
+      const indexes = view.order.map(function (row) {
+        return ITEMS.findIndex(function (item) { return SSCOScheduler.cardId(item) === row.cardId; });
+      });
+      beginQueue(indexes, "today");
+    }
+
+    async function startExtra() {
+      const fsrs = window.SSCOScheduler ? await SSCOScheduler.engine() : null;
+      const view = SSCOScheduler.summarize(ITEMS, historyCtl ? historyCtl.getReviews() : [], Date.now(), fsrs);
+      const source = view.waiting.length ? view.waiting : [];
+      const indexes = source.map(function (row) {
+        return ITEMS.findIndex(function (item) { return SSCOScheduler.cardId(item) === row.cardId; });
+      });
+      if (!indexes.length) {
+        showHome();
+        const warn = document.getElementById("homeWarn");
+        if (warn) warn.textContent = "沒有未到期的卡可以額外練習。";
+        return;
+      }
+      beginQueue(indexes, "extra");
+    }
+
+    function goHome() {
+      clearSession();
+      showHome();
+    }
+
+    const btnStartToday = document.getElementById("btnStartToday");
+    const btnExtra = document.getElementById("btnExtra");
+    if (btnStartToday) btnStartToday.addEventListener("click", function () { startToday(); });
+    if (btnExtra) btnExtra.addEventListener("click", function () { startExtra(); });
+
     window.addEventListener("pagehide", () => saveSession());
     document.addEventListener("visibilitychange", () => {
       if (document.visibilityState === "hidden") saveSession();
@@ -2743,7 +3017,7 @@
         document.body.innerHTML =
           '<p style="padding:2rem;font-family:sans-serif;line-height:1.6">搵唔到詞庫。請用「匯入詞庫」揀 <code>vocab.json</code>，或將 <code>vocab.js</code> 同呢個檔放埋一齊再開。</p>';
       } else if (!tryResumeSession()) {
-        restart();
+        showHome();
       }
     }
     const meta0 = document.getElementById("vocabMeta");

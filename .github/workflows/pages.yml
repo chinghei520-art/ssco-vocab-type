@@ -48,7 +48,9 @@ jobs:
         if: steps.mode.outputs.build_type == 'workflow'
         run: |
           mkdir -p _site
-          cp index.html vocab.js vocab.json firebase-config.js history-sync.js firebase-sync.js README.md VERSION .nojekyll _site/
+          mkdir -p _site/vendor
+          cp index.html vocab.js vocab.json firebase-config.js history-sync.js firebase-sync.js scheduler.js README.md VERSION .nojekyll _site/
+          cp vendor/ts-fsrs-6.0.0.umd.js _site/vendor/
 
       - name: Upload Pages artifact
         if: steps.mode.outputs.build_type == 'workflow'

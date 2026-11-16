@@ -130,6 +130,30 @@ test("clear tombstone cannot move backward, be deleted, or accept older rows", a
   await assertFails(setDoc(old, attempt(ATTEMPT_ID, { t: 9000 })));
 });
 
+test("review events are append-only and old attempt documents still validate", async function () {
+  const alice = authed("alice");
+  const bob = authed("bob");
+  const review = {
+    id: "r_0123456789abcdef",
+    cardId: "c_0123456789abcdef",
+    t: 1700000000000,
+    sessionId: "s1",
+    kind: "new",
+    outcome: "correct",
+    hint: false,
+    revealed: false,
+    initial: true,
+    v: 2
+  };
+  const ref = doc(alice, "users/alice/reviews/r_0123456789abcdef");
+  await assertSucceeds(setDoc(ref, review));
+  await assertSucceeds(setDoc(ref, review));
+  await assertFails(setDoc(ref, Object.assign({}, review, { outcome: "incorrect" })));
+  await assertFails(getDoc(doc(bob, "users/alice/reviews/r_0123456789abcdef")));
+  await assertFails(setDoc(doc(bob, "users/alice/reviews/r_0123456789abcdef"), review));
+  await assertSucceeds(setDoc(doc(alice, "users/alice/attempts/" + ATTEMPT_ID), attempt(ATTEMPT_ID)));
+});
+
 test("rules file is the one shipped for deploy", function () {
   const rules = fs.readFileSync(path.join(__dirname, "..", "firestore.rules"), "utf8");
   assert.match(rules, /request\.auth\.uid == uid/);

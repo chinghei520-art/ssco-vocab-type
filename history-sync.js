@@ -354,9 +354,128 @@
       return list.filter(function (entry) { return entry.t > clear.clearedThrough; });
     }
 
+    const REVIEW_DEVICE = "ssco-vocab-review-events-v1";
+    const REVIEW_MIGRATION = "ssco-vocab-review-migration-v1";
+    function reviewStoreKey(uid) {
+      return uid ? REVIEW_DEVICE + ":" + uid : REVIEW_DEVICE;
+    }
+    function reviewBoxKey(uid) {
+      return "ssco-vocab-review-outbox-v1:" + uid;
+    }
+    function normalizeReview(raw) {
+      if (!raw || typeof raw !== "object") return null;
+      const t = Math.floor(Number(raw.t));
+      if (!Number.isFinite(t) || t <= 0) return null;
+      if (typeof raw.cardId !== "string" || !/^c_[0-9a-f]{16}$/.test(raw.cardId)) return null;
+      if (typeof raw.id !== "string" || !/^[A-Za-z0-9_-]{8,80}$/.test(raw.id)) return null;
+      const kinds = { new: 1, review: 1, manual: 1, remediation: 1 };
+      const outcomes = { correct: 1, incorrect: 1, skip: 1, expose: 1 };
+      return {
+        id: raw.id,
+        cardId: raw.cardId,
+        t: t,
+        sessionId: typeof raw.sessionId === "string" ? raw.sessionId.slice(0, 80) : "",
+        kind: kinds[raw.kind] ? raw.kind : "manual",
+        outcome: outcomes[raw.outcome] ? raw.outcome : "expose",
+        hint: !!raw.hint,
+        revealed: !!raw.revealed,
+        initial: raw.initial !== false,
+        v: 2
+      };
+    }
+    function toFirestoreReview(event) {
+      const clean = normalizeReview(event);
+      if (!clean) throw new Error("invalid-review");
+      return clean;
+    }
+    function readReviewList(uid) {
+      const data = readJson(reviewStoreKey(uid), []);
+      if (!Array.isArray(data)) return [];
+      const map = new Map();
+      data.forEach(function (raw) {
+        const event = normalizeReview(raw);
+        if (!event || map.has(event.id)) return;
+        map.set(event.id, event);
+      });
+      return Array.from(map.values()).sort(function (a, b) {
+        return a.t - b.t || (a.id < b.id ? -1 : 1);
+      });
+    }
+    function writeReviewList(uid, list) {
+      const clean = [];
+      const seen = new Set();
+      (list || []).forEach(function (raw) {
+        const event = normalizeReview(raw);
+        if (!event || seen.has(event.id)) return;
+        seen.add(event.id);
+        clean.push(event);
+      });
+      clean.sort(function (a, b) { return a.t - b.t || (a.id < b.id ? -1 : 1); });
+      if (!clean.length) removeRaw(reviewStoreKey(uid));
+      else writeJson(reviewStoreKey(uid), clean);
+    }
+    function readReviewBox(uid) {
+      const data = readJson(reviewBoxKey(uid), []);
+      return Array.isArray(data) ? data.map(normalizeReview).filter(Boolean) : [];
+    }
+    function writeReviewBox(uid, list) {
+      const clean = [];
+      const seen = new Set();
+      (list || []).forEach(function (raw) {
+        const event = normalizeReview(raw);
+        if (!event || seen.has(event.id)) return;
+        seen.add(event.id);
+        clean.push(event);
+      });
+      if (!clean.length) removeRaw(reviewBoxKey(uid));
+      else writeJson(reviewBoxKey(uid), clean);
+    }
+    let reviewCloud = "";
+    function appendReview(event) {
+      const clean = normalizeReview(event);
+      if (!clean) return null;
+      const uid = activeUid;
+      const clear = uid ? readClear(uid) : null;
+      if (clear && clean.t <= clear.clearedThrough) return null;
+      const list = readReviewList(uid);
+      if (!list.some(function (item) { return item.id === clean.id; })) {
+        writeReviewList(uid, list.concat([clean]));
+      }
+      if (uid) {
+        const box = readReviewBox(uid);
+        if (!box.some(function (item) { return item.id === clean.id; })) writeReviewBox(uid, box.concat([clean]));
+        scheduleFlush();
+      }
+      emitChange();
+      return clean;
+    }
+    function getReviews() {
+      const uid = activeUid;
+      const clear = uid ? readClear(uid) : null;
+      return readReviewList(uid).filter(function (event) {
+        return !clear || event.t > clear.clearedThrough;
+      });
+    }
+    function claimReviews(uid) {
+      const mig = readJson(REVIEW_MIGRATION, null) || { ownerUid: null };
+      if (mig.ownerUid && mig.ownerUid !== uid) return { blocked: true };
+      const device = readReviewList(null);
+      if (!mig.ownerUid) {
+        writeJson(REVIEW_MIGRATION, { ownerUid: uid });
+        if (device.length) {
+          writeReviewList(uid, readReviewList(uid).concat(device));
+          writeReviewBox(uid, readReviewBox(uid).concat(device));
+          writeReviewList(null, []);
+        }
+      }
+      return { blocked: false, claimed: !mig.ownerUid ? device.length : 0 };
+    }
+
     function purgeUid(uid, through) {
       writeCache(uid, readCache(uid).filter(function (entry) { return entry.t > through; }));
       writeOutbox(uid, readOutbox(uid).filter(function (entry) { return entry.t > through; }));
+      writeReviewList(uid, readReviewList(uid).filter(function (event) { return event.t > through; }));
+      writeReviewBox(uid, readReviewBox(uid).filter(function (event) { return event.t > through; }));
       const mig = readMigration();
       if (mig.ownerUid === uid && mig.pending.length) {
         const dropped = mig.pending.filter(function (entry) { return entry.t <= through; });
@@ -417,7 +536,8 @@
       }
       if (statusCode === "synced") {
         const who = email ? "已同步 · " + email + " · " : "已同步 · ";
-        return who + "合併 " + count + " 筆";
+        const tail = reviewCloud === "rules" ? " · 排程仍在本機，雲端規則未更新" : "";
+        return who + "合併 " + count + " 筆" + tail;
       }
       return "";
     }
@@ -435,7 +555,8 @@
         count: count,
         configProblem: configProblem,
         pending: activeUid ? readOutbox(activeUid).length : 0,
-        quotaProblem: !!quotaProblem
+        quotaProblem: !!quotaProblem,
+        reviewCloud: reviewCloud
       };
     }
 
@@ -682,6 +803,37 @@
         }
       }
       if (myGen !== gen || activeUid !== uid) return;
+      if (transport.pullReviews || transport.pushReviews || transport.deleteClearedReviews) {
+        const clearNow = readClear(uid);
+        try {
+          if (transport.pullReviews) {
+            const remote = await transport.pullReviews();
+            const incoming = (remote || []).map(normalizeReview).filter(Boolean).filter(function (event) {
+              return !clearNow || event.t > clearNow.clearedThrough;
+            });
+            writeReviewList(uid, readReviewList(uid).concat(incoming));
+          }
+          if (transport.pushReviews) {
+            const box = readReviewBox(uid).filter(function (event) {
+              return !clearNow || event.t > clearNow.clearedThrough;
+            });
+            if (box.length) {
+              const result = await transport.pushReviews(box.map(toFirestoreReview));
+              const rejected = new Set((result && result.rejected) || []);
+              writeReviewBox(uid, box.filter(function (event) { return rejected.has(event.id); }));
+            }
+          }
+          if (transport.deleteClearedReviews && clearNow && clearNow.clearedThrough > 0) {
+            await transport.deleteClearedReviews(clearNow.clearedThrough);
+          }
+          reviewCloud = "";
+        } catch (err) {
+          const denied = String((err && err.code) || "").includes("permission-denied");
+          if (!denied) throw err;
+          reviewCloud = "rules";
+        }
+      }
+      if (myGen !== gen || activeUid !== uid) return;
       retryMs = 3000;
       lastError = null;
       if (quotaProblem) {
@@ -725,6 +877,7 @@
       const existingClear = readClear(user.uid);
       if (existingClear) purgeUid(user.uid, existingClear.clearedThrough);
       const claim = claimMigration(user.uid);
+      claimReviews(user.uid);
       if (my !== gen) return;
       if (claim.claimed > 0) setCode("migrating");
       emitChange();
@@ -834,13 +987,14 @@
     async function clearActive() {
       if (!activeUid) {
         writeAnonList([]);
+        writeReviewList(null, []);
         emitChange();
         return { scope: "device", pendingUpload: false };
       }
       const uid = activeUid;
       const prev = readClear(uid) || { clearRev: 0, clearedThrough: 0 };
       const mig = readMigration();
-      const pool = readCache(uid).concat(readOutbox(uid), mig.ownerUid === uid ? mig.pending : []);
+      const pool = readCache(uid).concat(readOutbox(uid), readReviewList(uid), mig.ownerUid === uid ? mig.pending : []);
       const maxT = pool.reduce(function (max, entry) {
         return Math.max(max, entry && entry.t ? entry.t : 0);
       }, 0);
@@ -946,6 +1100,8 @@
       },
       reportScopeLine: reportScopeLine,
       errorText: errorText,
+      appendReview: appendReview,
+      getReviews: getReviews,
       flush: function () { return scheduleFlush(); },
       settled: function () { return chain; },
       prompts: COPY
