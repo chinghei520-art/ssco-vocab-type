@@ -1,5 +1,11 @@
 # Scheduling trial (v2.1)
 
+v2.2 changes the display only. Grades, due dates, the review event, and Firestore rules are the same as v2.1.
+
+## Display (v2.2)
+
+The card list and the answering screen are separate pages. Starting practice leaves the **進度表**; the list is not stacked above or below the blank. The homepage trial metric **延遲獨立拼寫率** is a large count, with **今日獨立首次** and **今日補救（唔算獨立）** beside it. The card list is a **進度表**: one row per card, status only 新卡 / 到期 / 未到期, next due date, and the last independent first try (獨立正確 / 用過提示 / 睇過答案 / 跳過 / 錯 / 未有). Source unit stays collapsed until **顯示來源單元**. A separate toolbar **進度表** sorts those columns and does not replace the practice **紀錄** sheet. **複製報告** adds the same three trial lines. None of these is a mastery score, and the table heading does not show the FSRS 90% model target. Until review rules are published, the table says the schedule follows this device.
+
 Not deployed with this pull request. Cloud review sync needs the rules diff below; do not publish those rules until this trial is accepted.
 
 ## Library

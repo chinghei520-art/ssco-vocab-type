@@ -222,6 +222,62 @@ test("refreshing the same session does not schedule twice", function () {
   assert.equal(folded.applied.length, 1);
 });
 
+test("last independent label distinguishes help, skip, wrong, and a later remediation", function () {
+  const item = vocab[6];
+  const id = sched.cardId(item);
+  function label(events) {
+    return sched.summarize([item], events, HK_MORNING, fsrs).rows[0].lastLabel;
+  }
+  assert.equal(sched.summarize([item], [], HK_MORNING, fsrs).rows[0].lastLabel, "未有");
+  assert.equal(sched.summarize([item], [], HK_MORNING, fsrs).rows[0].dueLabel, "—");
+  assert.equal(label([event({ id: "ev_labcorrect01", cardId: id, outcome: "correct" })]), "獨立正確");
+  assert.equal(label([event({ id: "ev_labhint0001", cardId: id, outcome: "correct", hint: true })]), "用過提示");
+  assert.equal(label([event({ id: "ev_labreveal01", cardId: id, outcome: "correct", revealed: true })]), "睇過答案");
+  assert.equal(label([event({ id: "ev_labboth0001", cardId: id, outcome: "correct", hint: true, revealed: true })]), "睇過答案");
+  assert.equal(label([event({ id: "ev_labexpose01", cardId: id, outcome: "expose" })]), "睇過答案");
+  assert.equal(label([event({ id: "ev_labskip0001", cardId: id, outcome: "skip" })]), "跳過");
+  assert.equal(label([event({ id: "ev_labwrong001", cardId: id, outcome: "incorrect" })]), "錯");
+  assert.equal(label([event({ id: "ev_labhinwrong1", cardId: id, outcome: "incorrect", hint: true })]), "錯");
+  const hinted = event({
+    id: "ev_labhint0002",
+    cardId: id,
+    sessionId: "helped",
+    outcome: "correct",
+    hint: true,
+    t: HK_MORNING
+  });
+  const later = event({
+    id: "ev_labfix00001",
+    cardId: id,
+    sessionId: "helped",
+    kind: "remediation",
+    outcome: "correct",
+    initial: false,
+    revealed: true,
+    t: HK_MORNING + 1000
+  });
+  assert.equal(label([hinted, later]), "用過提示");
+  const missed = event({
+    id: "ev_labmiss0001",
+    cardId: id,
+    sessionId: "seen",
+    outcome: "incorrect",
+    t: HK_MORNING
+  });
+  const afterAnswer = event({
+    id: "ev_labafter001",
+    cardId: id,
+    sessionId: "seen",
+    kind: "remediation",
+    outcome: "correct",
+    initial: false,
+    revealed: true,
+    t: HK_MORNING + 2000
+  });
+  assert.equal(label([missed, afterAnswer]), "錯");
+  assert.notEqual(label([missed, afterAnswer]), "獨立正確");
+});
+
 test("without the library there is no invented due date", function () {
   const id = sched.cardId(vocab[5]);
   const row = sched.summarize([vocab[5]], [event({

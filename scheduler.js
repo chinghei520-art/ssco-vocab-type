@@ -209,9 +209,11 @@
 
   function resultLabel(event) {
     if (!event) return "未有";
-    if (event.hint || event.revealed || event.outcome === "expose") return "用過提示";
-    if (event.outcome === "correct") return "獨立正確";
     if (event.outcome === "skip") return "跳過";
+    if (event.outcome === "incorrect") return "錯";
+    if (event.revealed || event.outcome === "expose") return "睇過答案";
+    if (event.hint) return "用過提示";
+    if (event.outcome === "correct") return "獨立正確";
     return "錯";
   }
 

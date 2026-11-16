@@ -279,8 +279,8 @@ try {
   acceptDialogs(page, localDialogs);
   await page.goto(base + "/index.html", { waitUntil: "domcontentloaded" });
   await page.locator(".app-ver").waitFor();
-  check("version", (await textOf(page.locator(".app-ver"))) === "v2.1");
-  check("title", await page.title() === "SSCO Vocab v2.1");
+  check("version", (await textOf(page.locator(".app-ver"))) === "v2.2");
+  check("title", await page.title() === "SSCO Vocab v2.2");
   check("vocab count", (await textOf(page.locator("#vocabMeta"))).includes("55"));
   check("local banner", (await textOf(page.locator("#syncBanner"))).includes("未設定雲端"));
   check("account button", (await textOf(page.locator("#btnAccount"))) === "本機", await textOf(page.locator("#btnAccount")));
@@ -289,11 +289,66 @@ try {
   await page.locator("#homeCounts").getByText("新卡", { exact: false }).waitFor();
   check("dashboard due label", (await textOf(page.locator("#homeCounts"))).includes("未到期"));
   check("no unit bar", await page.locator(".unit-bar-wrap").evaluate((el) => getComputedStyle(el).display === "none"));
+  const figurePx = await page.locator("#homeMetricFigure").evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  check("metric is prominent", figurePx >= 28, String(figurePx));
+  check("metric title", (await textOf(page.locator("#trialMetricTitle"))) === "延遲獨立拼寫率");
+  check("today independent nearby", (await textOf(page.locator("#homeMetricToday"))).includes("今日獨立首次") && (await textOf(page.locator("#homeMetricToday"))).includes("唔算獨立"));
+  check("progress heading", (await textOf(page.locator("#progressTableTitle"))) === "進度表");
+  check("scope note", (await textOf(page.locator("#homeScope"))).includes("排程暫時跟呢部機"));
+  check("units collapsed", (await page.locator("#btnToggleUnits").getAttribute("aria-pressed")) === "false");
+  check("unit text hidden", await page.locator("#cardList .source-unit").first().isHidden());
+  check("answer hidden", await page.locator("#cardList .answer").first().isHidden());
+  const homeText = await textOf(page.locator("#home"));
+  check("no mastery label", !homeText.includes("掌握率") && !homeText.includes("已掌握") && !homeText.includes("需重學"));
+  const boardText = await textOf(page.locator("#progressBoard"));
+  check("table heading is not a 90 score", boardText.includes("進度表") && !boardText.includes("90%"));
+  await page.locator("#trialMetricTitle").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-home.png" });
+  await page.locator("#progressTableTitle").scrollIntoViewIfNeeded();
+  await page.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-home-table.png" });
+  const firstRow = page.locator("#cardList .card-row").first();
+  await firstRow.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-row-unit-collapsed.png" });
+  await page.locator("#btnToggleUnits").click();
+  check("unit expanded", await page.locator("#cardList .source-unit").first().isVisible());
+  await firstRow.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-row-unit-expanded.png" });
+  await page.locator("#btnToggleUnits").click();
+  check("unit collapsed again", await page.locator("#cardList .source-unit").first().isHidden());
+  await page.locator("#btnProgress").click();
+  await page.locator("#progressSheet.show").waitFor();
+  check("progress sheet sort", (await textOf(page.locator("#progressSort"))).includes("狀態") && (await textOf(page.locator("#progressSort"))).includes("到期日"));
+  check("records not mixed into progress", (await textOf(page.locator("#progressSheet"))).includes("進度表") && !(await textOf(page.locator("#progressSheet"))).includes("各單元累計"));
+  await page.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-progress-sheet.png" });
+  await page.locator("#progressSort button[data-sort='zh']").click();
+  const sortedZh = await page.locator("#progressList .zh").allTextContents();
+  const expectedZh = [...sortedZh].sort((a, b) => a.localeCompare(b, "zh-Hant"));
+  check("progress sheet sorts by prompt", sortedZh.join("\n") === expectedZh.join("\n"));
+  await page.locator("#btnCloseProgress").click();
+  await page.locator("#btnRecords").click();
+  await page.locator("#recordsSheet.show").waitFor();
+  check("records still separate", (await textOf(page.locator("#recordsSheet h2"))) === "練習紀錄");
+  check("records keeps today rate", (await textOf(page.locator("#recordsSheet"))).includes("今日") && !(await textOf(page.locator("#recordsSheet h2"))).includes("進度表"));
+  await page.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-records.png" });
+  await page.locator("#btnCloseRecords").click();
   await page.screenshot({ path: "/opt/cursor/artifacts/ssco-dashboard.png" });
   await page.screenshot({ path: "/opt/cursor/artifacts/ssco-detail.png", clip: { x: 0, y: 180, width: 900, height: 500 } }).catch(() => {});
+  await page.evaluate(() => {
+    const shell = document.getElementById("main");
+    if (shell) shell.scrollTop = shell.scrollHeight;
+    window.scrollTo(0, document.body.scrollHeight);
+  });
   await page.locator("#btnStartToday").click();
   await page.locator(".letter-cell").first().waitFor();
   check("cloze cells", await page.locator(".letter-cell").count() > 0);
+  check("answer page hides the card list", await page.locator("#home").isHidden() && await page.locator("#cardList").isHidden());
+  check("answer page shows the prompt", await page.locator("#phraseZh").isVisible());
+  const leakedCards = await page.locator("#cardList .zh").evaluateAll((nodes) => nodes.filter((node) => node.getClientRects().length > 0).length);
+  check("no card row is on the answer page", leakedCards === 0, String(leakedCards));
+  const answerTop = await page.evaluate(() => ({
+    shell: document.getElementById("main").scrollTop,
+    win: window.scrollY,
+    screen: document.body.dataset.screen
+  }));
+  check("answer page is its own screen", answerTop.screen === "answer" && answerTop.shell < 8 && answerTop.win < 8, JSON.stringify(answerTop));
   check("hint button", await page.locator(".gloss-toggle").count() > 0);
   const bg = await page.evaluate(() => getComputedStyle(document.body).backgroundImage);
   check("dark background", typeof bg === "string" && bg.includes("gradient"));
@@ -305,6 +360,7 @@ try {
   await page.reload({ waitUntil: "domcontentloaded" });
   await page.locator("#feedback").getByText("接返上次").waitFor({ timeout: 4000 });
   check("session resume", (await textOf(page.locator("#phraseZh"))) === resumedPrompt, resumedPrompt);
+  check("resumed answer still hides cards", await page.locator("#home").isHidden() && (await page.evaluate(() => document.body.dataset.screen)) === "answer");
 
   await releaseKeyboard(page);
   await page.locator("#btnRecords").click();
@@ -313,9 +369,26 @@ try {
   await page.locator("#btnRecCopy").click();
   await page.waitForFunction(() => window.__copied && window.__copied.includes("進度報告"));
   const report = await page.evaluate(() => window.__copied);
-  check("report version", report.includes("v2.1"));
+  check("report version", report.includes("v2.2"));
   check("report scope", report.includes("紀錄範圍：本機（未設定雲端）"));
   check("report answer", report.includes(answered.answer) || report.includes("正確"));
+  check("report delayed metric", /延遲獨立拼寫率 \d+\/\d+（含未學）/.test(report), report);
+  check("report today independent", /今日獨立首次 \d+\/\d+/.test(report), report);
+  check("report remediation", report.includes("今日補救") && report.includes("唔算獨立"), report);
+  check("report keeps unit rates", report.includes("各單元正確率（累計）") && report.includes("正確率"));
+  check("report is not mastery", !report.includes("掌握率") && !report.includes("90%"));
+  await page.evaluate(() => {
+    navigator.clipboard.writeText = async () => { throw new Error("denied"); };
+    const deny = () => false;
+    try { Document.prototype.execCommand = deny; } catch (_) {}
+    try { document.execCommand = deny; } catch (_) {}
+  });
+  await page.locator("#btnRecCopy").click();
+  await page.locator("#copyFallback:not([hidden])").waitFor();
+  const fallback = await page.locator("#copyFallbackText").inputValue();
+  check("fallback shows trial metrics", fallback.includes("延遲獨立拼寫率") && fallback.includes("今日獨立首次") && fallback.includes("唔算獨立"));
+  await page.screenshot({ path: path.join(shots, "ssco-v22-copy-report.png") });
+  await page.locator("#btnCopyFallbackClose").click();
   await page.screenshot({ path: path.join(shots, "ssco-local-records.png") });
   await page.locator("#btnCloseRecords").click();
 
@@ -371,7 +444,36 @@ try {
   }));
   await mobile.goto(base + "/index.html", { waitUntil: "domcontentloaded" });
   await mobile.locator("#home").waitFor();
+  await mobile.locator("#homeCounts").getByText("新卡", { exact: false }).waitFor();
+  await mobile.locator("#homeMetricFigure").waitFor();
+  const mobileFigure = await mobile.locator("#homeMetricFigure").evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+  check("mobile metric is prominent", mobileFigure >= 28, String(mobileFigure));
+  check("mobile progress title", (await textOf(mobile.locator("#progressTableTitle"))) === "進度表");
+  const overflow = await mobile.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth + 1);
+  check("mobile does not overflow sideways", overflow);
+  await mobile.locator("#trialMetricTitle").scrollIntoViewIfNeeded();
+  await mobile.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-mobile.png" });
   await mobile.screenshot({ path: "/opt/cursor/artifacts/ssco-mobile-dashboard.png" });
+  await mobile.locator("#progressTableTitle").scrollIntoViewIfNeeded();
+  await mobile.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-mobile-table.png" });
+  await mobile.evaluate(() => {
+    const shell = document.getElementById("main");
+    if (shell) shell.scrollTop = shell.scrollHeight;
+  });
+  await mobile.locator("#btnStartToday").click();
+  await mobile.locator(".letter-cell").first().waitFor();
+  await releaseKeyboard(mobile);
+  check("mobile answer hides the card list", await mobile.locator("#home").isHidden());
+  check("mobile answer shows the blank", await mobile.locator("#phraseZh").isVisible() && await mobile.locator(".letter-cell").first().isVisible());
+  const mobileLeaked = await mobile.locator("#cardList .zh").evaluateAll((nodes) => nodes.filter((node) => node.getClientRects().length > 0).length);
+  check("mobile answer has no card rows", mobileLeaked === 0, String(mobileLeaked));
+  const mobileScreen = await mobile.evaluate(() => document.body.dataset.screen);
+  check("mobile answer screen", mobileScreen === "answer", mobileScreen);
+  await mobile.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-mobile-answer.png" });
+  await mobile.locator("#btnRestart").click();
+  await mobile.locator("#progressTableTitle").waitFor();
+  check("mobile home is separate again", await mobile.locator("#practice").isHidden() && await mobile.locator("#cardList .card-row").first().isVisible());
+  await mobile.screenshot({ path: "/opt/cursor/artifacts/ssco-v22-mobile-home-return.png" });
   await releaseKeyboard(mobile);
   await mobile.locator("#btnAccount").waitFor();
   const box = await mobile.locator("#btnAccount").boundingBox();
@@ -443,7 +545,10 @@ try {
   check("tombstone kept", cloud.get("alice").state && cloud.get("alice").state.clearedThrough > 0);
 
   await releaseKeyboard(a.synced);
-  await a.synced.locator("#btnAccount", { hasText: "登出" }).click();
+  await a.synced.locator("#btnAccount", { hasText: "登出" }).evaluate((el) => {
+    el.scrollIntoView({ block: "nearest", inline: "center" });
+    el.click();
+  });
   await waitBanner(a.synced, "已登出");
   check("sign-out confirm", a.dialogs.some((text) => text.includes("雲端紀錄會保留")));
   check("sign-out hides account rows", !(await textOf(a.synced.locator("#syncBanner"))).includes("alice@example.com"));
