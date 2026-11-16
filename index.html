@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="zh-Hant" data-app-ver="2.1">
+<html lang="zh-Hant" data-app-ver="2.2">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#1a1030" />
-  <title>SSCO Vocab v2.1</title>
+  <title>SSCO Vocab v2.2</title>
   <style>
     :root {
       --bg-top: #2a1848;
@@ -699,9 +699,14 @@
     }
 
     .records-sheet .rec-head h2 {
-      font-size: 1.05rem;
+      font-size: 1.2rem;
       margin: 0;
       color: #e0f2fe;
+    }
+
+    .records-sheet.progress-sheet {
+      width: min(96vw, 42rem);
+      max-height: min(74vh, 38rem);
     }
 
     .records-sheet .rec-close {
@@ -841,6 +846,20 @@
 
     .hidden { display: none !important; }
 
+    /* .home and .practice set display:flex, which would ignore the hidden
+       attribute and leave the card list on the answering page. */
+    [hidden] { display: none !important; }
+
+    body[data-screen="cards"] #practice,
+    body[data-screen="cards"] #phraseZh,
+    body[data-screen="cards"] #donePanel,
+    body[data-screen="answer"] #home,
+    body[data-screen="answer"] #donePanel,
+    body[data-screen="done"] #home,
+    body[data-screen="done"] #practice {
+      display: none !important;
+    }
+
     .fade-out {
       opacity: 0;
       transform: translateY(-6px);
@@ -941,28 +960,158 @@
     }
     .home-note, .card-row .meta {
       color: var(--muted);
-      font-size: 0.78rem;
+      font-size: 0.92rem;
       line-height: 1.45;
       text-align: center;
+    }
+    .model-note {
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.4;
+      text-align: center;
+    }
+    .trial-metric {
+      text-align: center;
+      padding: 0.9rem 1rem 1rem;
+      border-radius: 16px;
+      background: rgba(125, 211, 252, 0.14);
+      border: 1px solid rgba(125, 211, 252, 0.45);
+    }
+    .trial-kicker {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.01em;
+      color: #e0f2fe;
+    }
+    .trial-figure {
+      font-size: clamp(2.05rem, 8vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.05;
+      margin-top: 0.2rem;
+      color: #fff;
+    }
+    .trial-caption {
+      margin-top: 0.2rem;
+      font-size: 1rem;
+      color: var(--gloss);
+    }
+    .trial-today {
+      margin-top: 0.55rem;
+      font-size: 1.08rem;
+      line-height: 1.45;
+      font-weight: 700;
+      white-space: pre-line;
+    }
+    .progress-board {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+    }
+    .progress-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .progress-head h2,
+    .progress-sheet .rec-head h2 {
+      font-size: 1.4rem;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+    .scope-note {
+      font-size: 0.98rem;
+      line-height: 1.45;
+      color: var(--gloss);
+      text-align: left;
+    }
+    .sort-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+    .sort-bar button,
+    .unit-toggle {
+      border: 1px solid var(--pill-border);
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text);
+      border-radius: 999px;
+      padding: 0.45rem 0.8rem;
+      font: inherit;
+      font-size: 0.98rem;
+      cursor: pointer;
+    }
+    .sort-bar button[aria-pressed="true"],
+    .unit-toggle[aria-pressed="true"],
+    .progress-head .unit-toggle[aria-pressed="true"],
+    .records-sheet .rec-actions button.unit-toggle[aria-pressed="true"] {
+      background: rgba(125, 211, 252, 0.28);
+      color: #e0f2fe;
+      font-weight: 800;
+    }
+    .progress-head .unit-toggle,
+    .records-sheet .rec-actions button.unit-toggle {
+      font-size: 0.98rem;
+      min-height: 2.3rem;
     }
     .card-list {
       width: 100%;
       display: flex;
       flex-direction: column;
-      gap: 0.45rem;
-      max-height: 46vh;
-      overflow: auto;
+      gap: 0.55rem;
     }
     .card-row {
       text-align: left;
       border: 1px solid var(--pill-border);
       border-radius: 12px;
-      padding: 0.55rem 0.7rem;
+      padding: 0.8rem 0.9rem;
       background: rgba(0, 0, 0, 0.18);
     }
-    .card-row .zh { font-weight: 700; }
-    .card-row .answer { display: none; margin-top: 0.25rem; color: #fde68a; }
+    .card-row .zh {
+      font-weight: 700;
+      font-size: 1.08rem;
+      line-height: 1.4;
+    }
+    .row-facts {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 0.75rem;
+      margin-top: 0.4rem;
+      font-size: 1.02rem;
+      line-height: 1.4;
+      color: var(--text);
+      text-align: left;
+    }
+    .status-pill {
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 0.05rem 0.55rem;
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .status-pill[data-kind="due"] { color: #fde68a; }
+    .status-pill[data-kind="new"] { color: #bae6fd; }
+    .status-pill[data-kind="waiting"] { color: #bbf7d0; }
+    .result-label[data-result="獨立正確"] { color: #86efac; font-weight: 700; }
+    .result-label[data-result="錯"] { color: #fca5a5; font-weight: 700; }
+    .result-label[data-result="用過提示"],
+    .result-label[data-result="睇過答案"],
+    .result-label[data-result="跳過"] { color: #fcd34d; font-weight: 700; }
+    .source-unit {
+      margin-top: 0.4rem;
+      font-size: 0.98rem;
+      line-height: 1.4;
+      color: var(--gloss);
+    }
+    .source-unit[hidden] { display: none !important; }
+    .card-row .answer { display: none; margin-top: 0.35rem; color: #fde68a; font-size: 1.02rem; }
     .card-row.show-answer .answer { display: block; }
+    .card-row button {
+      margin-top: 0.5rem;
+      font-size: 0.98rem;
+      min-height: 2.3rem;
+    }
     .schedule-effect {
       font-size: 0.78rem;
       color: var(--muted);
@@ -972,9 +1121,9 @@
 
   </style>
 </head>
-<body>
+<body data-screen="cards">
   <div class="top-bar">
-    <span class="brand">SSCO 英文填空 <span class="app-ver">v2.1</span></span>
+    <span class="brand">SSCO 英文填空 <span class="app-ver">v2.2</span></span>
     <div class="top-right">
       <span class="vocab-meta" id="vocabMeta" title="Current question bank size">題庫 —</span>
       <div class="progress" id="progress" aria-live="polite"><strong>1</strong> / 43</div>
@@ -987,21 +1136,35 @@
 
   <main class="shell" id="main">
     <p class="sync-banner" id="syncBanner" role="status">未設定雲端，紀錄只留喺呢部機</p>
-    <section id="home" class="home" hidden>
+    <section id="home" class="home">
       <h1>今日練習</h1>
       <div class="home-counts" id="homeCounts"></div>
       <div class="home-actions">
         <button type="button" class="primary" id="btnStartToday">開始今日練習</button>
         <button type="button" id="btnExtra">額外練習</button>
       </div>
-      <p class="home-note" id="homeMetric"></p>
+      <p class="home-note" id="homeQueueNote">到期先，然後新卡。</p>
+      <section class="trial-metric" aria-labelledby="trialMetricTitle">
+        <h2 id="trialMetricTitle" class="trial-kicker">延遲獨立拼寫率</h2>
+        <p class="trial-figure" id="homeMetricFigure">—/—</p>
+        <p class="trial-caption" id="homeMetricCaption">含未學</p>
+        <p class="trial-today" id="homeMetricToday"></p>
+      </section>
+      <p class="model-note" id="homeModelNote"></p>
       <p class="home-note" id="homeWarn"></p>
       <p class="home-note" id="homeCriterion"></p>
-      <div class="card-list" id="cardList"></div>
+      <section class="progress-board" id="progressBoard" data-show-units="false" aria-labelledby="progressTableTitle">
+        <div class="progress-head">
+          <h2 id="progressTableTitle">進度表</h2>
+          <button type="button" class="unit-toggle" id="btnToggleUnits" aria-pressed="false">顯示來源單元</button>
+        </div>
+        <p class="scope-note" id="homeScope" hidden></p>
+        <div class="card-list" id="cardList"></div>
+      </section>
     </section>
-    <h1 class="phrase-zh" id="phraseZh" aria-live="polite"></h1>
+    <h1 class="phrase-zh" id="phraseZh" aria-live="polite" hidden></h1>
 
-    <div class="practice" id="practice">
+    <div class="practice hidden" id="practice">
       <div class="sentence" id="sentence" role="group" aria-label="English sentence with blank"></div>
       <p class="blank-tap-hint" id="blankTapHint">撳底線開始打字</p>
       <p class="feedback" id="feedback" role="status" aria-live="polite"></p>
@@ -1025,6 +1188,25 @@
       <div class="unit-stats" id="unitStats" hidden></div>
     </div>
   </main>
+
+  <div class="records-sheet progress-sheet" id="progressSheet" aria-live="polite">
+    <div class="rec-head">
+      <h2>進度表</h2>
+      <button type="button" class="rec-close" id="btnCloseProgress">關閉</button>
+    </div>
+    <p class="scope-note" id="progressScope" hidden></p>
+    <div class="rec-actions">
+      <button type="button" class="unit-toggle" id="btnSheetToggleUnits" aria-pressed="false">顯示來源單元</button>
+    </div>
+    <div class="sort-bar" id="progressSort" role="group" aria-label="排序進度表">
+      <button type="button" data-sort="status" data-label="狀態" aria-pressed="true">狀態</button>
+      <button type="button" data-sort="due" data-label="到期日" aria-pressed="false">到期日</button>
+      <button type="button" data-sort="result" data-label="上次結果" aria-pressed="false">上次結果</button>
+      <button type="button" data-sort="zh" data-label="中文" aria-pressed="false">中文</button>
+      <button type="button" data-sort="unit" data-label="單元" aria-pressed="false" hidden>單元</button>
+    </div>
+    <div class="card-list" id="progressList"></div>
+  </div>
 
   <div class="records-sheet" id="recordsSheet" aria-live="polite">
     <div class="rec-head">
@@ -1064,12 +1246,13 @@
   </div>
 
   <nav class="toolbar" aria-label="Practice controls">
-    <button type="button" id="btnSkip" title="Skip (S)">跳過</button>
-    <span class="sep" aria-hidden="true"></span>
-    <button type="button" class="primary" id="btnCheck" title="Check (Enter)">檢查</button>
-    <span class="sep" aria-hidden="true"></span>
+    <button type="button" class="answer-only" id="btnSkip" title="Skip (S)" hidden>跳過</button>
+    <span class="sep answer-only" aria-hidden="true" hidden></span>
+    <button type="button" class="primary answer-only" id="btnCheck" title="Check (Enter)" hidden>檢查</button>
+    <span class="sep answer-only" aria-hidden="true" hidden></span>
     <button type="button" id="btnRestart" title="Home">主頁</button>
     <span class="sep" aria-hidden="true"></span>
+    <button type="button" class="ghost" id="btnProgress" title="進度表">進度表</button>
     <button type="button" class="ghost" id="btnRecords" title="Practice log">紀錄</button>
     <button type="button" class="ghost" id="btnAccount" title="Google 帳戶同步">本機</button>
     <button type="button" class="ghost" id="btnImport" title="Import vocab.json">匯入</button>
@@ -1087,6 +1270,7 @@
   </script>
   <script src="vendor/ts-fsrs-6.0.0.umd.js"></script>
   <script src="scheduler.js"></script>
+  <script src="progress-view.js"></script>
   <script src="history-sync.js"></script>
   <script>
 
@@ -1196,7 +1380,7 @@
     const REPORT_WRONG_CAP = 20;
 
     function appVersionLabel() {
-      const raw = (document.documentElement.getAttribute("data-app-ver") || "2.1").trim();
+      const raw = (document.documentElement.getAttribute("data-app-ver") || "2.2").trim();
       return /^v/i.test(raw) ? raw : "v" + raw;
     }
 
@@ -1224,7 +1408,7 @@
     }
 
     /** Plain-text progress report for pasting into chat. Reuses today / unit / wrong helpers. */
-    function buildProgressReport() {
+    function buildProgressReport(view) {
       const st = todayStats();
       const units = unitAccuracy();
       const allWrongs = wrongLogUnique();
@@ -1247,6 +1431,10 @@
           ? `嘗試 ${st.total} · 正確 ${st.correct} · 正確率 ${st.rate}% · 錯 ${st.wrong}`
           : "未有練習紀錄"
       );
+      const metricLines = window.SSCOProgressView
+        ? SSCOProgressView.trialMetricLines(view)
+        : ["延遲獨立拼寫率 —（排程未載入）"];
+      metricLines.forEach((line) => lines.push(line));
       lines.push("");
       lines.push("## 各單元正確率（累計）");
       if (!units.length) {
@@ -1358,7 +1546,21 @@
     }
 
     async function copyProgressReport(btn) {
-      const text = buildProgressReport();
+      let view = null;
+      try {
+        if (window.SSCOScheduler) {
+          const fsrs = await SSCOScheduler.engine();
+          view = SSCOScheduler.summarize(
+            ITEMS,
+            historyCtl ? historyCtl.getReviews() : [],
+            Date.now(),
+            fsrs
+          );
+        }
+      } catch (_) {
+        view = null;
+      }
+      const text = buildProgressReport(view);
       const ok = await writeClipboard(text);
       if (ok) {
         flashCopyButton(btn);
@@ -1648,10 +1850,7 @@
     }
 
     function renderItem() {
-      const home = document.getElementById("home");
-      if (home) home.hidden = true;
-      const phrase = document.getElementById("phraseZh");
-      if (phrase) phrase.hidden = false;
+      setScreen("answer");
       hintShown = false;
       answerRevealed = false;
       locked = false;
@@ -1661,8 +1860,6 @@
       const effect = document.getElementById("scheduleEffect");
       if (effect) effect.textContent = "";
       setCheckLabel("check");
-      el.practice.classList.remove("hidden");
-      el.donePanel.classList.remove("show");
       el.btnCheck.disabled = false;
       el.btnSkip.disabled = false;
 
@@ -2088,8 +2285,7 @@
 
     function showDone() {
       clearSession();
-      el.practice.classList.add("hidden");
-      el.donePanel.classList.add("show");
+      setScreen("done");
       el.phraseZh.textContent = "完成！";
       const t = mainTotal || total();
       el.progress.innerHTML = `<strong>${t}</strong> / ${t}`;
@@ -2243,8 +2439,7 @@
     function retryMissedRound() {
       if (!sessionMissed.length) return;
       const drill = sessionMissed.slice();
-      el.donePanel.classList.remove("show");
-      el.practice.classList.remove("hidden");
+      setScreen("answer");
       order = shuffle(drill);
       mainTotal = order.length;
       index = 0;
@@ -2311,8 +2506,7 @@
         alert("詞庫入面搵唔返呢啲錯題（可能換過詞庫）。");
         return;
       }
-      el.donePanel.classList.remove("show");
-      el.practice.classList.remove("hidden");
+      setScreen("answer");
       if (el.logPanel) {
         el.logPanel.classList.remove("show");
         el.logPanel.innerHTML = "";
@@ -2461,6 +2655,7 @@
 
     function openRecordsSheet(tab) {
       if (!el.recordsSheet) return;
+      closeProgressSheet();
       const st = todayStats();
       if (el.recStats) {
         el.recStats.textContent = st.total
@@ -2578,7 +2773,39 @@
     if (el.btnRecords) {
       el.btnRecords.addEventListener("click", () => {
         if (el.recordsSheet && el.recordsSheet.classList.contains("show")) closeRecordsSheet();
-        else openRecordsSheet("wrong");
+        else {
+          closeProgressSheet();
+          openRecordsSheet("wrong");
+        }
+      });
+    }
+    const btnProgress = document.getElementById("btnProgress");
+    if (btnProgress) {
+      btnProgress.addEventListener("click", () => {
+        const sheet = document.getElementById("progressSheet");
+        if (sheet && sheet.classList.contains("show")) closeProgressSheet();
+        else openProgressSheet();
+      });
+    }
+    const btnCloseProgress = document.getElementById("btnCloseProgress");
+    if (btnCloseProgress) btnCloseProgress.addEventListener("click", closeProgressSheet);
+    [document.getElementById("btnToggleUnits"), document.getElementById("btnSheetToggleUnits")].forEach((btn) => {
+      if (!btn) return;
+      btn.addEventListener("click", () => setUnitsShown(!unitsShown()));
+    });
+    const progressSort = document.getElementById("progressSort");
+    if (progressSort) {
+      progressSort.addEventListener("click", (event) => {
+        const btn = event.target.closest("button[data-sort]");
+        if (!btn || btn.hidden) return;
+        const key = btn.getAttribute("data-sort");
+        if (progressSortKey === key) progressSortDir = progressSortDir === "asc" ? "desc" : "asc";
+        else {
+          progressSortKey = key;
+          progressSortDir = "asc";
+        }
+        paintSortButtons();
+        paintProgressSheet();
       });
     }
     if (el.btnCloseRecords) el.btnCloseRecords.addEventListener("click", closeRecordsSheet);
@@ -2877,26 +3104,192 @@
       if (effect) effect.textContent = planned.effect || "";
     }
 
-    function showHome() {
+    const UNIT_PREF_KEY = "ssco-vocab-show-units-v1";
+    let latestScheduleView = null;
+    let progressSortKey = window.SSCOProgressView ? SSCOProgressView.DEFAULT_SORT : "status";
+    let progressSortDir = "asc";
+
+    function unitsShown() {
+      try {
+        return window.SSCOProgressView
+          ? SSCOProgressView.unitsVisible(localStorage.getItem(UNIT_PREF_KEY))
+          : false;
+      } catch (_) {
+        return false;
+      }
+    }
+
+    function setUnitsShown(on) {
+      try { localStorage.setItem(UNIT_PREF_KEY, on ? "1" : "0"); } catch (_) {}
+      if (!on && progressSortKey === "unit") {
+        progressSortKey = "status";
+        progressSortDir = "asc";
+      }
+      applyUnitVisibility();
+      paintSortButtons();
+      if (latestScheduleView) {
+        paintHomeTable(latestScheduleView);
+        paintProgressSheet();
+      }
+    }
+
+    function applyUnitVisibility() {
+      const on = unitsShown();
+      document.querySelectorAll(".source-unit").forEach(function (node) {
+        node.hidden = !on;
+      });
+      [document.getElementById("btnToggleUnits"), document.getElementById("btnSheetToggleUnits")].forEach(function (btn) {
+        if (!btn) return;
+        btn.setAttribute("aria-pressed", on ? "true" : "false");
+        btn.textContent = on ? "隱藏來源單元" : "顯示來源單元";
+      });
+      const unitSort = document.querySelector('#progressSort [data-sort="unit"]');
+      if (unitSort) unitSort.hidden = !on;
+      const board = document.getElementById("progressBoard");
+      if (board) board.dataset.showUnits = on ? "true" : "false";
+    }
+
+    function fillProgressList(container, rows) {
+      if (!container || !window.SSCOProgressView) return;
+      const showUnits = unitsShown();
+      container.innerHTML = "";
+      rows.forEach(function (row) {
+        const box = document.createElement("article");
+        box.className = "card-row";
+        const kind = row.status === "due" ? "due" : row.status === "waiting" ? "waiting" : "new";
+        box.dataset.status = kind;
+        box.dataset.result = row.lastLabel || "未有";
+        const status = SSCOProgressView.statusLabel(row.status);
+        const zh = document.createElement("div");
+        zh.className = "zh";
+        zh.textContent = row.zh || "";
+        const facts = document.createElement("div");
+        facts.className = "row-facts";
+        const pill = document.createElement("span");
+        pill.className = "status-pill";
+        pill.dataset.kind = kind;
+        pill.textContent = status;
+        const due = document.createElement("span");
+        due.className = "due-label";
+        due.textContent = "下次 " + (row.dueLabel || "—");
+        const result = document.createElement("span");
+        result.className = "result-label";
+        result.dataset.result = row.lastLabel || "未有";
+        result.textContent = "上次 " + (row.lastLabel || "未有");
+        facts.appendChild(pill);
+        facts.appendChild(due);
+        facts.appendChild(result);
+        const unit = document.createElement("p");
+        unit.className = "source-unit";
+        unit.hidden = !showUnits;
+        unit.textContent = "來源單元：" + (row.unit || "未標單元");
+        const answer = document.createElement("div");
+        answer.className = "answer";
+        answer.textContent = row.answer || "";
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.textContent = "顯示答案";
+        btn.addEventListener("click", function () {
+          const open = box.classList.toggle("show-answer");
+          btn.textContent = open ? "隱藏答案" : "顯示答案";
+        });
+        box.appendChild(zh);
+        box.appendChild(facts);
+        box.appendChild(unit);
+        box.appendChild(btn);
+        box.appendChild(answer);
+        container.appendChild(box);
+      });
+    }
+
+    function paintSortButtons() {
+      document.querySelectorAll("#progressSort button").forEach(function (btn) {
+        const key = btn.getAttribute("data-sort");
+        const active = key === progressSortKey;
+        btn.setAttribute("aria-pressed", active ? "true" : "false");
+        const name = btn.getAttribute("data-label") || "";
+        btn.textContent = active ? name + (progressSortDir === "asc" ? " ↑" : " ↓") : name;
+      });
+    }
+
+    function sortedRows(rows, key, dir) {
+      if (!window.SSCOProgressView) return (rows || []).slice();
+      return SSCOProgressView.sortRows(rows, key, dir);
+    }
+
+    function paintHomeTable(view) {
+      const list = document.getElementById("cardList");
+      fillProgressList(list, sortedRows(view.rows, "status", "asc"));
+    }
+
+    function paintProgressSheet() {
+      const list = document.getElementById("progressList");
+      if (!list || !latestScheduleView) return;
+      fillProgressList(list, sortedRows(latestScheduleView.rows, progressSortKey, progressSortDir));
+      paintSortButtons();
+    }
+
+    function closeProgressSheet() {
+      const sheet = document.getElementById("progressSheet");
+      if (!sheet) return;
+      sheet.classList.remove("show");
+      const list = document.getElementById("progressList");
+      if (list) list.innerHTML = "";
+    }
+
+    function openProgressSheet() {
+      const sheet = document.getElementById("progressSheet");
+      if (!sheet) return;
+      closeRecordsSheet();
+      applyUnitVisibility();
+      sheet.classList.add("show");
+      paintProgressSheet();
+    }
+
+    function setScreen(screen) {
+      const prev = document.body.dataset.screen || "";
+      document.body.dataset.screen = screen;
       const home = document.getElementById("home");
-      if (home) home.hidden = false;
       const phrase = document.getElementById("phraseZh");
-      if (phrase) phrase.hidden = true;
-      el.practice.classList.add("hidden");
-      el.donePanel.classList.remove("show");
+      const answering = screen === "answer";
+      if (home) home.hidden = screen !== "cards";
+      if (phrase) phrase.hidden = screen === "cards";
+      if (el.practice) el.practice.classList.toggle("hidden", screen !== "answer");
+      if (el.donePanel) el.donePanel.classList.toggle("show", screen === "done");
+      document.querySelectorAll(".answer-only").forEach(function (node) {
+        node.hidden = !answering;
+      });
+      if (screen === prev) return;
+      if (screen === "answer") {
+        closeProgressSheet();
+        closeRecordsSheet();
+      }
+      const go = function () {
+        if (el.main) el.main.scrollTop = 0;
+        window.scrollTo(0, 0);
+      };
+      go();
+      requestAnimationFrame(go);
+    }
+
+    function showHome() {
+      setScreen("cards");
       renderHome();
     }
 
     function renderHome() {
       const counts = document.getElementById("homeCounts");
-      const metric = document.getElementById("homeMetric");
+      const figure = document.getElementById("homeMetricFigure");
+      const todayLine = document.getElementById("homeMetricToday");
       const warn = document.getElementById("homeWarn");
+      const modelNote = document.getElementById("homeModelNote");
+      const queueNote = document.getElementById("homeQueueNote");
       const criterion = document.getElementById("homeCriterion");
-      const list = document.getElementById("cardList");
       if (!counts || !window.SSCOScheduler) return;
       const paint = function (fsrs) {
         const events = historyCtl ? historyCtl.getReviews() : [];
         const view = SSCOScheduler.summarize(ITEMS, events, Date.now(), fsrs);
+        latestScheduleView = view;
         if (el.progress) el.progress.innerHTML = `<strong>${view.order.length}</strong> 今日`;
         counts.innerHTML = "";
         [["到期", view.due.length], ["新卡", view.fresh.length], ["未到期", view.waiting.length]].forEach(function (pair) {
@@ -2904,39 +3297,29 @@
           span.textContent = pair[0] + " " + pair[1];
           counts.appendChild(span);
         });
-        if (metric) {
+        if (figure) figure.textContent = view.delayedCount + "/" + view.denominator;
+        if (todayLine) {
           const today = view.todayIndependent;
-          metric.textContent =
+          todayLine.textContent =
             "今日獨立首次 " + today.correct + "/" + today.total +
-            " · 今日補救 " + view.remediationCount + "（唔算獨立） · 延遲獨立拼寫率 " +
-            view.delayedCount + "/" + view.denominator + "（含未學）";
+            "\n今日補救 " + view.remediationCount + "（唔算獨立）";
         }
         if (warn) {
-          warn.textContent = homeFlash || (view.available
-            ? "FSRS-6 目標記得率 90%（模型目標，不是保證）。到期先，然後新卡。"
-            : "排程庫未載入。可以練習，但唔會計間隔，亦不會假裝有複習日期。");
+          if (homeFlash) warn.textContent = homeFlash;
+          else if (!view.available) warn.textContent = "排程庫未載入。可以練習，但唔會計間隔，亦不會假裝有複習日期。";
+          else warn.textContent = "";
         }
+        if (modelNote) {
+          modelNote.textContent = view.available
+            ? "模型目標記得率 90%（不是今次分數，亦不是保證）。"
+            : "";
+        }
+        if (queueNote) queueNote.textContent = view.available ? "到期先，然後新卡。" : "";
         if (criterion) criterion.textContent = view.criterion;
-        if (!list) return;
-        list.innerHTML = "";
-        view.rows.forEach(function (row) {
-          const box = document.createElement("div");
-          box.className = "card-row";
-          const status = row.status === "due" ? "到期" : row.status === "waiting" ? "未到期" : "新卡";
-          box.innerHTML =
-            "<div class=\"zh\">" + escapeHtml(row.zh) + "</div>" +
-            "<div class=\"meta\">" + status + " · 上次 " + escapeHtml(row.lastLabel) + " · 到期 " + escapeHtml(row.dueLabel) + "</div>" +
-            "<div class=\"answer\">" + escapeHtml(row.answer) + "</div>";
-          const btn = document.createElement("button");
-          btn.type = "button";
-          btn.textContent = "顯示答案";
-          btn.addEventListener("click", function () {
-            const open = box.classList.toggle("show-answer");
-            btn.textContent = open ? "隱藏答案" : "顯示答案";
-          });
-          box.appendChild(btn);
-          list.appendChild(box);
-        });
+        applyUnitVisibility();
+        paintHomeTable(view);
+        const sheet = document.getElementById("progressSheet");
+        if (sheet && sheet.classList.contains("show")) paintProgressSheet();
       };
       const pending = SSCOScheduler.engine();
       if (pending && typeof pending.then === "function") pending.then(paint).catch(function () { paint(null); });
@@ -2944,10 +3327,6 @@
     }
 
     function beginQueue(indexes, mode) {
-      const home = document.getElementById("home");
-      if (home) home.hidden = true;
-      const phrase = document.getElementById("phraseZh");
-      if (phrase) phrase.hidden = false;
       roundMode = mode;
       practiceSessionId = newPracticeSessionId();
       selectedUnit = "All";

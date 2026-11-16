@@ -1,6 +1,12 @@
 # Scheduling trial (v2.1)
 
-Not deployed with this pull request. Cloud review sync needs the rules diff below; do not publish those rules until this trial is accepted.
+v2.2 changes the display only. Grades, due dates, the review event, and Firestore rules are the same as v2.1.
+
+## Display (v2.2)
+
+The card list and the answering screen are separate pages. Starting practice leaves the **進度表**; the list is not stacked above or below the blank. The homepage trial metric **延遲獨立拼寫率** is a large count, with **今日獨立首次** and **今日補救（唔算獨立）** beside it. The card list is a **進度表**: one row per card, status only 新卡 / 到期 / 未到期, next due date, and the last independent first try (獨立正確 / 用過提示 / 睇過答案 / 跳過 / 錯 / 未有). Source unit stays collapsed until **顯示來源單元**. A separate toolbar **進度表** sorts those columns and does not replace the practice **紀錄** sheet. **複製報告** adds the same three trial lines. None of these is a mastery score, and the table heading does not show the FSRS 90% model target. Skip and Check appear only on the answering page. The table does not claim that review rules are unpublished. A signed-out session keeps the existing 「未設定雲端」 banner. If review upload is denied, the existing sync banner still adds 「排程仍在本機，雲端規則未更新」.
+
+Review rules for `users/{uid}/reviews` were published on 2026-11-16 (ruleset `7b30c3a1-a2f1-415e-b91f-7f4853f01e2a`). This pull request does not change `firestore.rules`.
 
 ## Library
 
@@ -41,9 +47,9 @@ Same-day learning, hints, skips, and remediation are not successes. Overdue does
 
 Hong Kong dates use `Asia/Hong_Kong`.
 
-## Cloud rules (not deployed)
+## Cloud rules
 
-Add this block beside the existing attempt rules. Do not change the attempt rules, so v2.0 clients keep working. Rollback: remove this block; local events remain; attempts are untouched.
+Published 2026-11-16 beside the existing attempt rules. The attempt rules stay as they were, so v2.0 clients keep working. Rollback: remove this block; local events remain; attempts are untouched.
 
 ```
 match /users/{uid}/reviews/{eventId} {
@@ -57,4 +63,4 @@ match /users/{uid}/reviews/{eventId} {
 }
 ```
 
-`validReview` is in `firestore.rules`. Until this is published, review upload is denied, the banner says the schedule stayed on this device, and practice continues. v2.0 clients do not write reviews. A v2.0 clear still advances the same tombstone; a v2.1 client then drops review events at or before that time.
+`validReview` is in `firestore.rules`. If a later rules publish rejects review upload, the sync banner says the schedule stayed on this device and practice continues. v2.0 clients do not write reviews. A v2.0 clear still advances the same tombstone; a later client then drops review events at or before that time.
