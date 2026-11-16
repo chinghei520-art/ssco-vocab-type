@@ -15,7 +15,7 @@ test("bundled vocab.js matches vocab.json and deleted units stay deleted", funct
   const context = { window: {} };
   vm.runInNewContext(js, context);
   assert.deepEqual(JSON.parse(JSON.stringify(context.window.SSCO_ITEMS)), json);
-  assert.equal(json.length, 55);
+  assert.equal(json.length, 59);
   const units = [];
   for (const item of json) {
     if (!units.includes(item.unit)) units.push(item.unit);
@@ -30,7 +30,9 @@ test("bundled vocab.js matches vocab.json and deleted units stay deleted", funct
     "Stage3-CCTV-UE-2026-11-06",
     "Stage3-CCTV-UE-2026-11-06b",
     "Stage3-CCTV-UE-2026-11-11",
-    "Stage3-CCTV-UE-2026-11-11b"
+    "Stage3-CCTV-UE-2026-11-11b",
+    "SMO-2C6.8",
+    "EAL018"
   ]);
   const blob = js + "\n" + JSON.stringify(json);
   for (const gone of [

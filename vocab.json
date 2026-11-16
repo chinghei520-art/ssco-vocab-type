@@ -2610,5 +2610,297 @@
       "broadcast",
       "Broadcast"
     ]
+  },
+  {
+    "unit": "SMO-2C6.8",
+    "zh": "同一範圍另設獨立火警偵測系統，先可以繼續做。",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "contractor",
+        "gloss": ""
+      },
+      {
+        "en": "may",
+        "gloss": ""
+      },
+      {
+        "en": "only",
+        "gloss": ""
+      },
+      {
+        "en": "proceed",
+        "gloss": ""
+      },
+      {
+        "en": "after",
+        "gloss": ""
+      },
+      {
+        "en": "a",
+        "gloss": ""
+      },
+      {
+        "en": "separate",
+        "gloss": ""
+      },
+      {
+        "en": "Fire",
+        "gloss": ""
+      },
+      {
+        "en": "Detection",
+        "gloss": ""
+      },
+      {
+        "en": "System",
+        "gloss": ""
+      },
+      {
+        "en": "is",
+        "gloss": ""
+      },
+      {
+        "en": "provided",
+        "gloss": ""
+      },
+      {
+        "en": "in",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "same",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "同一範圍／附近"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 16,
+    "answers": [
+      "vicinity",
+      "Vicinity"
+    ]
+  },
+  {
+    "unit": "SMO-2C6.8",
+    "zh": "要另設一套獨立嘅火警偵測系統。",
+    "words": [
+      {
+        "en": "Work",
+        "gloss": ""
+      },
+      {
+        "en": "must",
+        "gloss": ""
+      },
+      {
+        "en": "stop",
+        "gloss": ""
+      },
+      {
+        "en": "until",
+        "gloss": ""
+      },
+      {
+        "en": "a",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "獨立／另外一套"
+      },
+      {
+        "en": "Fire",
+        "gloss": ""
+      },
+      {
+        "en": "Detection",
+        "gloss": ""
+      },
+      {
+        "en": "System",
+        "gloss": ""
+      },
+      {
+        "en": "is",
+        "gloss": ""
+      },
+      {
+        "en": "provided",
+        "gloss": ""
+      },
+      {
+        "en": "in",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "same",
+        "gloss": ""
+      },
+      {
+        "en": "vicinity.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 5,
+    "answers": [
+      "separate",
+      "Separate"
+    ]
+  },
+  {
+    "unit": "SMO-2C6.8",
+    "zh": "工程完成或暫時停工時，要復原 fire links。",
+    "words": [
+      {
+        "en": "When",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "work",
+        "gloss": ""
+      },
+      {
+        "en": "is",
+        "gloss": ""
+      },
+      {
+        "en": "completed",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "temporarily",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "暫時停止"
+      },
+      {
+        "en": ",",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "fire",
+        "gloss": ""
+      },
+      {
+        "en": "links",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": "restored.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 7,
+    "answers": [
+      "ceased",
+      "Ceased"
+    ]
+  },
+  {
+    "unit": "EAL018",
+    "zh": "測試前要取得同意。",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "SC",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "call",
+        "gloss": ""
+      },
+      {
+        "en": "up",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "TC",
+        "gloss": ""
+      },
+      {
+        "en": "at",
+        "gloss": ""
+      },
+      {
+        "en": "OCC",
+        "gloss": ""
+      },
+      {
+        "en": "and",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "取得"
+      },
+      {
+        "en": "agreement",
+        "gloss": ""
+      },
+      {
+        "en": "before",
+        "gloss": ""
+      },
+      {
+        "en": "testing.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 10,
+    "answers": [
+      "obtain",
+      "Obtain"
+    ]
   }
 ]
