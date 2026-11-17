@@ -2902,5 +2902,217 @@ window.SSCO_ITEMS = [
       "obtain",
       "Obtain"
     ]
+  },
+  {
+    "unit": "EAL037-UE-2026-11-17",
+    "zh": "調查要包括隱蔽角落。",
+    "words": [
+      {
+        "en": "Staff",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "conduct",
+        "gloss": ""
+      },
+      {
+        "en": "a",
+        "gloss": ""
+      },
+      {
+        "en": "thorough",
+        "gloss": ""
+      },
+      {
+        "en": "investigation",
+        "gloss": ""
+      },
+      {
+        "en": "including",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "隱蔽角落"
+      },
+      {
+        "en": "and",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "whole",
+        "gloss": ""
+      },
+      {
+        "en": "evacuation",
+        "gloss": ""
+      },
+      {
+        "en": "route.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 7,
+    "answers": [
+      "hidden corners",
+      "Hidden corners"
+    ]
+  },
+  {
+    "unit": "EAL037-UE-2026-11-17",
+    "zh": "調查要包括整條疏散路線。",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "investigation",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "include",
+        "gloss": ""
+      },
+      {
+        "en": "hidden",
+        "gloss": ""
+      },
+      {
+        "en": "corners",
+        "gloss": ""
+      },
+      {
+        "en": "and",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "whole",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "疏散路線"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 9,
+    "answers": [
+      "evacuation route",
+      "Evacuation route"
+    ]
+  },
+  {
+    "unit": "EAL036-UE-2026-11-17",
+    "zh": "授權觀看後要填邊份紀錄表（正式全名）。",
+    "words": [
+      {
+        "en": "After",
+        "gloss": ""
+      },
+      {
+        "en": "authorised",
+        "gloss": ""
+      },
+      {
+        "en": "viewing,",
+        "gloss": ""
+      },
+      {
+        "en": "complete",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "紀錄表正式全名"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 5,
+    "answers": [
+      "Appendix 1 Log Sheet",
+      "appendix 1 log sheet"
+    ]
+  },
+  {
+    "unit": "EAL036-UE-2026-11-17",
+    "zh": "授權觀看要喺 SCR 邊部電腦進行。",
+    "words": [
+      {
+        "en": "Authorised",
+        "gloss": ""
+      },
+      {
+        "en": "viewing",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": "conducted",
+        "gloss": ""
+      },
+      {
+        "en": "on",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "指定電腦"
+      },
+      {
+        "en": "in",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "SCR.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 7,
+    "answers": [
+      "designated computer",
+      "Designated computer"
+    ]
   }
 ];
