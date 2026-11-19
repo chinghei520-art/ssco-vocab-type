@@ -3114,5 +3114,297 @@
       "designated computer",
       "Designated computer"
     ]
+  },
+  {
+    "unit": "SMO-2C6.8",
+    "zh": "批准前要掌握工程時限。",
+    "words": [
+      {
+        "en": "Before",
+        "gloss": ""
+      },
+      {
+        "en": "approving,",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "SC",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "understand",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "location,",
+        "gloss": ""
+      },
+      {
+        "en": "nature",
+        "gloss": ""
+      },
+      {
+        "en": "of",
+        "gloss": ""
+      },
+      {
+        "en": "work,",
+        "gloss": ""
+      },
+      {
+        "en": "protection",
+        "gloss": ""
+      },
+      {
+        "en": "arrangement,",
+        "gloss": ""
+      },
+      {
+        "en": "and",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "工程時限"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 15,
+    "answers": [
+      "time frame",
+      "Time frame"
+    ]
+  },
+  {
+    "unit": "SMO-2C6.8",
+    "zh": "只在絕對有需要時先批准暫停。",
+    "words": [
+      {
+        "en": "Suspension",
+        "gloss": ""
+      },
+      {
+        "en": "of",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "fire",
+        "gloss": ""
+      },
+      {
+        "en": "link",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "group",
+        "gloss": ""
+      },
+      {
+        "en": "isolation",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": "approved",
+        "gloss": ""
+      },
+      {
+        "en": "only",
+        "gloss": ""
+      },
+      {
+        "en": "when",
+        "gloss": ""
+      },
+      {
+        "en": "it",
+        "gloss": ""
+      },
+      {
+        "en": "is",
+        "gloss": ""
+      },
+      {
+        "en": "absolutely",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "絕對有需要"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 16,
+    "answers": [
+      "necessary",
+      "Necessary"
+    ]
+  },
+  {
+    "unit": "SMO-2C6.8",
+    "zh": "滿 4 小時嘅暫停要被質疑。",
+    "words": [
+      {
+        "en": "Any",
+        "gloss": ""
+      },
+      {
+        "en": "prolonged",
+        "gloss": ""
+      },
+      {
+        "en": "suspension",
+        "gloss": ""
+      },
+      {
+        "en": "of",
+        "gloss": ""
+      },
+      {
+        "en": "4",
+        "gloss": ""
+      },
+      {
+        "en": "hours",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "longer",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "被質疑"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 10,
+    "answers": [
+      "challenged",
+      "Challenged"
+    ]
+  },
+  {
+    "unit": "DailyLOG-UE-2026-11-19",
+    "zh": "導致（過去式）。",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": "passenger",
+        "gloss": ""
+      },
+      {
+        "en": "stated",
+        "gloss": ""
+      },
+      {
+        "en": "that",
+        "gloss": ""
+      },
+      {
+        "en": "she",
+        "gloss": ""
+      },
+      {
+        "en": "was",
+        "gloss": ""
+      },
+      {
+        "en": "carrying",
+        "gloss": ""
+      },
+      {
+        "en": "bulky",
+        "gloss": ""
+      },
+      {
+        "en": "luggage,",
+        "gloss": ""
+      },
+      {
+        "en": "which",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "導致（過去式）"
+      },
+      {
+        "en": "her",
+        "gloss": ""
+      },
+      {
+        "en": "to",
+        "gloss": ""
+      },
+      {
+        "en": "lose",
+        "gloss": ""
+      },
+      {
+        "en": "balance.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 10,
+    "answers": [
+      "caused",
+      "Caused"
+    ]
   }
 ]
