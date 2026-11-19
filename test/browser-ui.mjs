@@ -281,11 +281,11 @@ try {
   await page.locator(".app-ver").waitFor();
   check("version", (await textOf(page.locator(".app-ver"))) === "v2.2");
   check("title", await page.title() === "SSCO Vocab v2.2");
-  check("vocab count", (await textOf(page.locator("#vocabMeta"))).includes("63"));
+  check("vocab count", (await textOf(page.locator("#vocabMeta"))).includes("67"));
   check("local banner", (await textOf(page.locator("#syncBanner"))).includes("未設定雲端"));
   check("account button", (await textOf(page.locator("#btnAccount"))) === "本機", await textOf(page.locator("#btnAccount")));
   const units = await page.evaluate(() => window.SSCO_ITEMS.map((item) => item.unit).filter((unit, i, all) => all.indexOf(unit) === i));
-  check("live units", units.length === 14 && !units.includes("Point Secure (EAL/118)") && !units.includes("EAL022-spell-2026-10-22"));
+  check("live units", units.length === 15 && !units.includes("Point Secure (EAL/118)") && !units.includes("EAL022-spell-2026-10-22"));
   await page.locator("#homeCounts").getByText("新卡", { exact: false }).waitFor();
   check("dashboard due label", (await textOf(page.locator("#homeCounts"))).includes("未到期"));
   check("no unit bar", await page.locator(".unit-bar-wrap").evaluate((el) => getComputedStyle(el).display === "none"));
@@ -413,7 +413,7 @@ try {
   check("import count", (await page.locator("#vocabMeta").innerText()).includes("1"));
   await releaseKeyboard(page);
   await page.locator("#btnResetVocab").click();
-  await page.locator("#vocabMeta").getByText("題庫 63 題").waitFor();
+  await page.locator("#vocabMeta").getByText("題庫 67 題").waitFor();
   check("reset vocab", true);
 
   await page.evaluate(() => {
