@@ -3406,5 +3406,175 @@ window.SSCO_ITEMS = [
       "caused",
       "Caused"
     ]
+  },
+  {
+    "unit": "SMO-2C6.8",
+    "zh": "負責該項工程、並獲認可履行相關安全職責的合資格人士",
+    "words": [
+      {
+        "en": "The",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "合資格人士"
+      },
+      {
+        "en": "of",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "work",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "inform",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "Station",
+        "gloss": ""
+      },
+      {
+        "en": "Controller",
+        "gloss": ""
+      },
+      {
+        "en": "of",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "workplace",
+        "gloss": ""
+      },
+      {
+        "en": "condition",
+        "gloss": ""
+      },
+      {
+        "en": "every",
+        "gloss": ""
+      },
+      {
+        "en": "4",
+        "gloss": ""
+      },
+      {
+        "en": "hours.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 1,
+    "answers": [
+      "Competent Person",
+      "competent person"
+    ]
+  },
+  {
+    "unit": "SMO-2C6.8",
+    "zh": "一段時間——工程完成或暫時停工後的期間",
+    "words": [
+      {
+        "en": "When",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "work",
+        "gloss": ""
+      },
+      {
+        "en": "has",
+        "gloss": ""
+      },
+      {
+        "en": "been",
+        "gloss": ""
+      },
+      {
+        "en": "completed",
+        "gloss": ""
+      },
+      {
+        "en": "or",
+        "gloss": ""
+      },
+      {
+        "en": "temporarily",
+        "gloss": ""
+      },
+      {
+        "en": "ceased",
+        "gloss": ""
+      },
+      {
+        "en": "for",
+        "gloss": ""
+      },
+      {
+        "en": "a",
+        "gloss": ""
+      },
+      {
+        "en": "certain",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "一段時間"
+      },
+      {
+        "en": ",",
+        "gloss": ""
+      },
+      {
+        "en": "the",
+        "gloss": ""
+      },
+      {
+        "en": "fire",
+        "gloss": ""
+      },
+      {
+        "en": "links",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "be",
+        "gloss": ""
+      },
+      {
+        "en": "restored.",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 12,
+    "answers": [
+      "period",
+      "Period"
+    ]
   }
 ];
