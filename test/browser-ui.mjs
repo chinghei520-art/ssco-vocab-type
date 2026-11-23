@@ -281,7 +281,7 @@ try {
   await page.locator(".app-ver").waitFor();
   check("version", (await textOf(page.locator(".app-ver"))) === "v2.2");
   check("title", await page.title() === "SSCO Vocab v2.2");
-  check("vocab count", (await textOf(page.locator("#vocabMeta"))).includes("67"));
+  check("vocab count", (await textOf(page.locator("#vocabMeta"))).includes("69"));
   check("local banner", (await textOf(page.locator("#syncBanner"))).includes("未設定雲端"));
   check("account button", (await textOf(page.locator("#btnAccount"))) === "本機", await textOf(page.locator("#btnAccount")));
   const units = await page.evaluate(() => window.SSCO_ITEMS.map((item) => item.unit).filter((unit, i, all) => all.indexOf(unit) === i));
@@ -413,7 +413,7 @@ try {
   check("import count", (await page.locator("#vocabMeta").innerText()).includes("1"));
   await releaseKeyboard(page);
   await page.locator("#btnResetVocab").click();
-  await page.locator("#vocabMeta").getByText("題庫 67 題").waitFor();
+  await page.locator("#vocabMeta").getByText("題庫 69 題").waitFor();
   check("reset vocab", true);
 
   await page.evaluate(() => {

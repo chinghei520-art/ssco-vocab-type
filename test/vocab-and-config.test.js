@@ -15,7 +15,7 @@ test("bundled vocab.js matches vocab.json and deleted units stay deleted", funct
   const context = { window: {} };
   vm.runInNewContext(js, context);
   assert.deepEqual(JSON.parse(JSON.stringify(context.window.SSCO_ITEMS)), json);
-  assert.equal(json.length, 67);
+  assert.equal(json.length, 69);
   const units = [];
   for (const item of json) {
     if (!units.includes(item.unit)) units.push(item.unit);
