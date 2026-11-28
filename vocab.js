@@ -3576,5 +3576,64 @@ window.SSCO_ITEMS = [
       "period",
       "Period"
     ]
+  },
+  {
+    "unit": "EAL101-UE-2026-11-28",
+    "zh": "阻擋（唔係 abstraction）",
+    "words": [
+      {
+        "en": "Station",
+        "gloss": ""
+      },
+      {
+        "en": "staff",
+        "gloss": ""
+      },
+      {
+        "en": "shall",
+        "gloss": ""
+      },
+      {
+        "en": "check",
+        "gloss": ""
+      },
+      {
+        "en": "on",
+        "gloss": ""
+      },
+      {
+        "en": "site",
+        "gloss": ""
+      },
+      {
+        "en": "if",
+        "gloss": ""
+      },
+      {
+        "en": "there",
+        "gloss": ""
+      },
+      {
+        "en": "is",
+        "gloss": ""
+      },
+      {
+        "en": "any",
+        "gloss": ""
+      },
+      {
+        "en": null,
+        "gloss": "物件阻擋（例如車門）"
+      },
+      {
+        "en": ".",
+        "gloss": ""
+      }
+    ],
+    "blankIndex": 10,
+    "answers": [
+      "obstruction",
+      "Obstruction"
+    ]
   }
 ];
