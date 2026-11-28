@@ -65,10 +65,10 @@ test.before(async function () {
   assert.equal(fsrs.definition.model.name, "fsrs-6");
 });
 
-test("69 vocab cards have distinct stable ids and keep their units", function () {
-  assert.equal(vocab.length, 69);
+test("70 vocab cards have distinct stable ids and keep their units", function () {
+  assert.equal(vocab.length, 70);
   const ids = vocab.map((item) => sched.cardId(item));
-  assert.equal(new Set(ids).size, 69);
+  assert.equal(new Set(ids).size, 70);
   assert.equal(sched.cardId(vocab[0]), sched.cardId(Object.assign({}, vocab[0])));
   assert.notEqual(sched.cardId(vocab[0]), sched.cardId(vocab[1]));
 });
